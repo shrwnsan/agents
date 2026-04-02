@@ -1,12 +1,31 @@
 # agents
 
-Skills, tools, and configurations for AI agent containers.
+Personal hub for AI agent skills, prompts, and configurations.
 
 ## Skills
 
 Skills are self-contained packages with a `SKILL.md` instruction file and optional scripts/binaries. They are loaded by agents that support the `~/.agents/skills/` convention.
 
-### here-now (hardened)
+### Synced from [vibekit-claude-plugins](https://github.com/shrwnsan/vibekit-claude-plugins)
+
+Automatically synced via GitHub Actions when updated in the marketplace repo.
+
+- **crafting-commits** — Conventional commit message drafting with collaborative attribution
+- **handoff-context** — Context engineering for session handoffs across AI tools
+- **systematic-debugging** — Systematic debugging methodology to prevent thrashing
+- **meta-searching** — Enhanced web search with multi-service fallback architecture
+
+### Synced from upstream repos
+
+Manually synced via [sync-upstream](.github/workflows/sync-upstream.yml) workflow. Sources configured in [.upstream-skills.yml](.upstream-skills.yml).
+
+- **frontend-design** — Production-grade frontend interfaces. From [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official).
+
+### Native skills
+
+Authored and maintained directly in this repo.
+
+#### here-now (hardened)
 
 Publish files to live URLs via [here.now](https://here.now). Security-hardened fork of [heredotnow/skill](https://github.com/heredotnow/skill).
 
@@ -18,10 +37,6 @@ Publish files to live URLs via [here.now](https://here.now). Security-hardened f
 - Credential file permission warnings
 
 Based on upstream v1.11.0. See [skills/here-now/SKILL.md](skills/here-now/SKILL.md) for full docs.
-
-### frontend-design
-
-Guides creation of distinctive, production-grade frontend interfaces that avoid generic AI aesthetics. From [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official).
 
 ## Usage
 
