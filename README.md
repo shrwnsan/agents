@@ -1,10 +1,10 @@
 # agents
 
-Skills, tools, and configurations for NanoClaw agent containers.
+Skills, tools, and configurations for AI agent containers.
 
 ## Skills
 
-Container skills installed into `~/.claude/skills/` at runtime. Synced from `container/skills/` in the NanoClaw project.
+Skills are self-contained packages with a `SKILL.md` instruction file and optional scripts/binaries. They are loaded by agents that support the `~/.agents/skills/` convention.
 
 ### here-now (hardened)
 
@@ -25,13 +25,15 @@ Guides creation of distinctive, production-grade frontend interfaces that avoid 
 
 ## Usage
 
-These skills are installed into NanoClaw via `container/skills/`. The NanoClaw container-runner syncs them into each group's `~/.claude/skills/` at startup.
+Copy skills into your agent's skills directory:
 
 ```bash
-# Clone into NanoClaw's container skills
-cd nanoclaw/container/skills
 git clone https://github.com/shrwnsan/agents.git /tmp/agents
-cp -r /tmp/agents/skills/here-now ./here-now
-cp -r /tmp/agents/skills/frontend-design ./frontend-design
-rm -rf /tmp/agents
+cp -r /tmp/agents/skills/* ~/.agents/skills/
 ```
+
+For platform-specific setup guides, see [docs/](docs/).
+
+## License
+
+Apache 2.0
