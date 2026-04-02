@@ -1,0 +1,122 @@
+name: Sync Upstream Skills
+
+on:
+  workflow_dispatch:
+    inputs:
+      skill:
+        description: 'Skill name to sync (from .upstream-skills.yml), or "all"'
+        required: false
+        default: 'all'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout agents hub
+        uses: actions/checkout@v4
+
+      - name: Read config and sync
+        env:
+          SKILL_FILTER: ${{ inputs.skill }}
+        run: |
+          if [ ! -f .upstream-skills.yml ]; then
+            echo "::error::.upstream-skills.yml not found"
+            exit 1
+          fi
+
+          # Parse skills from config using python (available on ubuntu-latest)
+          python3 << 'PYEOF'
+          import yaml, json, subprocess, os, shutil
+
+          skill_filter = os.environ.get("SKILL_FILTER", "all")
+          with open(".upstream-skills.yml") as f:
+              config = yaml.safe_load(f)
+
+          skills = config.get("skills", [])
+          if skill_filter != "all":
+              skills = [s for s in skills if s["name"] == skill_filter]
+              if not skills:
+                  print(f"::error::Skill '{skill_filter}' not found in .upstream-skills.yml")
+                  exit(1)
+
+          for skill in skills:
+              name = skill["name"]
+              repo = skill["repo"]
+              path = skill["path"]
+              print(f"\n{'='*40}")
+              print(f"Syncing: {name} from {repo} ({path})")
+              print(f"{'='*40}")
+
+              # Clone upstream (sparse)
+              upstream_dir = f"/tmp/upstream-{name}"
+              if os.path.exists(upstream_dir):
+                  shutil.rmtree(upstream_dir)
+              subprocess.run([
+                  "git", "clone", "--depth", "1", "--sparse",
+                  f"https://github.com/{repo}.git", upstream_dir
+              ], check=True, capture_output=True)
+              subprocess.run(
+                  ["git", "sparse-checkout", "set", path],
+                  cwd=upstream_dir, check=True, capture_output=True
+              )
+
+              src = os.path.join(upstream_dir, path)
+              dst = os.path.join("skills", name)
+
+              if not os.path.isdir(src):
+                  print(f"::error::Path '{path}' not found in {repo}")
+                  shutil.rmtree(upstream_dir)
+                  exit(1)
+
+              # Show files to sync
+              for root, dirs, files in os.walk(src):
+                  for file in files:
+                      rel = os.path.relpath(os.path.join(root, file), src)
+                      print(f"  {rel}")
+
+              # Diff if skill already exists
+              if os.path.isdir(dst):
+                  result = subprocess.run(
+                      ["diff", "-ru", dst, src],
+                      capture_output=True, text=True
+                  )
+                  if result.stdout:
+                      print(f"\n=== Diff ({name}) ===")
+                      print(result.stdout)
+                  else:
+                      print(f"\nNo changes for {name}")
+                  shutil.rmtree(upstream_dir)
+                  continue
+
+              # Copy
+              if os.path.isdir(dst):
+                  shutil.rmtree(dst)
+              shutil.copytree(src, dst)
+              shutil.rmtree(upstream_dir)
+              print(f"Updated: {name}")
+          PYEOF
+
+      - name: Commit and push
+        run: |
+          git add -A
+          if ! git diff --cached --quiet; then
+            CHANGED=$(git diff --cached --stat | tail -1)
+            SKILLS=$(git diff --cached --name-only | grep '^skills/' | cut -d/ -f2 | sort -u | paste -sd, -)
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "sync: update upstream skills
+
+            Skills: ${SKILLS}
+            ${CHANGED}"
+            git push
+            echo "Pushed: ${SKILLS}"
+          else
+            echo "All skills already up to date"
+          fi
+
+      - name: Cleanup
+        if: always()
+        run: rm -rf /tmp/upstream-*

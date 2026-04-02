@@ -1,0 +1,12 @@
+# Upstream skill sources for sync-upstream workflow
+#
+# Each entry maps a remote repo + path to a local skill directory.
+# To add a new upstream skill, add an entry here and re-run the workflow.
+#
+# Sync history is tracked via git log:
+#   git log -- skills/<name>/
+
+skills:
+  - name: frontend-design
+    repo: anthropics/claude-plugins-official
+    path: plugins/frontend-design
