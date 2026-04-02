@@ -339,7 +339,7 @@ Returns the Tempo wallet address for the authenticated user.
 
 ```json
 {
-  "address": "0xe66178B0D33807f5efb2069f9252eD02c13bbF59"
+  "address": "0xYOUR_WALLET_ADDRESS"
 }
 ```
 
@@ -353,7 +353,7 @@ Set, change, or remove the wallet address.
 
 ```json
 {
-  "address": "0xe66178B0D33807f5efb2069f9252eD02c13bbF59"
+  "address": "0xYOUR_WALLET_ADDRESS"
 }
 ```
 
@@ -364,7 +364,7 @@ Set `address` to `null` to remove. Must be a valid `0x`-prefixed 40-character he
 ```json
 {
   "success": true,
-  "address": "0xe66178B0D33807f5efb2069f9252eD02c13bbF59"
+  "address": "0xYOUR_WALLET_ADDRESS"
 }
 ```
 
@@ -577,7 +577,7 @@ All fields optional. `ogImagePath` must reference an image file within the curre
   "success": true,
   "effectiveForRootDocument": true,
   "priced": true,
-  "recipientAddress": "0xe66178B0D33807f5efb2069f9252eD02c13bbF59"
+  "recipientAddress": "0xYOUR_WALLET_ADDRESS"
 }
 ```
 
