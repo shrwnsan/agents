@@ -2,7 +2,7 @@
 
 Claws are personal AI assistants that run agents ideally in isolated containers. It was popularize by the rise of OpenClaw (aka. Clawdis, Moltbot, and Clawdbot).
 
-For our guide, we will share examples from [NanoClaw](https://github.com/qwibitai/nanoclaw)).
+For our guide, we will share examples from [NanoClaw](https://github.com/qwibitai/nanoclaw).
 
 Ideally each group (chat) gets its own container with a synced `~/.claude/skills/` directory.
 
@@ -22,9 +22,11 @@ rm -rf /tmp/agents
 
 Each Claw group has isolated session data. The here-now skill reads credentials from `~/.herenow/credentials` inside the container, which maps to `data/sessions/{group}/.herenow/credentials` on the host.
 
-**Groups are isolated** — an agent in one group cannot read another group's here-now credentials. Each group needs its own credentials set up independently.
+**Groups are isolated** — credentials never enter containers; they're served at runtime via NanoClaw's credential proxy, which scopes keys to the requesting container. Each group needs its own credentials set up independently.
 
-Recommended: store the API key in Bitwarden and have the agent write it to `~/.herenow/credentials` at runtime.
+> This isolation depends on the credential proxy's integrity. Keep the proxy up to date and avoid exposing its port beyond the Docker bridge.
+
+Recommended: store the API key in [Bitwarden Secrets Manager](https://bitwarden.com/products/secrets-manager/)/[OneCLI](https://www.onecli.sh/) and have the agent write it to `~/.herenow/credentials` at runtime. Since credentials never persist in the container, this ensures the key is only ever in memory during the session.
 
 ## Security Hardening Context
 
