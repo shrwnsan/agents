@@ -13,7 +13,7 @@ Automatically synced via GitHub Actions when updated in the marketplace repo.
 - **crafting-commits** — Conventional commit message drafting with collaborative attribution
 - **handoff-context** — Context engineering for session handoffs across AI tools
 - **systematic-debugging** — Systematic debugging methodology to prevent thrashing
-- **meta-searching** — Enhanced web search with multi-service fallback architecture
+- **meta-search** — Error recovery for web search failures (403, 429, 422) with bundled Tavily/Jina scripts
 
 ### Synced from upstream repos
 
