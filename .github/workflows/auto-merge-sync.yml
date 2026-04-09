@@ -1,0 +1,31 @@
+name: Auto-merge sync PRs
+
+on:
+  pull_request:
+    types: [opened]
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    if: |
+      startsWith(github.head_ref, 'sync/vibekit-skills-') &&
+      (github.actor == 'shrwnsan' || github.actor == 'nano-ade')
+    steps:
+      - name: Approve and merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          echo "Auto-merging sync PR #${PR_NUMBER}"
+          echo "  Branch: ${{ github.head_ref }}"
+          echo "  Author: ${{ github.actor }}"
+
+          gh pr merge "$PR_NUMBER" \
+            --repo "${{ github.repository }}" \
+            --squash \
+            --delete-branch
