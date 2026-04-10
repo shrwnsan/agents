@@ -18,7 +18,26 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor == 'shrwnsan'
     steps:
+      - name: Check all changed files are docs-only
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          CHANGED=$(gh pr diff "$PR_NUMBER" --name-only)
+          NON_DOCS=$(echo "$CHANGED" | grep -vE '^(README\.md|LICENSE|docs/)' || true)
+
+          if [ -n "$NON_DOCS" ]; then
+            echo "Non-docs files detected, skipping auto-merge:"
+            echo "$NON_DOCS"
+            echo "changed_only_docs=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "changed_only_docs=true" >> "$GITHUB_OUTPUT"
+
       - name: Approve and merge
+        if: steps.check.outputs.changed_only_docs == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
