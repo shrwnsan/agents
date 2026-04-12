@@ -21,6 +21,7 @@ Manually synced via [sync-upstream](.github/workflows/sync-upstream.yml) workflo
 
 - **frontend-design** — Production-grade frontend interfaces. From [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official).
 - **marp-slide** — Marp presentation slides with 7 themes. From [softaworks/agent-toolkit](https://github.com/softaworks/agent-toolkit).
+- **caveman** — Ultra-compressed communication mode (~75% token reduction). From [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman).
 
 ### Native skills
 
