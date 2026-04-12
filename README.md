@@ -20,6 +20,7 @@ Automatically synced via GitHub Actions when updated in the marketplace repo.
 Manually synced via [sync-upstream](.github/workflows/sync-upstream.yml) workflow. Sources configured in [.upstream.yml](.upstream.yml).
 
 - **frontend-design** — Production-grade frontend interfaces. From [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official).
+- **marp-slide** — Marp presentation slides with 7 themes. From [softaworks/agent-toolkit](https://github.com/softaworks/agent-toolkit).
 
 ### Native skills
 

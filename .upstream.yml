@@ -11,6 +11,9 @@ skills:
   - name: frontend-design
     repo: anthropics/claude-plugins-official
     path: plugins/frontend-design
+  - name: marp-slide
+    repo: softaworks/agent-toolkit
+    path: skills/marp-slide
 
 recipes:
   - name: twilio-voice-brain
