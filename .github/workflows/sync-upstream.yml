@@ -37,6 +37,7 @@ jobs:
 
           python3 << 'PYEOF'
           import yaml, json, subprocess, os, shutil
+          from datetime import datetime, timezone
 
           target_filter = os.environ.get("TARGET_FILTER", "all")
 
@@ -57,6 +58,18 @@ jobs:
               if not entries:
                   print(f"::error::Target '{target_filter}' not found in {config_file}")
                   exit(1)
+
+          # Load existing manifest
+          manifest_path = ".upstream-manifest.json"
+          manifest = {}
+          if os.path.isfile(manifest_path):
+              with open(manifest_path) as f:
+                  manifest = json.load(f)
+          if "entries" not in manifest:
+              manifest["entries"] = {}
+
+          has_changes = False
+          now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
           for entry in entries:
               name = entry["name"]
@@ -86,6 +99,24 @@ jobs:
                   cwd=upstream_dir, check=True, capture_output=True
               )
 
+              # Capture upstream commit hash
+              result = subprocess.run(
+                  ["git", "rev-parse", "HEAD"],
+                  cwd=upstream_dir, check=True, capture_output=True, text=True
+              )
+              commit_sha = result.stdout.strip()
+
+              # Update manifest entry (always, even if no file changes)
+              record = {
+                  "kind": entry_kind,
+                  "repo": repo,
+                  "path": path,
+                  "commit": commit_sha,
+                  "synced_at": now,
+              }
+              if single_file:
+                  record["file"] = single_file
+
               # If single_file is set, resolve src to that specific file
               if single_file:
                   src = os.path.join(upstream_dir, path, single_file)
@@ -94,7 +125,7 @@ jobs:
 
               if single_file:
                   if not os.path.isfile(src):
-                      print(f"::error::File '{path}' not found in {repo}")
+                      print(f"::error::File '{path}/{single_file}' not found in {repo}")
                       shutil.rmtree(upstream_dir)
                       exit(1)
 
@@ -112,12 +143,14 @@ jobs:
                           print(result.stdout)
                       else:
                           print(f"\nNo changes for {name}")
-                      shutil.rmtree(upstream_dir)
-                      continue
+                          manifest["entries"][name] = record
+                          shutil.rmtree(upstream_dir)
+                          continue
 
                   # Copy single file
                   shutil.copy2(src, dst)
                   print(f"Updated: {name} -> {dst}")
+                  has_changes = True
               else:
                   if not os.path.isdir(src):
                       print(f"::error::Path '{path}' not found in {repo}")
@@ -141,16 +174,26 @@ jobs:
                           print(result.stdout)
                       else:
                           print(f"\nNo changes for {name}")
-                      shutil.rmtree(upstream_dir)
-                      continue
+                          manifest["entries"][name] = record
+                          shutil.rmtree(upstream_dir)
+                          continue
 
                   # Copy directory
                   if os.path.isdir(dst):
                       shutil.rmtree(dst)
                   shutil.copytree(src, dst)
                   print(f"Updated: {name} -> {dst}")
+                  has_changes = True
 
+              manifest["entries"][name] = record
               shutil.rmtree(upstream_dir)
+
+          # Write manifest
+          manifest["generated_at"] = now
+          with open(manifest_path, "w") as f:
+              json.dump(manifest, f, indent=2)
+              f.write("\n")
+          print(f"\nManifest: {len(manifest['entries'])} entries, changes={has_changes}")
           PYEOF
 
       - name: Commit and push
