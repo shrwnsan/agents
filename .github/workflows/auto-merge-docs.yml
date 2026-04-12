@@ -18,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor == 'shrwnsan'
     steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
       - name: Check all changed files are docs-only
         id: check
         env:

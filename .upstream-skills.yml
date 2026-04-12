@@ -1,10 +1,5 @@
-# Upstream skill sources for sync-upstream workflow
-#
-# Each entry maps a remote repo + path to a local skill directory.
-# To add a new upstream skill, add an entry here and re-run the workflow.
-#
-# Sync history is tracked via git log:
-#   git log -- skills/<name>/
+# DEPRECATED: Use .upstream.yml instead (supports both skills and recipes)
+# This file is kept for backward compatibility and will be removed in a future version.
 
 skills:
   - name: frontend-design

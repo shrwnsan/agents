@@ -17,9 +17,10 @@ Automatically synced via GitHub Actions when updated in the marketplace repo.
 
 ### Synced from upstream repos
 
-Manually synced via [sync-upstream](.github/workflows/sync-upstream.yml) workflow. Sources configured in [.upstream-skills.yml](.upstream-skills.yml).
+Manually synced via [sync-upstream](.github/workflows/sync-upstream.yml) workflow. Sources configured in [.upstream.yml](.upstream.yml).
 
 - **frontend-design** — Production-grade frontend interfaces. From [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official).
+- **marp-slide** — Marp presentation slides with 7 themes. From [softaworks/agent-toolkit](https://github.com/softaworks/agent-toolkit).
 
 ### Native skills
 
@@ -48,6 +49,16 @@ cp -r /tmp/agents/skills/* ~/.agents/skills/
 ```
 
 For platform-specific setup guides, see [docs/](docs/).
+
+## Recipes
+
+Recipes are upstream integration playbooks from the *Claw ecosystem (OpenClaw, Hermes). Unlike skills, they are **not** agent-executable capabilities — they are reference material documenting production-hardened integration architectures and patterns.
+
+Tracked read-only from upstream repos. See [docs/research-001-claw-recipes-vs-skills.md](docs/research-001-claw-recipes-vs-skills.md) for context on the recipe vs skill distinction.
+
+### Synced from upstream repos
+
+- **twilio-voice-brain** — Phone-to-knowledge pipeline via Twilio + voice AI. From [garrytan/gbrain](https://github.com/garrytan/gbrain).
 
 ## License
 
