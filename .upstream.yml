@@ -16,7 +16,7 @@ skills:
     path: skills/marp-slide
 
 recipes:
-  - name: twilio-voice-brain
+  - name: twilio-voice-brain.md
     repo: garrytan/gbrain
-    path: recipes/twilio-voice-brain.md
-    type: file
+    path: recipes
+    file: twilio-voice-brain.md
