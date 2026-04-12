@@ -14,6 +14,9 @@ skills:
   - name: marp-slide
     repo: softaworks/agent-toolkit
     path: skills/marp-slide
+  - name: caveman
+    repo: JuliusBrussee/caveman
+    path: skills/caveman
 
 recipes:
   - name: twilio-voice-brain.md
