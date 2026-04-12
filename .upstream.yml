@@ -1,0 +1,19 @@
+# Upstream sources for sync-upstream workflow
+#
+# Maps remote repos + paths to local directories.
+# To add a new source, add an entry here and re-run the workflow.
+#
+# Sync history is tracked via git log:
+#   git log -- skills/<name>/
+#   git log -- recipes/<name>/
+
+skills:
+  - name: frontend-design
+    repo: anthropics/claude-plugins-official
+    path: plugins/frontend-design
+
+recipes:
+  - name: twilio-voice-brain
+    repo: garrytan/gbrain
+    path: recipes/twilio-voice-brain.md
+    type: file
