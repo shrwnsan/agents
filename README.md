@@ -33,14 +33,13 @@ Authored and maintained directly in this repo.
 
 Publish files to live URLs via [here.now](https://here.now). Security-hardened fork of [heredotnow/skill](https://github.com/heredotnow/skill).
 
+- Python-native publisher — zero external dependencies (no curl, no jq)
 - Blocks dangerous file types (`.env`, `.pem`, `.key`, etc.)
 - Warns on suspicious types (`.bak`, `.tmp`, no extension)
 - Pre-upload secret scanning (API keys, tokens, private keys)
-- No `file` command dependency — unknown types blocked instead of detected
-- Bundled `jq` binary — no system dependency
 - Credential file permission warnings
 
-Based on upstream v1.11.0. See [skills/here-now/SKILL.md](skills/here-now/SKILL.md) for full docs.
+Based on upstream v2.0.0. See [skills/here-now/SKILL.md](skills/here-now/SKILL.md) for full docs.
 
 ## Usage
 
