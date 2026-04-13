@@ -18,32 +18,70 @@ metadata:
     - pre_upload_secret_scanning
     - credential_file_permissions
     - unknown_mime_type_blocking
-    - bundled_jq_binary
 ---
 
 # here.now
 
-**Skill version: 1.11.0 (NanoClaw hardened)**
+**Skill version: 2.0.0 (NanoClaw hardened, Python-native)**
 
 Create a live URL from any file or folder. Static hosting with optional proxy routes for calling external APIs server-side.
 
-> **NanoClaw hardening**: This fork adds security layers on top of the upstream [heredotnow/skill](https://github.com/heredotnow/skill) publish script. Dangerous file types are blocked, suspicious types require opt-in, and pre-upload scanning detects leaked credentials.
+> **NanoClaw hardening**: This fork adds security layers on top of the upstream [heredotnow/skill](https://github.com/heredotnow/skill) publish script. Dangerous file types are blocked, suspicious types require opt-in, and pre-upload scanning detects leaked credentials. All security layers are implemented in `publish.py` using only Python stdlib -- no external dependencies.
 
 ## Requirements
 
-- Required binaries: `curl`, `jq` (bundled in `bin/jq`)
+- Python 3.6+ (required)
 - Optional environment variable: `$HERENOW_API_KEY`
 - Optional credentials file: `~/.herenow/credentials`
 
-**Note:** The `file` command is intentionally NOT required. Unknown file types are blocked by default rather than detected via libmagic.
+**Note:** `publish.sh` is kept for environments with bash+curl+jq, but **agents should always use `publish.py`**. It has zero external dependencies and works in every environment.
+
+**Important:** When running via Hermes, use `terminal()` not `execute_code()`. The execute_code sandbox does NOT inherit shell env vars (e.g. `$HERENOW_API_KEY`).
 
 ## Create a site
 
 ```bash
-./scripts/publish.sh {file-or-dir}
+python3 "${SKILL_DIR}/scripts/publish.py" {file-or-dir}
 ```
 
-Outputs the live URL (e.g. `https://bright-canvas-a7k2.here.now/`).
+The script handles the full workflow: create → upload → finalize → state save. All security layers run automatically.
+
+### Common options
+
+```bash
+# Update existing site
+python3 "${SKILL_DIR}/scripts/publish.py" {file-or-dir} --slug {slug}
+
+# With title and description
+python3 "${SKILL_DIR}/scripts/publish.py" {file-or-dir} --title "My Site" --description "A demo"
+
+# Include suspicious/unknown file types
+python3 "${SKILL_DIR}/scripts/publish.py" {file-or-dir} --allow-suspicious --allow-unknown
+
+# Password protect (authenticated only)
+python3 "${SKILL_DIR}/scripts/publish.py" {file-or-dir} --password "secret123"
+
+# SPA routing
+python3 "${SKILL_DIR}/scripts/publish.py" {file-or-dir} --spa
+```
+
+### All options
+
+| Flag | Description |
+|------|-------------|
+| `--slug {slug}` | Update an existing site instead of creating |
+| `--claim-token {token}` | Override claim token for anonymous updates |
+| `--title {text}` | Viewer title (non-HTML sites) |
+| `--description {text}` | Viewer description |
+| `--ttl {seconds}` | Set expiry (authenticated only) |
+| `--client {name}` | Agent name for attribution (e.g. hermes, claude-code) |
+| `--base-url {url}` | API base URL (default: `https://here.now`) |
+| `--allow-nonherenow-base-url` | Allow sending auth to non-default base URL |
+| `--allow-suspicious` | Include files with suspicious extensions |
+| `--allow-unknown` | Include files with unknown extensions |
+| `--api-key {key}` | API key override (prefer credentials file) |
+| `--spa` | Enable SPA routing (serve index.html for unknown paths) |
+| `--password {text}` | Password protect the site (authenticated only) |
 
 ## Security Layers
 
@@ -88,31 +126,6 @@ Binary files (images, fonts, media) and files over 1MB are skipped during scanni
 
 If `~/.herenow/credentials` exists and is world-readable, a warning is printed recommending `chmod 600`.
 
-## Script options
-
-| Flag | Description |
-|------|-------------|
-| `--slug {slug}` | Update an existing site instead of creating |
-| `--claim-token {token}` | Override claim token for anonymous updates |
-| `--title {text}` | Viewer title (non-HTML sites) |
-| `--description {text}` | Viewer description |
-| `--ttl {seconds}` | Set expiry (authenticated only) |
-| `--client {name}` | Agent name for attribution |
-| `--base-url {url}` | API base URL (default: `https://here.now`) |
-| `--allow-nonherenow-base-url` | Allow sending auth to non-default base URL |
-| `--allow-suspicious` | Include files with suspicious extensions |
-| `--allow-unknown` | Include files with unknown extensions |
-| `--api-key {key}` | API key override (prefer credentials file) |
-| `--spa` | Enable SPA routing (serve index.html for unknown paths) |
-
-## Update an existing site
-
-```bash
-./scripts/publish.sh {file-or-dir} --slug {slug}
-```
-
-The script auto-loads the `claimToken` from `.herenow/state.json` when updating anonymous sites.
-
 ## API key storage
 
 The publish script reads the API key from these sources (first match wins):
@@ -130,7 +143,7 @@ mkdir -p ~/.herenow && echo "{API_KEY}" > ~/.herenow/credentials && chmod 600 ~/
 
 ## What to tell the user
 
-- Always share the `siteUrl` from the current script run.
+- Always share the `siteUrl` from the current script run (printed to stdout).
 - When `publish_result.auth_mode=authenticated`: tell the user the site is **permanent**.
 - When `publish_result.auth_mode=anonymous`: tell the user the site **expires in 24 hours** and share the claim URL if available.
 
@@ -144,29 +157,38 @@ mkdir -p ~/.herenow && echo "{API_KEY}" > ~/.herenow/credentials && chmod 600 ~/
 
 ## Beyond the script
 
-For delete, metadata patch (password protection, payment gating), duplicate, claim, list, custom domains, handles, links, proxy routes, and SPA routing, see [references/REFERENCE.md](references/REFERENCE.md).
+For delete, metadata patch, duplicate, claim, list, custom domains, handles, links, and proxy routes, see [references/REFERENCE.md](references/REFERENCE.md).
 
 ## Pre-publish sanitization (agent guidelines)
 
 Before publishing, verify content is safe for public consumption:
 
-1. **No secrets** — API keys, tokens, passwords, private keys, connection strings
-2. **No PII** — real names, personal emails, phone numbers, addresses
-3. **No internal references** — server hostnames, internal URLs, project codenames
-4. **No absolute paths** — sanitize `/workspace/group` → `./`
+1. **No secrets** -- API keys, tokens, passwords, private keys, connection strings
+2. **No PII** -- real names, personal emails, phone numbers, addresses
+3. **No internal references** -- server hostnames, internal URLs, project codenames
+4. **No absolute paths** -- sanitize `/workspace/group` → `./`
+
+## publish.sh (legacy, for humans)
+
+`scripts/publish.sh` is preserved for environments with bash+curl+jq. Agents should not use it -- pre-req checks waste tokens and it doesn't work in restricted environments.
+
+```bash
+./scripts/publish.sh {file-or-dir}
+```
 
 ## Differences from upstream
 
 | Change | Upstream | NanoClaw fork |
 |--------|----------|---------------|
 | `file` command | Required (MIME detection fallback) | Not required (unknown types blocked) |
-| `jq` | System dependency | Bundled in `bin/jq` |
+| `jq` | System dependency | Not required (publish.py uses Python stdlib) |
+| `curl` | Required | Not required (publish.py uses urllib) |
 | Dangerous extensions | Not checked | Always blocked |
 | Suspicious extensions | Not checked | Blocked unless `--allow-suspicious` |
 | Secret scanning | Not present | Pre-upload content scanning |
 | Credential permissions | Not checked | Warns if world-readable |
 | `.herenow/` in publish target | Included | Skipped |
-| Client attribution | `here-now-publish-sh` | `nanoclaw/publish-sh` |
+| Client attribution | `here-now-publish-sh` | `nanoclaw/publish-py` |
 
 ## Upstream
 
