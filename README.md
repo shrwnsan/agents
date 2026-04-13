@@ -27,6 +27,8 @@ Manually synced via [sync-upstream](.github/workflows/sync-upstream.yml) workflo
 
 Authored and maintained directly in this repo.
 
+- **review-pr** — Comprehensive peer code review with severity-tagged findings, CI status, and structured feedback
+
 #### here-now (hardened)
 
 Publish files to live URLs via [here.now](https://here.now). Security-hardened fork of [heredotnow/skill](https://github.com/heredotnow/skill).
