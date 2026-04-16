@@ -1,6 +1,6 @@
 # meta-search
 
-Recovers web content when Claude Code's built-in search fails. Part of the [search-plus](../../README.md) plugin.
+Recovers web content when Claude Code's built-in search fails. Part of the [search-plus](https://github.com/shrwnsan/vibekit-claude-plugins/tree/main/plugins/search-plus) plugin.
 
 ## Environment variables
 
