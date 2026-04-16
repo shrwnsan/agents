@@ -14,7 +14,7 @@ Skills are self-contained packages with a `SKILL.md` instruction file and option
 | [crafting-commits](skills/crafting-commits/) | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins) | Conventional commit message drafting with collaborative attribution |
 | [handoff-context](skills/handoff-context/) | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins) | Context engineering for session handoffs across AI tools |
 | [systematic-debugging](skills/systematic-debugging/) | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins) | Systematic debugging methodology to prevent thrashing |
-| [meta-search](skills/meta-search/) | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins) | Error recovery for web search failures (403, 429, 422) with bundled Tavily/Jina scripts |
+| [meta-search](skills/meta-search/) | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins/tree/main/plugins/search-plus) | Error recovery for web search failures (403, 429, 422) with bundled Tavily/Jina scripts |
 | [frontend-design](skills/frontend-design/) | [anthropics](https://github.com/anthropics/claude-plugins-official) | Production-grade frontend interfaces |
 | [marp-slide](skills/marp-slide/) | [softaworks](https://github.com/softaworks/agent-toolkit) | Marp presentation slides with 7 themes |
 | [caveman](skills/caveman/) | [JuliusBrussee](https://github.com/JuliusBrussee/caveman) | Ultra-compressed communication mode (~75% token reduction) |
