@@ -9,17 +9,17 @@ Personal hub for AI agent skills, prompts, and configurations.
 
 Skills are self-contained packages with a `SKILL.md` instruction file and optional scripts/binaries. They are loaded by agents that support the `~/.agents/skills/` convention.
 
-| Skill | Source | Description |
-|-------|--------|-------------|
-| [crafting-commits](skills/crafting-commits/) | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins) | Conventional commit message drafting with collaborative attribution |
-| [handoff-context](skills/handoff-context/) | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins) | Context engineering for session handoffs across AI tools |
-| [systematic-debugging](skills/systematic-debugging/) | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins) | Systematic debugging methodology to prevent thrashing |
-| [meta-search](skills/meta-search/) | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins) | Error recovery for web search failures (403, 429, 422) with bundled Tavily/Jina scripts |
-| [frontend-design](skills/frontend-design/) | [anthropics](https://github.com/anthropics/claude-plugins-official) | Production-grade frontend interfaces |
-| [marp-slide](skills/marp-slide/) | [softaworks](https://github.com/softaworks/agent-toolkit) | Marp presentation slides with 7 themes |
-| [caveman](skills/caveman/) | [JuliusBrussee](https://github.com/JuliusBrussee/caveman) | Ultra-compressed communication mode (~75% token reduction) |
-| [review-pr](skills/review-pr/) | native | Comprehensive peer code review with severity-tagged findings |
-| [here-now](skills/here-now/) | native | Security-hardened file publishing via [here.now](https://here.now). Based on [heredotnow/skill](https://github.com/heredotnow/skill) v2.0.0 |
+| Skill | Category | Source | Description |
+|-------|----------|--------|-------------|
+| [crafting-commits](skills/crafting-commits/) | Development | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins) | Conventional commit message drafting with collaborative attribution |
+| [review-pr](skills/review-pr/) | Development | native | Comprehensive peer code review with severity-tagged findings |
+| [systematic-debugging](skills/systematic-debugging/) | Development | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins) | Systematic debugging methodology to prevent thrashing |
+| [frontend-design](skills/frontend-design/) | Design & Content | [anthropics](https://github.com/anthropics/claude-plugins-official) | Production-grade frontend interfaces |
+| [marp-slide](skills/marp-slide/) | Design & Content | [softaworks](https://github.com/softaworks/agent-toolkit) | Marp presentation slides with 7 themes |
+| [handoff-context](skills/handoff-context/) | Workflow | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins) | Context engineering for session handoffs across AI tools |
+| [meta-search](skills/meta-search/) | Workflow | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins/tree/main/plugins/search-plus) | Error recovery for web search failures (403, 429, 422) with bundled Tavily/Jina scripts |
+| [caveman](skills/caveman/) | Workflow | [JuliusBrussee](https://github.com/JuliusBrussee/caveman) | Ultra-compressed communication mode (~75% token reduction) |
+| [here-now](skills/here-now/) | Workflow | native | Security-hardened file publishing via [here.now](https://here.now). Based on [heredotnow/skill](https://github.com/heredotnow/skill) v2.0.0 |
 
 Skills from vibekit are automatically synced via GitHub Actions. Upstream skills are synced manually via [sync-upstream](.github/workflows/sync-upstream.yml) — sources in [.upstream.yml](.upstream.yml).
 
