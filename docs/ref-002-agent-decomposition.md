@@ -82,35 +82,35 @@ Save as `.claude-fragments/module-agent-decomposition.md` and add to CLAUDE.md:
 
 Append to CLAUDE.local.md:
 
-```diff
-+## Agent Decomposition (x.com/trq212 — Claude Code dynamic workflows)
-+
-+### Failure mode checklist
-+Before closing a session, check:
-+- **Laziness:** Did I skip steps or declare done after partial work? Re-scan the task scope.
-+- **Self-preferential bias:** Did I verify my own output? If self-reviewing, treat conclusions as provisional.
-+- **Goal drift:** Are all original requirements still intact? After compaction, edge-case constraints ("don't do X") are the first to slip.
-+
-+### Narrow goal principle
-+Every subagent gets ONE specific goal, not a multi-step mission. "Check if scrape ran" not "fix the tracker." Narrow scope makes completion unambiguous.
-+
-+### Decomposition threshold
-+Handle inline if task finishes in <3 tool calls. Consider decomposition when work is parallel, needs independent review, or spans 5+ sequential steps.
-+
-+### Pattern vocabulary
-+- **Fan-out/fan-in** — parallel subtasks, merge results
-+- **Adversarial pair** — independent agent reviews/critiques output
-+- **Tournament** — rank options via head-to-head comparison
-+- **Pipeline** — sequential stages, each agent handles one phase
-+
-+### Persistence over conversation
-+If a task needs to survive across sessions, write state to a workspace file immediately — not "later." After compaction, conversation-only requirements degrade.
-+
-+### Pre-decomposition checklist
-+Before spawning agents: Does this need parallel work? Independent review? Is token cost justified? If all answers are "maybe," do it inline.
-+
-+### Isolation
-+Use `isolation: "worktree"` on Agent tool when subagents modify files — prevents conflicts and makes cleanup trivial.
+```md
+## Agent Decomposition (x.com/trq212 — Claude Code dynamic workflows)
+
+### Failure mode checklist
+Before closing a session, check:
+- **Laziness:** Did I skip steps or declare done after partial work? Re-scan the task scope.
+- **Self-preferential bias:** Did I verify my own output? If self-reviewing, treat conclusions as provisional.
+- **Goal drift:** Are all original requirements still intact? After compaction, edge-case constraints ("don't do X") are the first to slip.
+
+### Narrow goal principle
+Every subagent gets ONE specific goal, not a multi-step mission. "Check if scrape ran" not "fix the tracker." Narrow scope makes completion unambiguous.
+
+### Decomposition threshold
+Handle inline if task finishes in <3 tool calls. Consider decomposition when work is parallel, needs independent review, or spans 5+ sequential steps.
+
+### Pattern vocabulary
+- **Fan-out/fan-in** — parallel subtasks, merge results
+- **Adversarial pair** — independent agent reviews/critiques output
+- **Tournament** — rank options via head-to-head comparison
+- **Pipeline** — sequential stages, each agent handles one phase
+
+### Persistence over conversation
+If a task needs to survive across sessions, write state to a workspace file immediately — not "later." After compaction, conversation-only requirements degrade.
+
+### Pre-decomposition checklist
+Before spawning agents: Does this need parallel work? Independent review? Is token cost justified? If all answers are "maybe," do it inline.
+
+### Isolation
+Use `isolation: "worktree"` on Agent tool when subagents modify files — prevents conflicts and makes cleanup trivial.
 ```
 
 Not recommended for MEMORY.md — that's for recall data, not behavioral instructions.
