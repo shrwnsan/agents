@@ -114,3 +114,7 @@ Use `isolation: "worktree"` on Agent tool when subagents modify files — preven
 ```
 
 Not recommended for MEMORY.md — that's for recall data, not behavioral instructions.
+
+## See Also
+
+[ref-003-agent-pr-review-framework.md](ref-003-agent-pr-review-framework.md) — Maps these decomposition patterns against the reactive PR review checklist from GitHub Engineering. Shows how each proactive pattern suppresses specific review red flags.
