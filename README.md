@@ -1,7 +1,7 @@
 # agents
 
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-![Skills: 10](https://img.shields.io/badge/skills-10-green.svg)
+![Skills: 13](https://img.shields.io/badge/skills-13-green.svg)
 
 Personal hub for AI agent skills, prompts, and configurations.
 
@@ -21,6 +21,10 @@ Skills are self-contained packages with a `SKILL.md` instruction file and option
 | [docker-agent-browser](skills/docker-agent-browser/) | Development | native | Agent-browser + Chromium setup in Docker containers (ARM64 workaround) |
 | [caveman](skills/caveman/) | Workflow | [JuliusBrussee](https://github.com/JuliusBrussee/caveman) | Ultra-compressed communication mode (~75% token reduction) |
 | [here-now](skills/here-now/) | Workflow | native | Security-hardened file publishing via [here.now](https://here.now). Based on [heredotnow/skill](https://github.com/heredotnow/skill) v2.0.0 |
+| [tokens/crypto-market-rank](skills/tokens/crypto-market-rank/) | Crypto | [binance-skills-hub](https://github.com/binance/binance-skills-hub) | Trending tokens, smart-money inflow, meme rank, social hype |
+| [tokens/query-token-audit](skills/tokens/query-token-audit/) | Crypto | [binance-skills-hub](https://github.com/binance/binance-skills-hub) | Honeypot/rug-pull detection, contract security audit |
+| [tokens/query-token-info](skills/tokens/query-token-info/) | Crypto | [binance-skills-hub](https://github.com/binance/binance-skills-hub) | Token metadata, price, klines, social links |
+| [tokens/trading-signal](skills/tokens/trading-signal/) | Crypto | [binance-skills-hub](https://github.com/binance/binance-skills-hub) | Smart-money buy/sell signals with trigger prices |
 
 Skills from vibekit are automatically synced via GitHub Actions. Upstream skills are synced manually via [sync-upstream](.github/workflows/sync-upstream.yml) — sources in [.upstream.yml](.upstream.yml).
 
