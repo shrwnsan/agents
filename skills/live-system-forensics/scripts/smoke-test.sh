@@ -73,7 +73,7 @@ run P5-01 any     "ls -la ~/.antigravity/extensions/ 2>/dev/null || true  # abse
 run P5-02 any     "ls -la ~/.codeium/windsurf/ 2>/dev/null || true  # absent dir = clean"
 run P5-03 any     "ls -la ~/.cursor/ 2>/dev/null || true  # absent dir = clean"
 run P5-04 any     "ls -la ~/.continue/ 2>/dev/null || true  # absent dir = clean"
-run P5-05 macos   "ls -la ~/Library/Application\ Support/Google/Chrome/NativeMessagingHosts/"
+run P5-05 macos   "ls -la ~/Library/Application\ Support/Google/Chrome/NativeMessagingHosts/ 2>/dev/null || true  # absent dir = clean"
 run P5-06 macos   "ls -la ~/Library/Application\ Support/Mozilla/NativeMessagingHosts/ 2>/dev/null || true  # absent dir = clean"
 run P5-07 any     "pgrep -fl mcp || true"
 

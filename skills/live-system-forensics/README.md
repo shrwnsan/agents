@@ -18,15 +18,17 @@ Perform live forensic analysis on Unix systems to detect malware and suspicious 
 
 ## Installation
 
-Copy (or symlink) this directory into your Claude Code skills directory:
+Copy (or symlink) this directory into your agent's skills directory. The repo follows the `~/.agents/skills/` convention; Claude Code users should symlink or copy to `~/.claude/skills/`:
 
 ```bash
 git clone https://github.com/shrwnsan/agents.git
-mkdir -p ~/.claude/skills
-cp -R agents/skills/live-system-forensics ~/.claude/skills/
+mkdir -p ~/.agents/skills
+cp -R agents/skills/live-system-forensics ~/.agents/skills/
+# Claude Code users:
+ln -s ~/.agents/skills ~/.claude/skills   # one-time symlink, or: cp -R ~/.agents/skills/* ~/.claude/skills/
 ```
 
-Restart Claude Code to pick up the new skill. `reference/ALLOWLIST.md` ships as an empty template — populate it from your first clean audit, and keep your real entries private.
+Restart your agent to pick up the new skill. `reference/ALLOWLIST.md` ships as an empty template — populate it from your first clean audit, and keep your real entries private.
 
 ## Usage
 

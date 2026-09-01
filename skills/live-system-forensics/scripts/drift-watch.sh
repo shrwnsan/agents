@@ -17,15 +17,15 @@ PREV=$(/bin/ls -t "${STATE_DIR}"/watch-snapshot-*.txt 2>/dev/null | /usr/bin/sed
 
 snapshot() {
   # macOS persistence surfaces; missing commands/dirs are skipped silently
-  command -v launchctl >/dev/null 2>&1 && launchctl list 2>/dev/null | awk 'NR>1 && $3 !~ /^com\.apple/ {print "launchd\t" $3}' | sort -u
-  [ -d "${HOME}/Library/LaunchAgents" ] && /bin/ls "${HOME}/Library/LaunchAgents" 2>/dev/null | sed 's/^/useragent\t/'
-  [ -d "/Library/LaunchAgents" ] && /bin/ls "/Library/LaunchAgents" 2>/dev/null | sed 's/^/sysagent\t/'
-  [ -d "/Library/LaunchDaemons" ] && /bin/ls "/Library/LaunchDaemons" 2>/dev/null | sed 's/^/daemon\t/'
+  command -v launchctl >/dev/null 2>&1 && launchctl list 2>/dev/null | /usr/bin/awk 'NR>1 && $3 !~ /^com\.apple/ {print "launchd\t" $3}' | /usr/bin/sort -u
+  [ -d "${HOME}/Library/LaunchAgents" ] && /bin/ls "${HOME}/Library/LaunchAgents" 2>/dev/null | /usr/bin/sed 's/^/useragent\t/'
+  [ -d "/Library/LaunchAgents" ] && /bin/ls "/Library/LaunchAgents" 2>/dev/null | /usr/bin/sed 's/^/sysagent\t/'
+  [ -d "/Library/LaunchDaemons" ] && /bin/ls "/Library/LaunchDaemons" 2>/dev/null | /usr/bin/sed 's/^/daemon\t/'
   # Linux persistence surfaces
-  [ -d "${HOME}/.config/autostart" ] && /bin/ls "${HOME}/.config/autostart" 2>/dev/null | sed 's/^/autostart\t/'
-  [ -d "${HOME}/.config/systemd/user" ] && /bin/ls "${HOME}/.config/systemd/user" 2>/dev/null | sed 's/^/usersystemd\t/'
-  crontab -l 2>/dev/null | sed 's/^/cron\t/'
-  [ -f "/etc/ld.so.preload" ] && { echo "ldso-preload\tPRESENT"; cat /etc/ld.so.preload 2>/dev/null | sed 's/^/ldso-preload-line\t/'; }
+  [ -d "${HOME}/.config/autostart" ] && /bin/ls "${HOME}/.config/autostart" 2>/dev/null | /usr/bin/sed 's/^/autostart\t/'
+  [ -d "${HOME}/.config/systemd/user" ] && /bin/ls "${HOME}/.config/systemd/user" 2>/dev/null | /usr/bin/sed 's/^/usersystemd\t/'
+  crontab -l 2>/dev/null | /usr/bin/sed 's/^/cron\t/'
+  [ -f "/etc/ld.so.preload" ] && { echo "ldso-preload\tPRESENT"; /bin/cat /etc/ld.so.preload 2>/dev/null | /usr/bin/sed 's/^/ldso-preload-line\t/'; }
 }
 
 snapshot | sort > "${SNAP}"
