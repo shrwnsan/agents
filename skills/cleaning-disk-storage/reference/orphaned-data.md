@@ -100,6 +100,7 @@ Before removing orphaned data:
 3. **Check system extensions**: `ls /Library/LaunchDaemons/*{name}*`
 4. **Check Homebrew**: `brew list --cask | grep {name}`
 5. **Verify app removal**: `mdfind "kMDItemFSName == '{name}*.app'"`
+6. **Check backup-file staleness**: `.bak`-style files (e.g. `data.db.bak`) never regenerate — compare mtimes against the primary file and confirm individually before proposing deletion
 
 ## Typical Sizes
 
