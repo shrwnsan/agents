@@ -1,7 +1,8 @@
 # agents
 
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-![Skills: 15](https://img.shields.io/badge/skills-15-green.svg)
+![Skills: 16](https://img.shields.io/badge/skills-16-green.svg)
+[![skills.sh](https://skills.sh/b/shrwnsan/agents)](https://skills.sh/shrwnsan/agents)
 
 Personal hub for AI agent skills, prompts, and configurations.
 
@@ -22,6 +23,7 @@ Skills are self-contained packages with a `SKILL.md` instruction file and option
 | [caveman](skills/caveman/) | Workflow | [JuliusBrussee](https://github.com/JuliusBrussee/caveman) | Ultra-compressed communication mode (~75% token reduction) |
 | [here-now](skills/here-now/) | Workflow | native | Security-hardened file publishing via [here.now](https://here.now). Based on [heredotnow/skill](https://github.com/heredotnow/skill) v2.0.0 |
 | [live-system-forensics](skills/live-system-forensics/) | Security | native | Live malware/persistence forensics: process, network, and startup audits with per-host allowlist baselines and drift detection |
+| [cleaning-disk-storage](skills/cleaning-disk-storage/) | System | native | Disk cleanup: scan temp/cache/build artifacts, tiered confirmations, trash-only removal, regeneration guidance |
 | [tokens/crypto-market-rank](skills/tokens/crypto-market-rank/) | Crypto | [binance-skills-hub](https://github.com/binance/binance-skills-hub) | Trending tokens, smart-money inflow, meme rank, social hype |
 | [tokens/query-token-audit](skills/tokens/query-token-audit/) | Crypto | [binance-skills-hub](https://github.com/binance/binance-skills-hub) | Honeypot/rug-pull detection, contract security audit |
 | [tokens/query-token-info](skills/tokens/query-token-info/) | Crypto | [binance-skills-hub](https://github.com/binance/binance-skills-hub) | Token metadata, price, klines, social links |
