@@ -68,6 +68,7 @@
       "source": "reference/build.md",
       "targets": [
         { "match": "dist/, build/, out/", "kind": "dirname", "platform": "all", "cleanability": "safe", "regen": "project build command (npm run build, make, cmake ...)" },
+        { "match": ".build/", "kind": "dirname", "platform": "macos", "cleanability": "safe", "regen": "swift build", "notes": "SwiftPM build directory; often 100 MB-1 GB for Swift packages" },
         { "match": "*.o, *.a, *.so, *.test", "kind": "glob", "platform": "all", "cleanability": "safe", "regen": "recompile / go test" },
         { "match": "*.prof", "kind": "glob", "platform": "all", "cleanability": "inspect", "notes": "Profiling data may be needed for analysis" }
       ]

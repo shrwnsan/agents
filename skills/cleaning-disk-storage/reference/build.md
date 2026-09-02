@@ -9,6 +9,7 @@ General build artifacts and compiled outputs across various languages and build 
 | `dist/` | Distribution build output | Safe |
 | `build/` | General build output | Safe |
 | `out/` | Output directory | Safe |
+| `.build/` | SwiftPM build output (macOS) | Safe |
 
 ## Object Files
 
