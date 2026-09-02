@@ -38,7 +38,7 @@ bash skills/cleaning-disk-storage/scripts/scan.sh ~/Developer   # scoped (fast)
 | Thresholds | Items > 100 MB reported individually; > 1 GB warned explicitly |
 | Tiered cleanability | `safe` / `inspect` / `old-only` / `never` per target |
 | Native cleanup first | `brew cleanup`, `uv cache clean`, `go clean -cache` before blunt directory trashing |
-| regeneration notes | Every cleanup summary includes how to restore what was removed |
+| Regeneration notes | Every cleanup summary includes how to restore what was removed |
 
 ## Structure
 
