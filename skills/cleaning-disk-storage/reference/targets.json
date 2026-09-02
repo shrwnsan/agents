@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0.0",
+  "updated": "2026-09-03",
+  "name": "cleaning-disk-storage target catalog",
+  "description": "Machine-readable catalog of cleanup targets. This file is the data source of truth; the markdown files in reference/ are the human-readable views of the same knowledge. Extraction enables tooling (scanners, desktop apps) to consume the same rules agents use.",
+  "deletion_policy": "Move to Trash via the platform trash mechanism. Never rm -rf / Remove-Item for bulk cleanup. Ask before deleting anything over 1 GB.",
+  "cleanability": {
+    "safe": "Regenerates automatically; no data loss",
+    "inspect": "May contain useful data (state, sessions, configs); confirm scope with user before deleting",
+    "old-only": "Safe for files older than ~7 days; keep recent",
+    "never": "Critical data or configuration; do not delete"
+  },
+  "categories": [
+    {
+      "id": "common-files",
+      "name": "Common temporary files",
+      "source": "reference/common.md",
+      "targets": [
+        { "match": ".DS_Store", "kind": "glob", "platform": "all", "cleanability": "safe", "regen": "macOS recreates automatically", "notes": "Typically 1-50 MB total" },
+        { "match": "Thumbs.db", "kind": "glob", "platform": "windows", "cleanability": "safe", "regen": "Explorer recreates automatically" },
+        { "match": "*.swp, *.swo, *~", "kind": "glob", "platform": "all", "cleanability": "safe", "regen": "Editor recreates; check for active vim sessions first" },
+        { "match": ".bash_history, .zsh_history", "kind": "glob", "platform": "all", "cleanability": "inspect", "regen": "none — history is not recoverable" }
+      ]
+    },
+    {
+      "id": "crash-logs",
+      "name": "Crash logs and diagnostic reports",
+      "source": "reference/crash-logs.md",
+      "targets": [
+        { "match": "~/Library/Logs/DiagnosticReports/", "kind": "dir", "platform": "macos", "cleanability": "inspect", "regen": "none — generated only on crashes", "notes": ".ips/.crash/.spin files; useful while debugging" },
+        { "match": "/Library/Logs/DiagnosticReports/", "kind": "dir", "platform": "macos", "cleanability": "inspect", "regen": "none", "notes": "System-level; may require sudo" },
+        { "match": "~/.local/state/*/crash/", "kind": "glob", "platform": "all", "cleanability": "safe", "regen": "none", "notes": "App-specific dumps (e.g. Ghostty); already submitted to crash reporters" }
+      ]
+    },
+    {
+      "id": "python",
+      "name": "Python caches and environments",
+      "source": "reference/python.md",
+      "targets": [
+        { "match": "__pycache__/", "kind": "dirname", "platform": "all", "cleanability": "safe", "regen": "automatic on next run", "scan": "find <root> -type d -name __pycache__ -prune" },
+        { "match": ".pytest_cache/, .mypy_cache/, .ruff_cache/, *.egg-info/", "kind": "dirname", "platform": "all", "cleanability": "safe", "regen": "automatic on next tool run" },
+        { "match": ".venv/, venv/", "kind": "dirname", "platform": "all", "cleanability": "inspect", "regen": "python -m venv .venv && pip install -r requirements.txt (or uv sync)", "notes": "100-500 MB each; preserve for active projects" }
+      ]
+    },
+    {
+      "id": "nodejs",
+      "name": "Node.js / JavaScript",
+      "source": "reference/nodejs.md",
+      "targets": [
+        { "match": "node_modules/", "kind": "dirname", "platform": "all", "cleanability": "inspect", "regen": "npm install / yarn install / pnpm install", "notes": "50 MB-2 GB per project; biggest single win in dev trees" },
+        { "match": ".next/, .nuxt/, .turbo/", "kind": "dirname", "platform": "all", "cleanability": "safe", "regen": "npm run build / dev" },
+        { "match": "~/.npm/, ~/.yarn/cache/", "kind": "dir", "platform": "all", "cleanability": "safe", "native_cleanup": "npm cache clean --force", "regen": "re-downloaded on next install" }
+      ]
+    },
+    {
+      "id": "rust",
+      "name": "Rust / Cargo",
+      "source": "reference/rust.md",
+      "targets": [
+        { "match": "target/", "kind": "dirname", "platform": "all", "cleanability": "safe", "regen": "cargo build", "notes": "Validate build markers first (CACHEDIR.TAG, .rustc_info.json, debug/, release/) to protect lookalike source dirs; single largest items observed (10+ GB per Tauri app)" },
+        { "match": "~/.cargo/registry/cache/", "kind": "dir", "platform": "all", "cleanability": "safe", "regen": "re-downloaded on next cargo build" },
+        { "match": "~/.rustup/", "kind": "dir", "platform": "all", "cleanability": "inspect", "notes": "Installed toolchains; deleting forces slow re-download" }
+      ]
+    },
+    {
+      "id": "build-outputs",
+      "name": "Generic build outputs",
+      "source": "reference/build.md",
+      "targets": [
+        { "match": "dist/, build/, out/", "kind": "dirname", "platform": "all", "cleanability": "safe", "regen": "project build command (npm run build, make, cmake ...)" },
+        { "match": "*.o, *.a, *.so, *.test", "kind": "glob", "platform": "all", "cleanability": "safe", "regen": "recompile / go test" },
+        { "match": "*.prof", "kind": "glob", "platform": "all", "cleanability": "inspect", "notes": "Profiling data may be needed for analysis" }
+      ]
+    },
+    {
+      "id": "package-managers",
+      "name": "Package manager caches",
+      "source": "reference/package-managers.md",
+      "targets": [
+        { "match": "~/Library/Caches/Homebrew/", "kind": "dir", "platform": "macos", "cleanability": "safe", "native_cleanup": "brew cleanup --prune=all", "regen": "re-downloaded on next install/upgrade", "notes": "Often the single largest cache on macOS (5-20 GB)" },
+        { "match": "~/Library/Caches/pip/", "kind": "dir", "platform": "all", "cleanability": "safe", "native_cleanup": "pip cache purge" },
+        { "match": "~/Library/Caches/go-build/", "kind": "dir", "platform": "all", "cleanability": "safe", "native_cleanup": "go clean -cache" },
+        { "match": "~/Library/Caches/ms-playwright/, ms-playwright-go/", "kind": "dir", "platform": "all", "cleanability": "safe", "regen": "npx playwright install (~1 GB re-download)" },
+        { "match": "~/Library/Caches/pnpm/, ~/.cache/puppeteer/", "kind": "dir", "platform": "all", "cleanability": "safe", "native_cleanup": "pnpm store prune", "notes": "Puppeteer: keep newest browser build per family, trash older versions" }
+      ]
+    },
+    {
+      "id": "caches",
+      "name": "General cache directories",
+      "source": "reference/cache.md",
+      "targets": [
+        { "match": "~/.cache/", "kind": "dir", "platform": "all", "cleanability": "inspect", "notes": "XDG user cache; inspect per-entry (ML model caches live here)" },
+        { "match": "~/Library/Caches/", "kind": "dir", "platform": "macos", "cleanability": "inspect", "notes": "Per-entry: browser/app caches safe; check entry size with du -sh ... | sort -rh | head" },
+        { "match": "~/.thumbnails/", "kind": "dir", "platform": "linux", "cleanability": "safe", "regen": "file managers regenerate" }
+      ]
+    },
+    {
+      "id": "ai-agents",
+      "name": "AI agent temporary directories",
+      "source": "reference/ai-agents.md",
+      "targets": [
+        { "match": "~/.claude/debug/, ~/.claude/shell-snapshots/, ~/.claude/session-env/", "kind": "dir", "platform": "all", "cleanability": "old-only", "notes": "Delete files older than ~7 days only" },
+        { "match": "~/.gemini/tmp/, .gemini-clipboard/", "kind": "dir", "platform": "all", "cleanability": "safe" },
+        { "match": "~/.gemini/history/", "kind": "dir", "platform": "all", "cleanability": "inspect", "regen": "none — conversation history is unrecoverable" },
+        { "match": "GPUCache/, Code Cache/ (Windsurf, Antigravity, Cursor)", "kind": "glob", "platform": "all", "cleanability": "safe", "regen": "next app launch" },
+        { "match": "~/.continue/index/", "kind": "dir", "platform": "all", "cleanability": "inspect", "regen": "rebuilt on next workspace open (1-5 min)" },
+        { "match": "~/.continue/sessions/, ~/.codex/sessions/, ~/.factory/sessions/", "kind": "dir", "platform": "all", "cleanability": "inspect", "regen": "none — session history unrecoverable" },
+        { "match": "~/.factory/logs/, ~/.factory/temp/, ~/.qwen/tmp/", "kind": "dir", "platform": "all", "cleanability": "safe" },
+        { "match": "~/.qwen/todos/", "kind": "dir", "platform": "all", "cleanability": "inspect", "notes": "Task history" }
+      ]
+    },
+    {
+      "id": "ide",
+      "name": "IDE / Editor",
+      "source": "reference/ide.md",
+      "targets": [
+        { "match": ".vscode/.cache/", "kind": "dirname", "platform": "all", "cleanability": "safe", "regen": "automatic" },
+        { "match": ".idea/", "kind": "dirname", "platform": "all", "cleanability": "inspect", "notes": "Project settings and run configurations; keep for active projects" },
+        { "match": "*.stackdump", "kind": "glob", "platform": "all", "cleanability": "safe" }
+      ]
+    },
+    {
+      "id": "orphaned-data",
+      "name": "Orphaned application data",
+      "source": "reference/orphaned-data.md",
+      "targets": [
+        { "match": "~/Library/Application Support/* (app no longer installed)", "kind": "glob", "platform": "macos", "cleanability": "inspect", "notes": "Verify app removal + no LaunchAgents before trashing; pipx uninstall leaves ML model caches (~3 GB marker-pdf/Surya)" }
+      ]
+    },
+    {
+      "id": "macos-system-data",
+      "name": "macOS system data",
+      "source": "reference/macos-system-data.md",
+      "targets": [
+        { "match": "~/Library/Application Support/com.apple.wallpaper/aerials/", "kind": "dir", "platform": "macos", "cleanability": "safe", "regen": "macOS re-downloads if aerial wallpaper is active (up to 30 GB); switch to static wallpaper first" },
+        { "match": "~/Library/Application Support/com.apple.mobileAssetDesktop/", "kind": "dir", "platform": "macos", "cleanability": "inspect" },
+        { "match": "/Library/Application Support/com.apple.idleassetsd/", "kind": "dir", "platform": "macos", "cleanability": "never" },
+        { "match": "~/Library/Application Support/com.apple.ProtectedCloudStorage/", "kind": "dir", "platform": "macos", "cleanability": "never" }
+      ]
+    },
+    {
+      "id": "app-overlap",
+      "name": "Application overlap",
+      "source": "reference/app-overlap.md",
+      "targets": [
+        { "match": "redundant VPNs / browsers / IDEs", "kind": "analysis", "platform": "macos", "cleanability": "inspect", "notes": "User decision on which app to keep; report full footprint (app + Application Support + Caches) per candidate" }
+      ]
+    }
+  ]
+}
