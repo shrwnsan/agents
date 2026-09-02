@@ -29,7 +29,7 @@ On macOS, the Trash lives on the same volume as the files it holds. Moving items
 Agent harnesses (Claude Code, Codex, etc.) often run commands in a sandbox that denies writes outside an allowlist — typically blocking `~/.cache`, `~/Library/Caches`, `~/Developer` — and may also block process listing (`pgrep`, `ps`).
 
 - Probe before planning: `touch <target>/.cleanup-probe && rm <target>/.cleanup-probe`.
-- If writes are denied, do not retry blindly. Either hand the user a ready-to-run cleanup script (e.g. `! bash /tmp/cleanup.sh` so output lands in the session) or ask them to adjust sandbox settings.
+- If writes are denied, do not retry blindly. Hand the user a ready-to-run cleanup script — but note that in-session execution (e.g. the `!` prefix in Claude Code) **inherits the session sandbox and fails identically**. The reliable routes: the user runs the script in a real terminal, or disables the sandbox for the session so the agent can execute it directly with output landing in the conversation.
 - Per-user instruction policy may also require `trash` over `rm -rf`; both fail identically under sandbox denies since the move target (`~/.Trash`) is also blocked.
 
 ## BSD vs GNU du flag drift
