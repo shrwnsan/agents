@@ -1,0 +1,21 @@
+{
+  "note": "Skills evaluated and rejected. Appended at decision time; rejections only (the README skills table is the acceptance record).",
+  "schema": { "name": "skill name as shipped upstream", "rejected": "YYYY-MM-DD", "source": "url or hub slug", "why": "one line" },
+  "rejected": [
+    { "name": "trade", "rejected": "2026-08-28", "source": "https://github.com/binance/binance-skills-hub", "why": "requires wallet/API key — fails keyless filter" },
+    { "name": "wallet-portfolio", "rejected": "2026-08-28", "source": "https://github.com/binance/binance-skills-hub", "why": "personal portfolio, needs auth" },
+    { "name": "wallet-pnl", "rejected": "2026-08-28", "source": "https://github.com/binance/binance-skills-hub", "why": "personal PnL tracking, needs auth" },
+    { "name": "wallet-transfer", "rejected": "2026-08-28", "source": "https://github.com/binance/binance-skills-hub", "why": "on-chain transfers need wallet signing" },
+    { "name": "dapp-interaction", "rejected": "2026-08-28", "source": "https://github.com/binance/binance-skills-hub", "why": "DeFi protocol calls need wallet" },
+    { "name": "copy-trade", "rejected": "2026-08-28", "source": "https://github.com/binance/binance-skills-hub", "why": "follows smart-money trades, needs wallet" },
+    { "name": "binance-sports-ai-analyzer", "rejected": "2026-08-28", "source": "https://github.com/binance/binance-skills-hub", "why": "World Cup only — too narrow" },
+    { "name": "binance-tokenized-securities-info", "rejected": "2026-08-28", "source": "https://github.com/binance/binance-skills-hub", "why": "Ondo tokenized stocks, tiny market" },
+    { "name": "meme-rush", "rejected": "2026-08-28", "source": "https://github.com/binance/binance-skills-hub", "why": "launchpad feed, low signal-to-noise" },
+    { "name": "fiat", "rejected": "2026-08-28", "source": "https://github.com/binance/binance-skills-hub", "why": "only useful when buying crypto via fiat onramp" },
+    { "name": "query-address-info", "rejected": "2026-08-28", "source": "https://github.com/binance/binance-skills-hub", "why": "single wallet snapshot, shallow without paid tracker" },
+    { "name": "binance-leaderboard", "rejected": "2026-08-28", "source": "https://github.com/binance/binance-skills-hub", "why": "free tier is just rankings lookup" },
+    { "name": "p2p", "rejected": "2026-08-28", "source": "https://github.com/binance/binance-skills-hub", "why": "P2P price comparison — niche use case" },
+    { "name": "binance-trading-signal", "rejected": "2026-08-28", "source": "https://github.com/binance/binance-skills-hub", "why": "duplicate; web3 variant adopted as trading-signal" },
+    { "name": "find-skills", "rejected": "2026-09-08", "source": "https://github.com/vercel-labs/skills", "why": "meta-skill changes consumer-agent behavior repo-wide (auto-install prompts); capability is the npx CLI, usable ad hoc without embedding 5KB in every agent's prompt" }
+  ]
+}

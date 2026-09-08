@@ -50,6 +50,14 @@ cp -r ~/.agents/skills/* ~/.claude/skills/
 
 For platform-specific setup guides, see [docs/](docs/).
 
+## Adding a skill
+
+1. **Vet before merging** — read the SKILL.md and every bundled script end to end, then run once in a real consumer container with its output checked against a known-good expectation.
+2. **Named gap** — not duplicating a skill already in this repo's table; if it supersedes one, the old skill is removed in the same commit.
+3. **Vendor and pin** — third-party skills are copied at a recorded commit (Source column links the ref), never tracked to a moving branch; bumping a pinned ref re-triggers the full vetting pass.
+
+Evaluated-and-rejected candidates go in [rejected-skills.json](rejected-skills.json), appended in the same turn as the decision — rejections only, since the table above is the acceptance record.
+
 ## Recipes
 
 Recipes are upstream integration playbooks from the *Claw ecosystem (OpenClaw, Hermes). Unlike skills, they are **not** agent-executable capabilities — they are reference material documenting production-hardened integration architectures and patterns.
