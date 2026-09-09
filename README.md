@@ -16,7 +16,7 @@ Skills are self-contained packages with a `SKILL.md` instruction file and option
 | [review-pr](skills/review-pr/) | Development | native | Comprehensive peer code review with severity-tagged findings |
 | [systematic-debugging](skills/systematic-debugging/) | Development | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins) | Systematic debugging methodology to prevent thrashing |
 | [frontend-design](skills/frontend-design/) | Design & Content | [anthropics](https://github.com/anthropics/claude-plugins-official) | Production-grade frontend interfaces |
-| [dataviz](skills/dataviz/) | Design & Content | [anthropics](https://github.com/anthropics/claude-code) | Chart & dashboard design method with validated palette and CVD validator (bundled in Claude Code CLI, pinned 2.1.260) |
+| [dataviz](skills/dataviz/) | Design & Content | [claude-code bundled](https://code.claude.com/docs/en/skills) | Chart & dashboard design method with validated palette and CVD validator (proprietary, pinned CLI 2.1.260 — [provenance](skills/dataviz/PROVENANCE.md)) |
 | [marp-slide](skills/marp-slide/) | Design & Content | [softaworks](https://github.com/softaworks/agent-toolkit) | Marp presentation slides with 7 themes |
 | [extract-design-tokens](skills/extract-design-tokens/) | Design & Content | native | Extract design tokens + taste read (dials, audit) from a live site or local HTML |
 | [handoff-context](skills/handoff-context/) | Workflow | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins) | Context engineering for session handoffs across AI tools |
