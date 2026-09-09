@@ -1,0 +1,108 @@
+{
+  "version": "1.0.0",
+  "skill": "cleaning-disk-storage",
+  "cases": [
+    {
+      "id": "trig-001",
+      "prompt": "I'm running out of disk space, help clean up",
+      "expected": "trigger",
+      "reason": "Direct disk-cleanup request; matches the skill description verbatim in intent."
+    },
+    {
+      "id": "trig-002",
+      "prompt": "my disk is almost full",
+      "expected": "trigger",
+      "reason": "Running-out-of-space complaint; core trigger condition."
+    },
+    {
+      "id": "trig-003",
+      "prompt": "free up some storage",
+      "expected": "trigger",
+      "reason": "Explicit storage-reclamation request."
+    },
+    {
+      "id": "trig-004",
+      "prompt": "what's taking up all my space?",
+      "expected": "trigger",
+      "reason": "Disk-usage diagnosis request; scan-and-report is the skill's first workflow step."
+    },
+    {
+      "id": "trig-005",
+      "prompt": "clean the caches on this machine",
+      "expected": "trigger",
+      "reason": "Cache cleanup request; caches are the skill's primary target class."
+    },
+    {
+      "id": "trig-006",
+      "prompt": "is it safe to delete node_modules everywhere?",
+      "expected": "trigger",
+      "reason": "Safety question about a named cleanup target; skill provides cleanability rules for node_modules."
+    },
+    {
+      "id": "trig-007",
+      "prompt": "why is my SSD so full?",
+      "expected": "trigger",
+      "reason": "Storage-pressure diagnosis request; scan-and-report applies."
+    },
+    {
+      "id": "trig-008",
+      "prompt": "system maintenance — reclaim disk space",
+      "expected": "trigger",
+      "reason": "System-maintenance framing with explicit disk-space goal; matches the description."
+    },
+    {
+      "id": "trig-009",
+      "prompt": "the ~/.cache folder is huge, can I just delete the whole thing?",
+      "expected": "trigger",
+      "reason": "Named cache directory with a deletion question; skill owns safe-removal guidance."
+    },
+    {
+      "id": "trig-010",
+      "prompt": "clean up this messy function",
+      "expected": "no-trigger",
+      "reason": "'Clean up' refers to code, not disk; no storage intent."
+    },
+    {
+      "id": "trig-011",
+      "prompt": "refactor my git history",
+      "expected": "no-trigger",
+      "reason": "Repository history rewrite; nothing about disk space or temp files."
+    },
+    {
+      "id": "trig-012",
+      "prompt": "write a disk benchmarking tool",
+      "expected": "no-trigger",
+      "reason": "Mentions 'disk' but asks for new software, not cleanup of existing files."
+    },
+    {
+      "id": "trig-013",
+      "prompt": "clean the gutters this weekend",
+      "expected": "no-trigger",
+      "reason": "Physical-world cleanup; 'clean' keyword alone must not fire the skill."
+    },
+    {
+      "id": "trig-014",
+      "prompt": "optimize this database query, it's slow",
+      "expected": "no-trigger",
+      "reason": "Query performance work; 'space' is absent and no storage intent present."
+    },
+    {
+      "id": "trig-015",
+      "prompt": "what's the capacity of a DVD?",
+      "expected": "no-trigger",
+      "reason": "Storage trivia question; factual answer, not a cleanup request on this machine."
+    },
+    {
+      "id": "trig-016",
+      "prompt": "brew cleanup says it freed space but df didn't change",
+      "expected": "trigger",
+      "reason": "Boundary (deliberate ambiguity): could read as a brew question, but it is a disk-space accounting puzzle the skill's GOTCHAS covers (trash does not free space until emptied); expected to fire."
+    },
+    {
+      "id": "trig-017",
+      "prompt": "help me understand what's safe to delete on my Mac",
+      "expected": "trigger",
+      "reason": "Boundary (deliberate ambiguity): an education-style question with no explicit cleanup command, but cleanability triage is exactly what the skill provides; expected to fire."
+    }
+  ]
+}

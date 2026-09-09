@@ -147,3 +147,6 @@ This skill uses progressive disclosure:
 - **scripts/scan.sh**: Read-only scanner producing a per-category size report
 
 For detailed scanning of specific categories, refer to the appropriate file in the `reference/` directory.
+
+## Evaluations
+Run `evals/trigger-evals.json` and `evals/evals.json` after any change to SKILL.md, frontmatter, or reference/targets.json. See evals/README.md.
