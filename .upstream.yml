@@ -8,6 +8,10 @@
 #   git log -- recipes/<name>/
 
 skills:
+  # dataviz has no git upstream - it ships bundled inside the Claude Code CLI
+  # binary. Refresh manually: invoke the skill on the new CLI version, then copy
+  # from /tmp/claude-1001/bundled-skills/<version>/<hash>/dataviz (references/ +
+  # scripts/); SKILL.md body comes from the runtime loader.
   - name: frontend-design
     repo: anthropics/claude-plugins-official
     path: plugins/frontend-design
