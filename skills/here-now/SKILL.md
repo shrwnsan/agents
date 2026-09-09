@@ -22,7 +22,7 @@ metadata:
 
 # here.now
 
-**Skill version: 2.0.0 (NanoClaw hardened, Python-native)**
+**Skill version: 2.1.0 (NanoClaw hardened, single Python implementation)**
 
 Create a live URL from any file or folder. Static hosting with optional proxy routes for calling external APIs server-side.
 
@@ -34,7 +34,7 @@ Create a live URL from any file or folder. Static hosting with optional proxy ro
 - Optional environment variable: `$HERENOW_API_KEY`
 - Optional credentials file: `~/.herenow/credentials`
 
-**Note:** `publish.sh` is kept for environments with bash+curl+jq, but **agents should always use `publish.py`**. It has zero external dependencies and works in every environment.
+**Note:** `scripts/publish.sh` is a thin wrapper that execs `publish.py` with all flags passed through — a human-friendly entrypoint, not a separate implementation. **Agents should always use `publish.py`** directly. It has zero external dependencies (Python 3 stdlib only) and works in every environment.
 
 **Important:** When running via Hermes, use `terminal()` not `execute_code()`. The execute_code sandbox does NOT inherit shell env vars (e.g. `$HERENOW_API_KEY`).
 
@@ -168,9 +168,9 @@ Before publishing, verify content is safe for public consumption:
 3. **No internal references** -- server hostnames, internal URLs, project codenames
 4. **No absolute paths** -- sanitize `/workspace/group` → `./`
 
-## publish.sh (legacy, for humans)
+## publish.sh (wrapper)
 
-`scripts/publish.sh` is preserved for environments with bash+curl+jq. Agents should not use it -- pre-req checks waste tokens and it doesn't work in restricted environments.
+`scripts/publish.sh` is a thin wrapper that execs `publish.py` with all flags passed through. Kept as a convenience entrypoint for humans; it adds no logic and requires only Python 3.
 
 ```bash
 ./scripts/publish.sh {file-or-dir}
