@@ -62,7 +62,7 @@ else
   die "requires jq (bundled binary not found and jq not on PATH)"
 fi
 
-file command is optional — unknown types get application/octet-stream
+# file command is optional — unknown types get application/octet-stream
 # instead of being detected via libmagic
 for cmd in curl; do
   command -v "$cmd" >/dev/null 2>&1 || die "requires $cmd"
@@ -90,7 +90,7 @@ done
 [[ -n "$TARGET" ]] || usage
 [[ -e "$TARGET" ]] || die "path does not exist: $TARGET"
 
-Warn if credentials file is world-readable
+# Warn if credentials file is world-readable
 if [[ -f "$CREDENTIALS_FILE" ]]; then
   perms=$(stat -c '%a' "$CREDENTIALS_FILE" 2>/dev/null || echo "unknown")
   if [[ "$perms" != "unknown" && "${perms: -1}" -ge 4 ]]; then
@@ -127,7 +127,7 @@ compute_sha256() {
   fi
 }
 
-Dangerous extensions — always blocked
+# Dangerous extensions — always blocked
 is_dangerous_extension() {
   local ext="$1"
   local name="$2"
@@ -146,7 +146,7 @@ is_dangerous_extension() {
   esac
 }
 
-Suspicious extensions — warn unless --allow-suspicious
+# Suspicious extensions — warn unless --allow-suspicious
 is_suspicious_extension() {
   local ext="$1"
   local name="$2"
@@ -205,12 +205,12 @@ guess_content_type() {
     tiff|tif) echo "image/tiff" ;;
     bmp)      echo "image/bmp" ;;
     *)
-      No file command dependency — unknown types get generic MIME
+      # No file command dependency — unknown types get generic MIME
       echo "application/octet-stream" ;;
   esac
 }
 
-Pre-upload secret scanning — check file content for leaked credentials
+# Pre-upload secret scanning — check file content for leaked credentials
 scan_for_secrets() {
   local f="$1"
   local rel="$2"
@@ -309,14 +309,14 @@ elif [[ -d "$TARGET" ]]; then
     ext="${bn##*.}"
     filename="${bn%.*}"
 
-    Block dangerous extensions
+    # Block dangerous extensions
     if is_dangerous_extension "$ext" "$bn"; then
       BLOCKED_FILES+=("$rel")
       warn "BLOCKED: $rel — dangerous file type ($ext)"
       continue
     fi
 
-    Warn on suspicious extensions
+    # Warn on suspicious extensions
     if is_suspicious_extension "$ext" "$bn"; then
       if [[ "$ALLOW_SUSPICIOUS" -ne 1 ]]; then
         BLOCKED_FILES+=("$rel")
@@ -327,7 +327,7 @@ elif [[ -d "$TARGET" ]]; then
       warn "including suspicious file: $rel"
     fi
 
-    Warn on truly unknown extensions
+    # Warn on truly unknown extensions
     if ! is_known_extension "$ext" && ! is_suspicious_extension "$ext" "$bn"; then
       if [[ "$ALLOW_UNKNOWN" -ne 1 ]]; then
         BLOCKED_FILES+=("$rel")
@@ -338,7 +338,7 @@ elif [[ -d "$TARGET" ]]; then
       warn "including unknown-type file: $rel (published as application/octet-stream)"
     fi
 
-    Pre-upload secret scanning
+    # Pre-upload secret scanning
     if ! scan_for_secrets "$f" "$rel"; then
       SECRET_FILES+=("$rel")
     fi
