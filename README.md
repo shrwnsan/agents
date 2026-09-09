@@ -22,7 +22,7 @@ Skills are self-contained packages with a `SKILL.md` instruction file and option
 | [meta-search](skills/meta-search/) | Workflow | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins/tree/main/plugins/search-plus) | Error recovery for web search failures (403, 429, 422) with bundled Tavily/Jina scripts |
 | [docker-agent-browser](skills/docker-agent-browser/) | Development | native | Agent-browser + Chromium setup in Docker containers (ARM64 workaround) |
 | [caveman](skills/caveman/) | Workflow | [JuliusBrussee](https://github.com/JuliusBrussee/caveman) | Ultra-compressed communication mode (~75% token reduction) |
-| [here-now](skills/here-now/) | Workflow | native | Security-hardened file publishing via [here.now](https://here.now). Based on [heredotnow/skill](https://github.com/heredotnow/skill) v2.0.0 |
+| [here-now](skills/here-now/) | Workflow | native | Security-hardened file publishing via [here.now](https://here.now). Based on [heredotnow/skill](https://github.com/heredotnow/skill) v1.11.0 |
 | [live-system-forensics](skills/live-system-forensics/) | Security | native | Live malware/persistence forensics: process, network, and startup audits with per-host allowlist baselines and drift detection |
 | [cleaning-disk-storage](skills/cleaning-disk-storage/) | System | native | Disk cleanup: scan temp/cache/build artifacts, tiered confirmations, trash-only removal, regeneration guidance |
 | [tokens/crypto-market-rank](skills/tokens/crypto-market-rank/) | Crypto | [binance-skills-hub](https://github.com/binance/binance-skills-hub) | Trending tokens, smart-money inflow, meme rank, social hype |

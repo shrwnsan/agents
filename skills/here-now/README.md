@@ -8,7 +8,7 @@ Forked from [heredotnow/skill](https://github.com/heredotnow/skill) with NanoCla
 ```
 SKILL.md                  Agent-facing instructions
 README.md                 This file
-scripts/publish.sh        Bash implementation (requires curl + jq)
+scripts/publish.sh        Thin wrapper — execs publish.py (human entrypoint)
 scripts/publish.py        Python implementation (zero dependencies)
 references/REFERENCE.md   Full API reference
 ```
@@ -19,14 +19,20 @@ references/REFERENCE.md   Full API reference
 
 The upstream `publish.sh` depends on `curl` and `jq`. Different agent environments have different tooling available:
 
-| Environment    | bash | curl | jq  | python3 |
-|---------------|------|------|-----|---------|
-| Hermes (Docker) | yes  | no   | no  | yes     |
-| Claude Code      | yes  | yes  | yes | yes     |
-| Cursor / Codex   | yes  | maybe| maybe| yes    |
-| Bare containers  | yes  | maybe| no  | maybe   |
+| Environment                | bash | curl | jq  | python3 |
+|----------------------------|------|------|-----|---------|
+| Hermes (Docker)            | yes  | no   | no  | yes     |
+| Claude Code (macOS host)   | yes  | yes  | yes | yes (pyenv + /usr/bin) |
+| Bare: debian bookworm-slim | yes  | no   | no  | no      |
+| Bare: ubuntu 24.04         | yes  | no   | no  | no      |
+| Bare: alpine 3.20          | no   | no   | no  | no      |
+| python:3.12-slim           | yes  | no   | no  | yes     |
+| node:22-slim               | yes  | no   | no  | no      |
 
-The only constant across all of them is **Python 3 stdlib**.
+Container rows measured 2026-09-09 via `docker run` (linux/arm64); Hermes row retained
+from upstream docs. Takeaway: no tested environment can run the old bash+curl+jq script
+anywhere publish.py cannot — bare images without python3 also lack curl/jq (and alpine
+lacks bash outright), so a standalone bash implementation has no remaining niche.
 
 ### The solution
 
@@ -57,7 +63,7 @@ Overkill. Adds repo configuration complexity for binaries that are unnecessary i
 The SKILL.md instructs agents to use publish.py as the primary path:
 
 1. `python3 scripts/publish.py <target>` -- works everywhere, zero dependencies
-2. `scripts/publish.sh <target>` -- kept for environments with bash+curl+jq (fast path for humans)
+2. `scripts/publish.sh <target>` -- thin wrapper that execs publish.py (human-friendly entrypoint)
 3. Manual API calls via python3 urllib -- last resort
 
 For agents specifically, the pre-req check for publish.sh costs extra tool calls and tokens. publish.py is the deterministic choice.
@@ -77,6 +83,16 @@ All NanoClaw security hardening:
 Plus all publish.sh features: slug updates, claim tokens, TTL, viewer metadata, state persistence, client attribution.
 
 ## Changelog
+
+### v2.1.0 — Single implementation
+
+- Replace the bash `publish.sh` with a thin wrapper that execs `publish.py`
+- All flags pass through; `--spa` and `--password` now work via the wrapper too
+- Closes a latent defect class: the bash script had carried stripped-comment
+  corruption since `ecdd4e4` (10 bare lines, fatal under `set -euo pipefail`),
+  plus a subshell-scoped upload-error counter and a GNU-only `stat -c` perms check
+- Re-measure the environment matrix against real 2026-09 container images —
+  no environment where the bash path ran lacks python3
 
 ### v2.0.0 — Python-native publisher
 
