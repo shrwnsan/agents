@@ -1,4 +1,4 @@
-# tufte-data-viz
+# dataviz-tufte
 
 An agent skill that applies [Edward Tufte's](https://www.edwardtufte.com/) data visualization principles when generating charts, plots, and graphs. Produces clean, honest, high-data-ink-ratio visualizations across multiple charting libraries — extended with modern screen-first standards for accessibility, responsiveness, and interactivity.
 
@@ -9,7 +9,7 @@ This skill is **opinionated by design**. It will remove your gridlines, delete y
 ## Install
 
 ```bash
-npx skills add caylent/tufte-data-viz
+npx skills add shrwnsan/dataviz-tufte
 ```
 
 ## Before & After
