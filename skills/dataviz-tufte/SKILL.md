@@ -1,5 +1,5 @@
 ---
-name: tufte-data-viz
+name: dataviz-tufte
 description: >-
   Audit and review existing data-visualization code against Tufte
   principles — data-ink ratio, direct labeling, range-frame axes, no
