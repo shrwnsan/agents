@@ -3,15 +3,18 @@
 Ported from the copy bundled inside the Claude Code CLI. There is no git
 upstream: Anthropic ships this skill only inside the binary.
 
-- **Source:** Claude Code CLI **2.1.260**, bundled skill `dataviz`
+- **Source:** Claude Code CLI **2.1.267**, bundled skill `dataviz`
 - **Copyright:** © Anthropic PBC. All rights reserved. This content is Anthropic
   proprietary and is **not** covered by this repository's Apache-2.0 license; it
   is vendored verbatim here for personal use.
 - **Fidelity:** `references/` and `scripts/` are byte-identical to the CLI's
-  runtime extraction (unchanged since CLI 2.1.226). The SKILL.md body is
-  verbatim from the runtime skill loader. The frontmatter (`name` +
-  `description`) is reconstructed from the CLI's skill-registration metadata.
-- **Pin:** CLI 2.1.260, per the vendor-and-pin policy in the README. Refreshing
+  runtime extraction (unchanged since CLI 2.1.226; re-verified byte-for-byte
+  against an independent carve from the 2.1.267 binary, 2026-09-10). The
+  SKILL.md body is verbatim from the runtime skill loader (same cross-check).
+  The frontmatter (`name` + `description`) is reconstructed from the CLI's
+  skill-registration metadata; `description` is the 2.1.267 text (the 2.1.260
+  wording was replaced upstream).
+- **Pin:** CLI 2.1.267, per the vendor-and-pin policy in the README. Refreshing
   to a newer CLI version re-triggers the full vetting pass.
 
 ## Refreshing (manual — no sync-upstream entry)
@@ -36,8 +39,7 @@ upstream: Anthropic ships this skill only inside the binary.
   `claude update` keeps improving the built-in one; delete the directory to
   restore the built-in. (Flip side: under `disableBundledSkills: true`, a
   personal copy is the only way to keep `/dataviz`.)
-- The 1436-char description exceeds the agentskills.io spec's hard 1024-char
-  limit, so strictly spec-conforming clients reject it (claude.ai upload and
-  the Skills API return HTTP 400). Claude Code itself truncates skill
-  descriptions only at 1,536 chars, so it loads untruncated there. The length
-  is upstream-verbatim and deliberate.
+- Description length: the 2.1.260 wording (~1.4k chars) exceeded the
+  agentskills.io spec's hard 1024-char limit, so strictly spec-conforming
+  clients (claude.ai upload, Skills API) returned HTTP 400 for it. The 2.1.267
+  wording (~975 chars) is within the limit and loads untruncated everywhere.
