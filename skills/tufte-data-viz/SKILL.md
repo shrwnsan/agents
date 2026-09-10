@@ -1,16 +1,17 @@
 ---
 name: tufte-data-viz
 description: >-
-  Audit and review existing data-visualization code against Tufte principles —
-  data-ink ratio, direct labeling, range-frame axes, no chartjunk, honest
-  encodings — plus modern screen-first standards (accessibility, responsive,
-  dark mode). Use when reviewing, critiquing, debugging, or QA-ing chart code
-  (Recharts, ECharts, Chart.js, matplotlib, Plotly, seaborn, D3.js, SVG),
-  deciding whether a chart is warranted at all, or improving a chart that
-  looks cluttered, misleading, or hard to read. Generating new charts is the
-  dataviz skill's job; this one reviews and refines. Triggers on: "review
-  chart", "chart critique", "chartjunk", "Tufte", "why does my chart look
-  bad", "improve this chart", "chart review".
+  Audit and review existing data-visualization code against Tufte
+  principles — data-ink ratio, direct labeling, range-frame axes, no
+  chartjunk, honest encodings — plus modern screen-first standards
+  (accessibility, responsive, dark mode). Use when reviewing, critiquing,
+  debugging, or QA-ing chart code (Recharts, ECharts, Chart.js, matplotlib,
+  Plotly, seaborn, D3.js, SVG), deciding whether a chart is warranted at
+  all, or improving a chart that looks cluttered, misleading, or hard to
+  read. Generating new charts is the dataviz skill's job; this one reviews
+  and refines. Triggers on: "review chart", "chart critique", "chartjunk",
+  "Tufte", "why does my chart look bad", "improve this chart",
+  "chart review".
 allowed-tools: Read, Glob, Grep
 ---
 
@@ -185,6 +186,8 @@ For small multiples, sparklines, and slopegraph implementation patterns, see `ru
 | Highlight | `#e41a1c` | `#fc8d62` |
 
 **Categorical (max 4):** `#4e79a7` steel blue · `#f28e2b` tangerine · `#e15759` coral · `#76b7b2` sage
+
+**Validate categorical palettes before shipping** with a CVD-aware color validator — the checks that matter: colors sit in a mid lightness band, chroma above gray, worst adjacent-pair ΔE ≥ 15 including deuteranopia, and ≥3:1 contrast against the chart surface. If any pair fails, substitute a validated palette rather than hand-tuning individual hexes.
 
 Font stacks in rule 10. For full palettes (sequential, diverging), font loading, and old-style figures, see `rules/typography-and-color.md`.
 
