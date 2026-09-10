@@ -1,9 +1,11 @@
 # Provenance — tufte-data-viz
 
 - **Source:** [shrwnsan/tufte-data-viz](https://github.com/shrwnsan/tufte-data-viz)
-  (maintainer's fork) @ `ae7ca0d`, pinned. Upstream:
+  (maintainer's fork) @ `59162ce`, pinned. Upstream:
   [caylent/tufte-data-viz](https://github.com/caylent/tufte-data-viz) — the
-  fork is byte-identical to its parent at the pin.
+  fork was byte-identical to its parent at the original `ae7ca0d` pin; it has
+  since gained one local commit (PR #1): a CVD-aware palette-validation
+  paragraph in SKILL.md's Color quick reference.
 - **License:** MIT. Covered by the `LICENSE` file in this directory; no
   exclusion from this repository's Apache-2.0 needed (unlike proprietary
   vendored skills).
@@ -18,4 +20,5 @@
   match the reviewer role).
 - **Refresh:** sync from the fork, re-apply the description rescope, bump the
   pin. The description rescope should be re-reviewed on refresh — if a future
-  dataviz pin changes generation scope, revisit the split.
+  dataviz pin changes generation scope, revisit the split. (Re-applied as-is
+  at the `59162ce` refresh, 2026-09-10.)
