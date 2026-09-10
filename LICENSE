@@ -202,3 +202,18 @@
    limitations under the License.
 
 Copyright 2026 shrwnsan
+
+--------------------------------------------------------------------------------
+EXCLUSIONS
+
+The Apache License 2.0 above applies to this repository EXCEPT for the following
+vendored third-party content:
+
+  skills/dataviz/
+    Copyright (C) Anthropic PBC. All rights reserved. Vendored verbatim from
+    the Claude Code CLI bundle (pinned per skills/dataviz/PROVENANCE.md, which
+    records source, fidelity and refresh notes). This content is NOT licensed
+    under Apache-2.0 and is NOT covered by the copyright grant above; it is
+    included for personal use only and carries no redistribution rights beyond
+    whatever the applicable Anthropic terms provide.
+--------------------------------------------------------------------------------
