@@ -1,5 +1,6 @@
 ---
 name: live-system-forensics
+license: Apache-2.0
 description: Perform live forensic analysis on Unix systems to detect malware and suspicious activity. Analyzes running processes, network connections, startup persistence (systemd, LaunchAgents, cron), recent files, and IDE extensions. Use when user asks to check for malware, investigate suspicious activity, audit system security, or analyze unknown applications like AI IDEs.
 ---
 

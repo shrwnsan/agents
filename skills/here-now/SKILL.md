@@ -1,5 +1,6 @@
 ---
 name: here-now
+license: Apache-2.0
 description: >
   Publish files and folders to the web instantly. Static hosting for HTML sites,
   images, PDFs, and any file type. Sites can connect to external APIs (LLMs,

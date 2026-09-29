@@ -1,5 +1,6 @@
 ---
 name: cleaning-disk-storage
+license: Apache-2.0
 description: Scan for and safely remove temporary files, cache directories, and build artifacts to free disk space. Use when user asks to clean up disk, free storage, remove temp files, mentions running out of space, or needs system maintenance. Includes detection of AI agent temp directories (.gemini-clipboard, antigravity scratch).
 ---
 
