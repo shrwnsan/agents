@@ -67,7 +67,7 @@ Evaluated-and-rejected candidates go in [rejected-skills.json](rejected-skills.j
 
 ## Global rules
 
-[global/AGENTS.md](global/AGENTS.md) holds the rules every agent follows in every repo: workspace layout, file safety, Git and GitHub conventions, and quality checks. A repo's own AGENTS.md or CLAUDE.md wins on conflict. The rules are personal, so adapt the Workspace section before reusing them.
+[global/AGENTS.md](global/AGENTS.md) holds the rules every agent follows in every repo: workspace layout, file safety, Git and GitHub conventions, and quality checks. A repo's own AGENTS.md or CLAUDE.md wins on conflict. The rules are personal, so adapt the Workspace section before reusing them. For what the file deliberately leaves out and why, see [docs/ref-004-agents-md-consolidation.md](docs/ref-004-agents-md-consolidation.md).
 
 Copy it to `~/.agents/AGENTS.md`, then point each harness's global path at that copy:
 
