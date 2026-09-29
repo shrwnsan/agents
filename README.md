@@ -65,6 +65,30 @@ For platform-specific setup guides, see [docs/](docs/).
 
 Evaluated-and-rejected candidates go in [rejected-skills.json](rejected-skills.json), appended in the same turn as the decision — rejections only, since the table above is the acceptance record.
 
+## Global rules
+
+[global/AGENTS.md](global/AGENTS.md) holds the rules every agent follows in every repo: workspace layout, file safety, Git and GitHub conventions, and quality checks. A repo's own AGENTS.md or CLAUDE.md wins on conflict. The rules are personal, so adapt the Workspace section before reusing them.
+
+Keep one copy. `~/.agents/AGENTS.md` links to this file, and each harness's global path links to `~/.agents/AGENTS.md`:
+
+| Harness | Global instructions |
+|---------|---------------------|
+| Droid | `~/.agents/AGENTS.md` (read directly) |
+| Claude Code | `~/.claude/CLAUDE.md` containing `@~/.agents/AGENTS.md` (an import, not a link) |
+| Codex | `~/.codex/AGENTS.md` |
+| OpenCode | `~/.config/opencode/AGENTS.md` |
+| Pi | `~/.pi/agent/AGENTS.md` |
+| Amp | `~/.config/AGENTS.md` |
+
+```bash
+mkdir -p ~/.agents
+# Relative target, resolved from ~/.agents/, so no username is baked into the link
+ln -s ../Developer/personal/agents/global/AGENTS.md ~/.agents/AGENTS.md
+ln -s ~/.agents/AGENTS.md ~/.codex/AGENTS.md   # same for the OpenCode, Pi, and Amp paths
+```
+
+Don't link Gemini CLI or Qwen Code. Their memory tools append to their global files, which would write into the shared rules.
+
 ## Recipes
 
 Recipes are upstream integration playbooks from the *Claw ecosystem (OpenClaw, Hermes). Unlike skills, they are **not** agent-executable capabilities — they are reference material documenting production-hardened integration architectures and patterns.
