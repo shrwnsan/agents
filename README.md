@@ -69,7 +69,7 @@ Evaluated-and-rejected candidates go in [rejected-skills.json](rejected-skills.j
 
 [global/AGENTS.md](global/AGENTS.md) holds the rules every agent follows in every repo: workspace layout, file safety, Git and GitHub conventions, and quality checks. A repo's own AGENTS.md or CLAUDE.md wins on conflict. The rules are personal, so adapt the Workspace section before reusing them.
 
-Keep one copy. `~/.agents/AGENTS.md` links to this file, and each harness's global path links to `~/.agents/AGENTS.md`:
+Copy it to `~/.agents/AGENTS.md`, then point each harness's global path at that copy:
 
 | Harness | Global instructions |
 |---------|---------------------|
@@ -82,10 +82,11 @@ Keep one copy. `~/.agents/AGENTS.md` links to this file, and each harness's glob
 
 ```bash
 mkdir -p ~/.agents
-# Relative target, resolved from ~/.agents/, so no username is baked into the link
-ln -s ../Developer/personal/agents/global/AGENTS.md ~/.agents/AGENTS.md
-ln -s ~/.agents/AGENTS.md ~/.codex/AGENTS.md   # same for the OpenCode, Pi, and Amp paths
+cp /tmp/agents/global/AGENTS.md ~/.agents/AGENTS.md   # clone from Usage above
+ln -s ~/.agents/AGENTS.md ~/.codex/AGENTS.md          # same for the OpenCode, Pi, and Amp paths
 ```
+
+`global/AGENTS.md` is the published copy. The live one is `~/.agents/AGENTS.md`: edit that, then copy it here to publish.
 
 Don't link Gemini CLI or Qwen Code. Their memory tools append to their global files, which would write into the shared rules.
 
