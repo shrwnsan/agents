@@ -1,5 +1,6 @@
 ---
 name: auditing-agent-harnesses
+license: Apache-2.0
 description: Use when a new agent harness or AI-coding desktop app is installed on macOS, an already-audited harness ships a version update, a public claim about such an app needs verification, or a periodic harness privacy sweep is due. Applies to Electron/asar, Tauri, and thin-shell-plus-sidecar apps (ZCode, Conductor, Antigravity, Windsurf-class IDEs).
 ---
 

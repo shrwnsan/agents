@@ -1,5 +1,6 @@
 ---
 name: docker-agent-browser
+license: Apache-2.0
 description: Ensures agent-browser is installed and functional in Docker container environments. Use when agent_browser tool fails with "agent-browser is required but was not found on PATH", or when setting up browser automation in a new container session.
 allowed-tools: Bash(npm:*), Bash(sudo:apt:*), Bash(sudo:dnf:*), Bash(which:*), Bash(uname:*), Bash(ls:*), Bash(find:*)
 ---
