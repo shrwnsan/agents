@@ -1,5 +1,6 @@
 ---
 name: vercel-domain-search
+license: Apache-2.0
 description: >
   Batch-check domain availability and registration pricing via Vercel's
   authless registrar API. Feed it a candidate list (file or args) and get a

@@ -1,5 +1,6 @@
 ---
 name: review-pr
+license: Apache-2.0
 description: >
   Perform comprehensive peer code review of GitHub pull requests. Analyzes code
   quality, security, performance, testing, and architecture. Use when user asks to

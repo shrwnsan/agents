@@ -1,5 +1,6 @@
 ---
 name: extract-design-tokens
+license: Apache-2.0
 description: >
   Extract a site's design tokens and read its taste. Loads a live URL (or
   local HTML file) in agent-browser, samples the rendered visual language, and
