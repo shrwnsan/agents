@@ -5,15 +5,15 @@ Chat: telegraph ok, noun phrases ok, no filler. Commits, PRs, docs: plain full s
 Unsure? Read more code, then ask with short options.
 
 ## Workspace
-- Owner: GitHub `shrwnsan`. Repos: `~/Developer/{personal,forked,sandbox}`. Site repo: `shrwnsan.github.io`.
+- Owner: GitHub `shrwnsan`. Repos: `~/Developer/{personal,forked,sandbox}` (macOS) or `~/code` (Linux). Site repo: `shrwnsan.github.io`.
 - Missing repo: clone `https://github.com/shrwnsan/<repo>.git` into the matching folder.
 - Stay in the current repo, or the project the user names.
 - Dotfiles: a local `dotfiles/` or `.dotfiles/` repo manages config in `~`. Before changing config there, read that repo's AGENTS.md.
 - Unexpected changes: another agent or the user made them. Don't revert; stay on task.
 
 ## Files
-- Delete with `trash`, never `rm -rf`.
-- Paths in code, docs, and commands: `~` or `$HOME`, never `/Users/<name>`.
+- Delete with `trash` (macOS) or `trash-put` (Linux), never `rm -rf`.
+- Paths in code, docs, and commands: `~` or `$HOME`, never `/Users/<name>` (macOS) or `/home/<name>` (Linux).
 - Edit before creating. Split files past ~500 LOC.
 
 ## Security
