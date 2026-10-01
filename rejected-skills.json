@@ -1,5 +1,5 @@
 {
-  "note": "Skills evaluated and rejected. Appended at decision time; rejections only (the README skills table is the acceptance record).",
+  "note": "Skills evaluated and rejected. Appended at decision time; rejections only (the skills/README.md table is the acceptance record).",
   "schema": { "name": "skill name as shipped upstream", "rejected": "YYYY-MM-DD", "source": "url or hub slug", "why": "one line" },
   "rejected": [
     { "name": "trade", "rejected": "2026-08-28", "source": "https://github.com/binance/binance-skills-hub", "why": "requires wallet/API key — fails keyless filter" },
