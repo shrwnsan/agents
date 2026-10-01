@@ -55,7 +55,10 @@ if (!names.length) {
   console.error("no valid domain names to check");
   process.exit(1);
 }
-if (names.length > 200) names.length = 200;
+if (names.length > 200) {
+  console.error(`truncating list to first 200 of ${names.length} unique names (search endpoint cap)`);
+  names.length = 200;
+}
 
 async function post(path, body) {
   const r = await fetch(BASE + path, {
@@ -78,14 +81,16 @@ function chunks(arr, size) {
 
 // Availability pass via the search endpoint (keyless, 200/chunk).
 const rows = [];
-for (const chunk of chunks(names, AVAIL_CHUNK)) {
+for (const [i, chunk] of chunks(names, AVAIL_CHUNK).entries()) {
+  if (i > 0) await new Promise((res) => setTimeout(res, 1000)); // be gentle: no published authless rate limit
   const data = await post("/v1/registrar/domains/search", { domains: chunk });
   for (const r of data.results ?? []) rows.push({ domain: r.domain, available: !!r.available, price: null, renewal: null });
 }
 
 // Pricing pass: only the available subset (taken domains price as null anyway).
 const free = rows.filter((r) => r.available).map((r) => r.domain);
-for (const chunk of chunks(free, PRICE_CHUNK)) {
+for (const [i, chunk] of chunks(free, PRICE_CHUNK).entries()) {
+  if (i > 0) await new Promise((res) => setTimeout(res, 1000)); // be gentle: no published authless rate limit
   const data = await post("/v1/registrar/domains/price", { domains: chunk, years: flags.years });
   for (const r of data.results ?? []) {
     const row = rows.find((x) => x.domain === r.domain);
@@ -96,28 +101,42 @@ for (const chunk of chunks(free, PRICE_CHUNK)) {
   }
 }
 
+// Prices are totals for the requested period (verified 2026-10-01: shrwnsan.dev
+// is $13/yr; years:2 → $26, years:3 → $39). Report total + per-year.
 const priced = rows.filter((r) => r.available);
-for (const r of priced) if (r.price == null) r.price = r.renewal;
+const est = [];
+for (const r of priced) {
+  if (r.price == null) {
+    r.price = r.renewal; // purchasePrice null for some available names; renewal is the best estimate
+    if (r.price != null) est.push(r.domain);
+  }
+}
+const perYear = (v) => (v == null ? "—" : `$${v} total / $${(v / flags.years).toFixed(2)}/yr`);
 priced.sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity));
 
 if (flags.json) {
-  console.log(JSON.stringify({ years: flags.years, limit: flags.limit, results: rows }, null, 2));
+  console.log(JSON.stringify({ years: flags.years, limit: flags.limit, pricesArePeriodTotals: true, results: rows }, null, 2));
   process.exit(0);
 }
 
-const underCap = flags.limit ? priced.filter((r) => r.price != null && r.price <= flags.limit).length : priced.length;
+// --limit is a per-year cap (matches the "$X/yr" label); compare price/years.
+const underCap = flags.limit ? priced.filter((r) => r.price != null && r.price / flags.years <= flags.limit).length : priced.length;
 console.log(
   `**${priced.length} of ${rows.length} available**` +
-    (flags.limit ? `, ${underCap} at or under $${flags.limit}/yr (${flags.years}yr pricing)` : ` (${flags.years}yr pricing)`)
+    (flags.limit
+      ? `, ${underCap} at or under $${flags.limit}/yr (${flags.years}yr pricing; prices are period totals)`
+      : ` (${flags.years}yr pricing; prices are period totals)`)
 );
 if (!priced.length) {
   console.log("\nNone available. Widen the candidate list or try other TLDs.");
   process.exit(0);
 }
 console.log("");
-console.log("| Domain | Price ($/yr) | Renewal ($/yr) | Note |");
-console.log("|--------|-------------|----------------|------|");
+console.log("| Domain | Purchase (total / per-yr) | Renewal (total / per-yr) | Note |");
+console.log("|--------|---------------------------|--------------------------|------|");
 for (const r of priced) {
-  const premium = flags.limit && r.price != null && r.price > flags.limit ? "premium" : "";
-  console.log(`| ${r.domain} | ${r.price ?? "—"} | ${r.renewal ?? "—"} | ${premium} |`);
+  const notes = [];
+  if (flags.limit && r.price != null && r.price / flags.years > flags.limit) notes.push("premium");
+  if (est.includes(r.domain)) notes.push("purchase est. = renewal");
+  console.log(`| ${r.domain} | ${perYear(r.price)} | ${perYear(r.renewal)} | ${notes.join(", ")} |`);
 }

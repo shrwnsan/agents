@@ -37,11 +37,11 @@ node scripts/check-domains.mjs candidates.txt --years 1 --limit 25 --json
 | Flag | Default | Meaning |
 |------|---------|---------|
 | `--years N` | `1` | Registration years to price |
-| `--limit USD` | none | Flag rows above this price as premium instead of dropping them |
+| `--limit USD` | none | Per-year price cap: flag rows above it as premium instead of dropping them |
 | `--json` | off | Raw merged results instead of the markdown shortlist |
 
-Names are normalized (lowercased, scheme/path stripped) and validated; entries
-without a dot are skipped with a warning.
+Names are normalized (lowercased, scheme/path stripped, `www.` prefix
+removed) and validated; entries without a dot are skipped with a warning.
 
 ## Endpoint pins (keyless, as of 2026-09-29)
 
@@ -60,20 +60,31 @@ skill never calls them.
 
 ## Output
 
-Markdown shortlist: available domains first, sorted by price ascending, with
-purchase and renewal prices and a premium flag above `--limit`. Summary line
-reports N available of M checked, K under the price cap. `--json` prints the
-merged raw rows.
+Markdown shortlist: available domains first, sorted by per-year price, with
+purchase and renewal shown as *total / per-year* (the API prices a period as
+a total — see PROVENANCE.md), and a premium flag above `--limit`. Summary
+line reports N available of M checked, K under the per-year cap.
+`--json` prints the merged raw rows plus a `pricesArePeriodTotals` marker.
 
 ## Gotchas
 
-- **Availability ≠ affordable.** Registry-premium names come back
+- **Prices are period totals, not per-year.** Verified 2026-10-01:
+  `$13/yr` name → years:2 = $26, years:3 = $39. The script shows both total
+  and per-year; `--limit` compares per-year.
+- **Search seems to exclude premium/registry-reserved inventory.** Probed
+  2026-10-01: 8/8 generic-word names (book.dev, casino.io, crypto.chat, …)
+  returned `available: false`, not `available: true` at high prices. So
+  "available" from this API is a floor, not a guarantee — registry-level
+  premium/pricing rules can still apply at checkout.
+- **Availability ≠ affordable.** Registry-premium names can come back
   `available: true` at four-to-six-figure prices. Always run the pricing pass
   and filter on price, not availability alone.
 - **Taken domains still return prices.** `price` answers for any name;
   `purchasePrice` is `null` for taken domains. Price only the available
-  subset (the script does this).
+  subset (the script does this). For *available* names with a null
+  `purchasePrice` the script substitutes renewal and flags it
+  `purchase est. = renewal`.
 - **Keyless is search-only.** The moment you need to buy, that's a Vercel
   account decision — hand the shortlist to a human.
-- **Be gentle.** Authless means no published rate limit; chunked requests
-  (200 + 50s) for a few hundred names is fine, don't loop thousands.
+- **Be gentle.** Authless means no published rate limit; the script sleeps
+  1s between chunks. A few hundred names is fine, don't loop thousands.

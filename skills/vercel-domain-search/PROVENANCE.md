@@ -21,6 +21,21 @@ here, no upstream source.
 `purchasePrice` is `null` for taken domains; renewal/transfer prices answer
 regardless of availability — hence pricing only the available subset.
 
+## Pricing semantics + 2026-10-01 re-pin
+
+Re-pinned 2026-10-01 against `openapi.vercel.sh`: `search`, `price`,
+`availability`, and the GET per-domain availability/price endpoints are still
+`security: []`; `buy`/`renew`/`transfer`/`auth-code`/nameservers/auto-renew
+remain bearer-gated. No drift in the pinned paths.
+
+New findings (same probe session, 2026-10-01):
+
+| Fact | Evidence | Date |
+|------|----------|------|
+| `price.years` returns **period totals**, not per-year | shrwnsan.dev: years:1 = $9.99 purchase / $13 renewal; years:2 = $26; years:3 = $39 (2×13, 3×13 exactly) | 2026-10-01 |
+| `search` appears to **exclude premium/registry-reserved inventory** | 8/8 generic-word names (book.dev, casino.io, crypto.chat, poker.club, …) → `available: false` | 2026-10-01 |
+| Only per-domain GET endpoints seen beyond the pinned batch POSTs; not used by this skill | OpenAPI re-fetch | 2026-10-01 |
+
 ## Re-pin procedure
 
 If the API drifts (shape change, auth added), re-fetch `openapi.vercel.sh`,
