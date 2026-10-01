@@ -124,7 +124,7 @@ degrade the leg (the harness contract: fail closed, never fail silent).
 One uniform contract behind up to three configured providers, resolved by
 which keys are present in the environment (first match wins):
 
-  TYPESAFE_API_KEY   -> TypeSafe direct (Jev System One, model "jev-1.13")
+  TYPESAFE_API_KEY   -> TypeSafe direct (Jev System One, model "jev-latest")
   AI_GATEWAY_API_KEY -> Vercel AI Gateway, OpenAI-compatible endpoint
   OPENROUTER_API_KEY -> OpenRouter, OpenAI-compatible endpoint
 
@@ -377,7 +377,7 @@ def worktree_guard_questions() -> dict:
 ```python
 #!/usr/bin/env python3
 """jev-lab runner: evaluates Jev (and gateway LLM baseline) on two labeled
-decision tasks from the tailroute workflow review.
+decision tasks from a real-world workflow review.
 
 Usage:
     python3 run_evals.py pr-gate
@@ -403,7 +403,7 @@ from lab import (
     worktree_guard_questions,
 )
 
-REPO = os.environ.get("TAILROUTE_REPO", os.path.expanduser("~/Developer/sandbox/tailroute"))
+REPO = os.environ.get("BAKEOFF_PR_REPO", "")  # required for pr-gate: any GitHub repo
 
 
 # ---------------------------------------------------------------- helpers ----
@@ -495,7 +495,7 @@ def pr_state(repo: str, num: int) -> str:
     """Condensed, non-sensitive PR metadata. No diffs, no code content."""
     raw = run(
         [
-            "gh", "pr", "view", str(num), "--repo", "shrwnsan/tailroute", "--json",
+            "gh", "pr", "view", str(num), "--repo", repo, "--json",
             "number,title,state,author,additions,deletions,changedFiles,files,labels",
         ]
     )
@@ -505,8 +505,8 @@ def pr_state(repo: str, num: int) -> str:
         for f in pr.get("files", [])[:25]
     ]
     state = {
-        "repository": "tailroute (macOS Tailscale+VPN daemon; Swift app in macos/, bash+Go CLI in cli/ submodule; docs in docs/)",
-        "auto_merge_policy": "docs/chore-only PRs may auto-merge; app or CLI source requires human review",
+        "repository": repo,
+        "auto_merge_policy": "state your merge policy here, e.g. docs/chore-only PRs auto-merge; substantive source requires human review",
         "pr": {
             "number": pr["number"],
             "title": pr["title"],
@@ -533,6 +533,10 @@ def eval_pr_gate() -> None:
     alt_legs += make_byok_legs()  # independent: BYOK works even without a gateway key
 
     questions = pr_gate_questions()
+    if not REPO:
+        print("[skip] pr-gate: set BAKEOFF_PR_REPO=<owner/repo> to enable "
+              "(any repo with labeled PRs)")
+        return
     tally = {}
     for num, expected in PR_LABELS.items():
         state = pr_state(REPO, num)
