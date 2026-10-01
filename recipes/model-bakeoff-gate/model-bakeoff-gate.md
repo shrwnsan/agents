@@ -394,7 +394,6 @@ import os
 from datetime import datetime, timezone
 
 from lab import (
-    GW_BASELINE_MODEL,
     ask,
     make_byok_legs,
     make_gateway_llm_client,
@@ -402,6 +401,8 @@ from lab import (
     pr_gate_questions,
     worktree_guard_questions,
 )
+
+GW_BASELINE_MODEL = "openai/gpt-4o-mini"  # default gateway baseline (override via GW_BASELINE_MODELS)
 
 REPO = os.environ.get("BAKEOFF_PR_REPO", "")  # required for pr-gate: any GitHub repo
 
