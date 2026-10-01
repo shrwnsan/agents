@@ -17,3 +17,7 @@ Thumbs.db
 
 # Binary cleanup
 bin/*.exe
+
+# Python bytecode caches
+__pycache__/
+*.pyc
