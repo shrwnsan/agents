@@ -4,7 +4,7 @@
 One uniform contract behind up to three configured providers, resolved by
 which keys are present in the environment (first match wins):
 
-  TYPESAFE_API_KEY   -> TypeSafe direct (Jev System One, model "jev-1.13")
+  TYPESAFE_API_KEY   -> TypeSafe direct (Jev System One, model "jev-latest")
   AI_GATEWAY_API_KEY -> Vercel AI Gateway, OpenAI-compatible endpoint
   OPENROUTER_API_KEY -> OpenRouter, OpenAI-compatible endpoint
 
