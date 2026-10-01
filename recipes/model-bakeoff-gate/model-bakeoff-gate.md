@@ -1,7 +1,7 @@
 ---
 id: model-bakeoff-gate
 name: Model Bakeoff -> Calibrated Pre-Delete Guard
-version: 0.2.0
+version: 0.2.1
 description: Evaluate candidate models against a labeled ground-truth harness before trusting one with destructive automation, then wire the winner as a calibrated gate layered over deterministic checks. Three model families compared in one pass; each leg self-disables without its key. Ships lab.py - the shared provider-failover harness module the two code files import.
 category: verify
 requires: [python3-3.10+, git]
@@ -76,6 +76,8 @@ expected and correct).
 **Step 4 - Run the bakeoff.** `python3 run_evals.py all` - one JSONL row per
 leg per case lands in `results/run-<timestamp>.jsonl`. Keep these files; they
 are your before/after record when models or pricing change.
+(pr-gate evaluates real PRs: set `BAKEOFF_PR_REPO=<owner/repo>` to point it
+at any GitHub repo with labeled PRs 10-12 - without it that leg skips cleanly.)
 
 **Step 5 - Interpret.** Accuracy ties are expected on easy labeled sets; rank
 legs by (a) confidence behavior on the *ambiguous* cases - mid-band honesty
