@@ -1,11 +1,11 @@
-# eval-024: Jev context-triage baseline for `auditing-agent-harnesses`
+# eval-024: context-triage baseline for `auditing-agent-harnesses`
 
 Labeled corpus + harness for measuring whether TypeSafe's System One API
 (jev-latest) can serve as an **advisory** triage layer for binary-audit
 context extraction. Result (2026-10-02): adopted as advisory-only —
 auto-resolve at confidence ≥ 0.75, escalate everything else, and any
 pipeline-shaped needle that scores benign escalates regardless of
-confidence. Full rationale: `docs/research-002-jev-triage-baseline.md`.
+confidence. Full rationale: `docs/research-002-context-triage-baseline.md`.
 
 ## Contents
 
