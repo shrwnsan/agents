@@ -37,10 +37,11 @@ container — this layers fine inside one.
 
 ## Design notes
 
-Both `rm -rf` uses in the script are deliberate and containment-guarded: the
+The `rm -rf` uses in the script (teardown plus its chmod retry, and dropping
+`.git` from a throwaway copy) are deliberate and containment-guarded: the
 teardown deletes only a path `mktemp` created under `$TMPDIR`, and a failed
 teardown keeps the sandbox with a loud warning instead of clobbering the exit
-code. skill-quality-gate flags both lines as `destructive:rm-recursive-force`
+code. skill-quality-gate flags these lines as `destructive:rm-recursive-force`
 WARN by design — reviewed and accepted here; WARN is advisory, these are the
 tool's core mechanics.
 
