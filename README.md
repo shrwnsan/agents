@@ -64,7 +64,7 @@ Recipes are integration playbooks. Unlike skills, they are **not** agent-executa
 
 ### Maintained in this repo
 
-- **[model-bakeoff-gate](recipes/model-bakeoff-gate/)** — Pre-deletion guard + model bakeoff harness for risky agent actions. Deterministic git checks hard-block first; a model call judges only the fuzzy remainder, with provider failover (TypeSafe Jev → Vercel AI Gateway → OpenRouter) and keyless fail-closed degradation. The recipe embeds its three runnable files (`lab.py`, `run_evals.py`, `guard.py`), which extract to a working stdlib-only harness.
+- **[model-bakeoff-gate](recipes/model-bakeoff-gate/)** — Pre-deletion guard + model bakeoff harness for risky agent actions. Deterministic git checks hard-block first; a model call judges only the fuzzy remainder, with provider failover (TypeSafe Jev → Vercel AI Gateway → OpenRouter) and keyless fail-closed degradation. Ships its three runnable files (`lab.py`, `run_evals.py`, `guard.py`) as a working stdlib-only harness.
 - **[listening-post](recipes/listening-post.md)** — Bounded, polite tailnet capture of a logged-in web community you belong to, with sanitize-at-ingest discipline and a committed classifier calibration. No API keys.
 
 ### Synced from upstream repos

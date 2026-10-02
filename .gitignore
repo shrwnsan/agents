@@ -21,3 +21,6 @@ bin/*.exe
 # Python bytecode caches
 __pycache__/
 *.pyc
+
+# Eval harness outputs (run_evals.py writes results/ at CWD)
+results/
