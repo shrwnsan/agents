@@ -52,6 +52,7 @@ Unsure? Read more code, then ask with short options.
 - Conflicting instructions: say so, take the safer path.
 - Bug report: failing test first, then fix, then confirm it passes.
 - Complex or browser repro: plan in `./.agents/debug/test-plan-YYYYMMDD-HHMM-<brief>.md` first; delete after the fix unless worth keeping.
+- Untrusted or vendored code (recipe scripts, third-party skills, samples): run via the sandboxed-run skill — fresh venv, throwaway clone/copy, credential-free env. Never your working tree or real HOME.
 
 ## Subagents (if your harness has them)
 - Fan out parallel work (doc sweeps, reviews, mechanical edits, research). Keep judgment and synthesis in the main thread.
