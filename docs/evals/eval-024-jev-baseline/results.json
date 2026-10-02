@@ -1,0 +1,502 @@
+{
+  "summary": {
+    "total": 24,
+    "scored": 24,
+    "errors": 0,
+    "accuracy": 0.792,
+    "accuracy_verbatim": 0.765,
+    "accuracy_synthetic": 0.857,
+    "mean_confidence_correct": 0.866,
+    "mean_confidence_wrong": 0.592,
+    "miscover": [
+      {
+        "id": "zcode-feedback-masker",
+        "label": "benign-vendored",
+        "predicted": "feature-wired",
+        "confidence": 0.52
+      },
+      {
+        "id": "zcode-route-vocab",
+        "label": "benign-vendored",
+        "predicted": "feature-wired",
+        "confidence": 0.3
+      },
+      {
+        "id": "zcode-sentry-placeholder",
+        "label": "benign-vendored",
+        "predicted": "declared-telemetry",
+        "confidence": 0.95
+      },
+      {
+        "id": "zcode-shadcn-mcp",
+        "label": "benign-vendored",
+        "predicted": "feature-wired",
+        "confidence": 0.71
+      },
+      {
+        "id": "syn-capture-stage",
+        "label": "pipeline-indicator",
+        "predicted": "feature-wired",
+        "confidence": 0.48
+      }
+    ]
+  },
+  "rows": [
+    {
+      "id": "zcode-feedback-masker",
+      "label": "benign-vendored",
+      "synthetic": false,
+      "predicted": "feature-wired",
+      "confidence": 0.52,
+      "probabilities": {
+        "pipeline-indicator": 0.09,
+        "declared-telemetry": 0.25,
+        "feature-wired": 0.64,
+        "benign-vendored": 0.02
+      },
+      "upload_risk": 0.09,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 640,
+        "output_tokens": 79
+      }
+    },
+    {
+      "id": "zcode-route-vocab",
+      "label": "benign-vendored",
+      "synthetic": false,
+      "predicted": "feature-wired",
+      "confidence": 0.3,
+      "probabilities": {
+        "declared-telemetry": 0.04,
+        "pipeline-indicator": 0.11,
+        "feature-wired": 0.47,
+        "benign-vendored": 0.38
+      },
+      "upload_risk": 0.08,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 626,
+        "output_tokens": 79
+      }
+    },
+    {
+      "id": "zcode-ngrok-psl",
+      "label": "benign-vendored",
+      "synthetic": false,
+      "predicted": "benign-vendored",
+      "confidence": 0.51,
+      "probabilities": {
+        "declared-telemetry": 0.17,
+        "pipeline-indicator": 0.07,
+        "benign-vendored": 0.63,
+        "feature-wired": 0.13
+      },
+      "upload_risk": 0.06,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 617,
+        "output_tokens": 81
+      }
+    },
+    {
+      "id": "conductor-amplitude-png",
+      "label": "benign-vendored",
+      "synthetic": false,
+      "predicted": "benign-vendored",
+      "confidence": 0.68,
+      "probabilities": {
+        "feature-wired": 0.0,
+        "pipeline-indicator": 0.0,
+        "benign-vendored": 0.77,
+        "declared-telemetry": 0.23
+      },
+      "upload_risk": 0.05,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 596,
+        "output_tokens": 81
+      }
+    },
+    {
+      "id": "conductor-segment-jpeg",
+      "label": "benign-vendored",
+      "synthetic": false,
+      "predicted": "benign-vendored",
+      "confidence": 1.0,
+      "probabilities": {
+        "pipeline-indicator": 0.0,
+        "declared-telemetry": 0.0,
+        "feature-wired": 0.0,
+        "benign-vendored": 1.0
+      },
+      "upload_risk": 0.03,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 588,
+        "output_tokens": 81
+      }
+    },
+    {
+      "id": "zcode-sentry-placeholder",
+      "label": "benign-vendored",
+      "synthetic": false,
+      "predicted": "declared-telemetry",
+      "confidence": 0.95,
+      "probabilities": {
+        "pipeline-indicator": 0.0,
+        "declared-telemetry": 0.97,
+        "benign-vendored": 0.03,
+        "feature-wired": 0.0
+      },
+      "upload_risk": 0.04,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 612,
+        "output_tokens": 82
+      }
+    },
+    {
+      "id": "zcode-shadcn-mcp",
+      "label": "benign-vendored",
+      "synthetic": false,
+      "predicted": "feature-wired",
+      "confidence": 0.71,
+      "probabilities": {
+        "feature-wired": 0.79,
+        "declared-telemetry": 0.0,
+        "benign-vendored": 0.21,
+        "pipeline-indicator": 0.0
+      },
+      "upload_risk": 0.07,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 608,
+        "output_tokens": 79
+      }
+    },
+    {
+      "id": "conductor-posthog-sdk",
+      "label": "declared-telemetry",
+      "synthetic": false,
+      "predicted": "declared-telemetry",
+      "confidence": 1.0,
+      "probabilities": {
+        "pipeline-indicator": 0.0,
+        "declared-telemetry": 1.0,
+        "benign-vendored": 0.0,
+        "feature-wired": 0.0
+      },
+      "upload_risk": 0.11,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 579,
+        "output_tokens": 82
+      }
+    },
+    {
+      "id": "conductor-sentry-dsn",
+      "label": "declared-telemetry",
+      "synthetic": false,
+      "predicted": "declared-telemetry",
+      "confidence": 0.99,
+      "probabilities": {
+        "pipeline-indicator": 0.0,
+        "feature-wired": 0.0,
+        "benign-vendored": 0.01,
+        "declared-telemetry": 0.99
+      },
+      "upload_risk": 0.11,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 631,
+        "output_tokens": 82
+      }
+    },
+    {
+      "id": "zcode-arms-rum",
+      "label": "declared-telemetry",
+      "synthetic": false,
+      "predicted": "declared-telemetry",
+      "confidence": 0.69,
+      "probabilities": {
+        "pipeline-indicator": 0.0,
+        "feature-wired": 0.0,
+        "benign-vendored": 0.23,
+        "declared-telemetry": 0.77
+      },
+      "upload_risk": 0.07,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 620,
+        "output_tokens": 82
+      }
+    },
+    {
+      "id": "zcode-otlp-delegates",
+      "label": "declared-telemetry",
+      "synthetic": false,
+      "predicted": "declared-telemetry",
+      "confidence": 0.84,
+      "probabilities": {
+        "benign-vendored": 0.12,
+        "feature-wired": 0.0,
+        "pipeline-indicator": 0.0,
+        "declared-telemetry": 0.88
+      },
+      "upload_risk": 0.13,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 608,
+        "output_tokens": 82
+      }
+    },
+    {
+      "id": "zcode-feedback-attachment",
+      "label": "feature-wired",
+      "synthetic": false,
+      "predicted": "feature-wired",
+      "confidence": 1.0,
+      "probabilities": {
+        "declared-telemetry": 0.0,
+        "benign-vendored": 0.0,
+        "feature-wired": 1.0,
+        "pipeline-indicator": 0.0
+      },
+      "upload_risk": 0.15,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 621,
+        "output_tokens": 79
+      }
+    },
+    {
+      "id": "zcode-recorder",
+      "label": "feature-wired",
+      "synthetic": false,
+      "predicted": "feature-wired",
+      "confidence": 1.0,
+      "probabilities": {
+        "feature-wired": 1.0,
+        "benign-vendored": 0.0,
+        "pipeline-indicator": 0.0,
+        "declared-telemetry": 0.0
+      },
+      "upload_risk": 0.03,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 598,
+        "output_tokens": 79
+      }
+    },
+    {
+      "id": "conductor-runlocal-flag",
+      "label": "feature-wired",
+      "synthetic": false,
+      "predicted": "feature-wired",
+      "confidence": 0.81,
+      "probabilities": {
+        "declared-telemetry": 0.0,
+        "pipeline-indicator": 0.01,
+        "benign-vendored": 0.13,
+        "feature-wired": 0.86
+      },
+      "upload_risk": 0.11,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 588,
+        "output_tokens": 79
+      }
+    },
+    {
+      "id": "zcode-update-poller",
+      "label": "feature-wired",
+      "synthetic": false,
+      "predicted": "feature-wired",
+      "confidence": 0.95,
+      "probabilities": {
+        "feature-wired": 0.96,
+        "benign-vendored": 0.04,
+        "pipeline-indicator": 0.0,
+        "declared-telemetry": 0.0
+      },
+      "upload_risk": 0.05,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 601,
+        "output_tokens": 79
+      }
+    },
+    {
+      "id": "zcode-telegram-bot",
+      "label": "feature-wired",
+      "synthetic": false,
+      "predicted": "feature-wired",
+      "confidence": 0.97,
+      "probabilities": {
+        "pipeline-indicator": 0.0,
+        "feature-wired": 0.98,
+        "benign-vendored": 0.02,
+        "declared-telemetry": 0.0
+      },
+      "upload_risk": 0.05,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 592,
+        "output_tokens": 79
+      }
+    },
+    {
+      "id": "zcode-ws-relay",
+      "label": "feature-wired",
+      "synthetic": false,
+      "predicted": "feature-wired",
+      "confidence": 1.0,
+      "probabilities": {
+        "declared-telemetry": 0.0,
+        "benign-vendored": 0.0,
+        "feature-wired": 1.0,
+        "pipeline-indicator": 0.0
+      },
+      "upload_risk": 0.1,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 573,
+        "output_tokens": 79
+      }
+    },
+    {
+      "id": "syn-snapshot-credential",
+      "label": "pipeline-indicator",
+      "synthetic": true,
+      "predicted": "pipeline-indicator",
+      "confidence": 0.98,
+      "probabilities": {
+        "feature-wired": 0.02,
+        "declared-telemetry": 0.0,
+        "pipeline-indicator": 0.98,
+        "benign-vendored": 0.0
+      },
+      "upload_risk": 0.19,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 591,
+        "output_tokens": 79
+      }
+    },
+    {
+      "id": "syn-envelope-crypto",
+      "label": "pipeline-indicator",
+      "synthetic": true,
+      "predicted": "pipeline-indicator",
+      "confidence": 0.6,
+      "probabilities": {
+        "benign-vendored": 0.15,
+        "declared-telemetry": 0.01,
+        "feature-wired": 0.14,
+        "pipeline-indicator": 0.7
+      },
+      "upload_risk": 0.12,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 617,
+        "output_tokens": 79
+      }
+    },
+    {
+      "id": "syn-sidecar-class",
+      "label": "pipeline-indicator",
+      "synthetic": true,
+      "predicted": "pipeline-indicator",
+      "confidence": 0.83,
+      "probabilities": {
+        "pipeline-indicator": 0.87,
+        "declared-telemetry": 0.0,
+        "feature-wired": 0.1,
+        "benign-vendored": 0.03
+      },
+      "upload_risk": 0.17,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 590,
+        "output_tokens": 79
+      }
+    },
+    {
+      "id": "syn-git-unconditional",
+      "label": "pipeline-indicator",
+      "synthetic": true,
+      "predicted": "pipeline-indicator",
+      "confidence": 0.91,
+      "probabilities": {
+        "feature-wired": 0.02,
+        "pipeline-indicator": 0.94,
+        "benign-vendored": 0.04,
+        "declared-telemetry": 0.0
+      },
+      "upload_risk": 0.13,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 589,
+        "output_tokens": 79
+      }
+    },
+    {
+      "id": "syn-artifact-path",
+      "label": "pipeline-indicator",
+      "synthetic": true,
+      "predicted": "pipeline-indicator",
+      "confidence": 0.83,
+      "probabilities": {
+        "benign-vendored": 0.06,
+        "declared-telemetry": 0.01,
+        "feature-wired": 0.05,
+        "pipeline-indicator": 0.88
+      },
+      "upload_risk": 0.11,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 582,
+        "output_tokens": 79
+      }
+    },
+    {
+      "id": "syn-capture-stage",
+      "label": "pipeline-indicator",
+      "synthetic": true,
+      "predicted": "feature-wired",
+      "confidence": 0.48,
+      "probabilities": {
+        "pipeline-indicator": 0.09,
+        "declared-telemetry": 0.29,
+        "benign-vendored": 0.01,
+        "feature-wired": 0.61
+      },
+      "upload_risk": 0.23,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 580,
+        "output_tokens": 79
+      }
+    },
+    {
+      "id": "syn-settings-key",
+      "label": "pipeline-indicator",
+      "synthetic": true,
+      "predicted": "pipeline-indicator",
+      "confidence": 0.87,
+      "probabilities": {
+        "pipeline-indicator": 0.9,
+        "declared-telemetry": 0.0,
+        "feature-wired": 0.08,
+        "benign-vendored": 0.02
+      },
+      "upload_risk": 0.16,
+      "model": "jev-1.13.0",
+      "usage": {
+        "input_tokens": 582,
+        "output_tokens": 79
+      }
+    }
+  ]
+}
