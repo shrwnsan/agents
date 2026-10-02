@@ -49,8 +49,9 @@ scripts/sandboxed-run.sh [options] -- command [args...]
 | `--env NAME` | Pass the parent's NAME through the scrub. |
 | `--env NAME=VAL` | Set NAME inside the sandbox; applied last, so it can re-point HOME/TMPDIR when a run truly needs that. |
 | `--keep` | Keep the sandbox for debugging; path printed to stderr. |
+| `-h`, `--help` | Show the option summary. |
 
-The wrapper prints one audit line to stderr (`sandbox=… mode=… venv=…`) and forwards the command's exit code. Sandbox deletion is containment-guarded: it only ever deletes a path `mktemp` created under `$TMPDIR`.
+The wrapper prints one audit line to stderr (`sandbox=… mode=… venv=… home=sandbox env=allowlist`) and forwards the command's exit code. Sandbox deletion is containment-guarded: it only ever deletes a path `mktemp` created under `$TMPDIR`.
 
 Examples:
 
@@ -70,7 +71,7 @@ scripts/sandboxed-run.sh -C . --require-venv -- python3 scripts/run_evals.py all
 - cwd: the staged clone/copy (`-C`), or an empty scratch dir
 - git: in clone mode, the repo's full reachable history — reverted secrets included; in copy mode, no `.git` at all
 - PATH: sandbox venv first; `PYTHONNOUSERSITE=1` set either way
-- env: `PATH SHELL USER LOGNAME LANG TERM LC_*` plus explicit `--env` entries — nothing else
+- env: `PATH SHELL USER LOGNAME LANG TERM LC_* PYTHONDONTWRITEBYTECODE` plus explicit `--env` entries — nothing else
 - HOME/TMPDIR: sandbox-internal dirs, deleted with the sandbox
 - exit code: the command's, preserved through teardown — a failed teardown keeps the sandbox and says so loudly instead of clobbering the code
 
