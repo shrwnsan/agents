@@ -9,7 +9,10 @@
 # Honest scope: process hygiene, not a jail. The child can still read
 # world-readable files and reach the network (the scrub drops proxy/CA vars,
 # so credential-injecting proxied egress usually fails — the safe direction).
-# Use a container when the code must not be trusted with the filesystem at all.
+# Clone mode also copies the repo's full reachable history into the sandbox —
+# treat anything ever committed to a branch (including reverted secrets) as
+# exposed to the run; --copy drops .git entirely. Use a container when the
+# code must not be trusted with the filesystem at all.
 
 set -eu
 
@@ -69,6 +72,10 @@ while [ $# -gt 0 ]; do
       case $env_name in
         '' | *[!A-Za-z0-9_]*) die "not a valid environment name: \"$env_name\"" ;;
       esac
+      case $2 in
+        *"
+"*) die 'multi-line --env values are not supported — the value would be silently truncated' ;;
+      esac
       ENV_ALLOW="$ENV_ALLOW$2
 "
       shift 2
@@ -89,6 +96,9 @@ done
 
 [ $# -ge 1 ] || die 'no command given — put it after "--" (see --help)'
 
+[ "$NO_VENV" -eq 0 ] || [ "$REQUIRE_VENV" -eq 0 ] ||
+  die '--no-venv and --require-venv contradict each other'
+
 ORIG_PWD=$(pwd)
 TMPBASE=${TMPDIR:-/tmp}
 SANDBOX=$(mktemp -d "$TMPBASE/sandboxed-run.XXXXXX") || die 'mktemp failed'
@@ -100,7 +110,17 @@ cleanup() {
     printf '%s: kept for inspection: %s\n' "$prog" "$SANDBOX" >&2
   else
     case $SANDBOX in
-      "$TMPBASE"/sandboxed-run.*) rm -rf "$SANDBOX" ;;
+      "$TMPBASE"/sandboxed-run.*)
+        # Teardown must never abort this trap: a failing rm under set -e would
+        # clobber the exit code and orphan the sandbox silently. Try again
+        # after restoring our own perms (a child may have left a 000 dir);
+        # if it still will not go, say so loudly and keep it.
+        if ! rm -rf "$SANDBOX" 2>/dev/null; then
+          chmod -R u+rwx -- "$SANDBOX" 2>/dev/null || :
+          rm -rf "$SANDBOX" 2>/dev/null ||
+            printf '%s: WARN: teardown failed, sandbox kept: %s\n' "$prog" "$SANDBOX" >&2
+        fi
+        ;;
       *) printf '%s: refusing to delete unexpected sandbox path: %s\n' "$prog" "$SANDBOX" >&2 ;;
     esac
   fi
@@ -112,16 +132,22 @@ trap 'exit 143' TERM
 trap 'exit 129' HUP
 
 # --- stage the code under test -----------------------------------------------
-# clone: full isolation — the sandbox gets its own .git, so untrusted commits,
+# clone: write isolation — the sandbox gets its own .git, so untrusted commits,
 # hooks, and config writes land in the clone's object store, never the source.
-# copy: for non-repo dirs, subdirs of a repo, or when dirty state is wanted.
+# Reads are the mirror image: the clone carries the repo's full reachable
+# history, so anything committed-then-reverted travels with it.
+# copy: for non-repo dirs, subdirs of a repo, or when dirty state is wanted;
+# drops .git, so no history crosses over.
 MODE=scratch
 RUN_DIR=$SANDBOX/run
 mkdir "$RUN_DIR"
 
 if [ -n "$TARGET" ]; then
   [ -d "$TARGET" ] || die "not a directory: $TARGET"
-  TARGET=$(cd "$TARGET" && pwd) || die "cannot enter: $TARGET"
+  # physical path: git rev-parse reports the physical toplevel, so a -C path
+  # reached through a symlink must be resolved too or clone mode silently
+  # degrades to copy
+  TARGET=$(cd "$TARGET" && pwd -P) || die "cannot enter: $TARGET"
   if [ "$FORCE_COPY" -eq 0 ]; then
     if repo_top=$(git -C "$TARGET" rev-parse --show-toplevel 2>/dev/null); then
       if [ "$repo_top" = "$TARGET" ]; then

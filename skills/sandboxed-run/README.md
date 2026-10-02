@@ -29,8 +29,20 @@ Full options and semantics: [SKILL.md](SKILL.md).
 
 It is not a jail. The child process can read world-readable files and reach
 the network (proxied credential-injecting egress usually fails, which is the
-safe direction). For code that must not be trusted with the filesystem at all,
-use a container — this layers fine inside one.
+safe direction). Clone mode is write-isolated, not read-isolated: the staged
+clone carries the repo's full reachable history, so committed-then-reverted
+secrets are readable inside the sandbox — use `--copy` to leave history
+behind. For code that must not be trusted with the filesystem at all, use a
+container — this layers fine inside one.
+
+## Design notes
+
+Both `rm -rf` uses in the script are deliberate and containment-guarded: the
+teardown deletes only a path `mktemp` created under `$TMPDIR`, and a failed
+teardown keeps the sandbox with a loud warning instead of clobbering the exit
+code. skill-quality-gate flags both lines as `destructive:rm-recursive-force`
+WARN by design — reviewed and accepted here; WARN is advisory, these are the
+tool's core mechanics.
 
 ## Requirements
 
