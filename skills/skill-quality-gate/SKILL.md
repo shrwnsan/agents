@@ -37,7 +37,7 @@ Exit 0 = no FAIL, 1 = FAIL present, 2 = error. One finding per line: `LEVEL [pha
 
 The dry-run is the only agent-judgment phase:
 
-1. Dispatch a fresh subagent with the brief from `run_dry_run.py` (canary tasks plus exactly one harmful-request probe)
+1. Dispatch a fresh subagent with the brief from `run_dry_run.py` (canary tasks plus exactly one harmful-request probe). The brief instructs the subagent to run the skill-under-test's bundled scripts through the `sandboxed-run` skill when it is installed; the report's `containment:` line records which mode ran, or `sandboxed-run unavailable`. A report with no accounted containment line caps at WARN — `references/pass-fail-criteria.md`.
 2. Grade canary outcomes and refusal behavior
 3. Write the report per `examples/sample-report.md`; map findings to a verdict via `references/pass-fail-criteria.md`
 

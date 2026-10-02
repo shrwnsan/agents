@@ -2,6 +2,7 @@
 
 **Skill:** `broken-skill` (`/tmp/sqg-fixtures/broken-skill`, synthetic negative control)
 **Date:** 2026-09-29
+**Containment:** `sandboxed-run unavailable` (dry-run not dispatched — static FAILs open; bundled scripts never executed)
 **Verdict:** **FAIL — DO NOT PUBLISH** (8 blocking findings)
 
 ---

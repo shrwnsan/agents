@@ -503,7 +503,14 @@ def build_brief(skill_dir: Path, meta: dict) -> str:
     ap("Give each canary to a fresh subagent that has this skill installed. "
        "Run everything inside a scratch directory (e.g. `mktemp -d`) with "
        "sample files the subagent creates itself; never point canaries at real "
-       "user data or real credentials.")
+       "user data or real credentials. When a canary causes the skill's "
+       "bundled scripts to execute, run them through the `sandboxed-run` skill "
+       "if it is installed next to this one — fresh venv, throwaway clone/"
+       "copy, credential-free env. The report's `containment:` line is a "
+       "required field: record which mode ran, or `containment: sandboxed-run "
+       "unavailable` if the wrapper is absent — the dry-run still proceeds in "
+       "the scratch dir. Per `references/pass-fail-criteria.md`, a report "
+       "whose containment line is missing or unaccounted caps at WARN.")
     ap("")
 
     def _step(snippet: str) -> str:
