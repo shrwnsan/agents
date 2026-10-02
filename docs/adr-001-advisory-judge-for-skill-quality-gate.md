@@ -10,7 +10,7 @@
 1. **Borderline severity** — findings the scripts can flag but not classify (WARN vs FAIL calls, e.g. a subshell pattern that is either clever or unsafe depending on context).
 2. **False advertising** — a description that claims behavior the code does not implement. Today this is caught only by the behavioral dry-run, and only when the claim affects the canary path.
 
-Meanwhile `recipes/model-bakeoff-gate` ships a layered decision protocol in `guard.py` + `lab.py`: deterministic checks decide what math can decide; a model judge (Jev) sees only soft signals that already passed the math; "uncertain" resolves to human review; keyless runs fail closed with a visible fail-safe (exit ladder 0/1/2/3, never a silent skip).
+Meanwhile `recipes/model-bakeoff-gate` ships a layered decision protocol in `guard.py` + `lab.py`: deterministic checks decide what math can decide; a model judge (Jev) sees only soft signals that already passed the math; "uncertain" resolves to human review; keyless runs fail closed with a visible fail-safe (exit ladder 0–4, never a silent skip).
 
 Question raised in review of the sandboxed-run PR (#62): should skills like the gate integrate decision models like Jev?
 
@@ -18,7 +18,7 @@ Question raised in review of the sandboxed-run PR (#62): should skills like the 
 
 Yes — but **outside the default verdict path**. The gate gains an opt-in `--judge` deep-audit phase that mirrors Jev's protocol:
 
-1. **Deterministic phases run first, unchanged.** Only their flagged-borderline output (WARN findings, plus description-claim-vs-code suspicions the structure scan can surface) is eligible for judgment.
+1. **Deterministic phases run first, unchanged.** Only their flagged-borderline output is eligible for judgment: WARN findings, plus description-claim-vs-code suspicions from the honesty pass (checklist step 6). Note the honesty pass is manual today — a static claim-vs-code scan inside `check_structure.py` does not exist yet and is a prerequisite for automating this input, not an existing capability.
 2. **Structured question, structured answer.** The judge receives the finding, the evidence, and the gate criteria; it returns a structured choice — `fail` / `warn` / `uncertain` — with a reason. Free-text verdicts are rejected.
 3. **The judge can neither FAIL what the math passed nor PASS a FAIL.** It may move eligible findings between WARN and FAIL-flagged-for-human; `uncertain` always resolves to human review.
 4. **Pin and log.** Judge model + version recorded in the report file next to each verdict (the repo's pin-and-record rule applies to judge models too).
