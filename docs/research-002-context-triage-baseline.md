@@ -1,7 +1,7 @@
 # research-002: context triage for harness audits (System One API; measured on jev-latest)
 
 **Date:** 2026-10-02
-**Companion:** `evals/eval-024-context-triage-baseline/` (corpus + harness + results)
+**Companion:** `evals/context-triage-baseline/` (corpus + harness + results)
 
 ## Question
 
@@ -34,7 +34,7 @@ contexts as `benign-vendored` / `declared-telemetry` / `feature-wired` /
 Adopted as an **optional, advisory** Phase-2 accelerator in
 `skills/auditing-agent-harnesses` (PR #64). It is not an implementation
 inside the skill — the skill instructs the agent to use the harness in
-`evals/eval-024-context-triage-baseline/` when `TYPESAFE_API_KEY` is present and to
+`evals/context-triage-baseline/` when `TYPESAFE_API_KEY` is present and to
 skip cleanly when absent. Jev is not served by OpenAI-shaped aggregators
 (OpenRouter, Vercel AI Gateway): the System One API has its own protocol;
 `run.py` accepts `TYPESAFE_BASE_URL` for a future compat endpoint, and
