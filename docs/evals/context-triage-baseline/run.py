@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""eval-024: context-triage baseline for auditing-agent-harnesses (System One API; measured on jev-latest).
+"""Context-triage baseline harness for auditing-agent-harnesses (System One API; measured on jev-latest).
 
 Reads corpus.jsonl (labeled binary-audit byte-window excerpts), sends each
 context to the TypeSafe System One API as `state`, and scores Jev's

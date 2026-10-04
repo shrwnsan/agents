@@ -1,4 +1,4 @@
-# eval-024: context-triage baseline for `auditing-agent-harnesses`
+# Context-triage baseline for `auditing-agent-harnesses`
 
 Labeled corpus + harness for measuring whether TypeSafe's System One API
 (jev-latest) can serve as an **advisory** triage layer for binary-audit
