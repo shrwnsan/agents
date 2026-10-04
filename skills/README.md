@@ -20,13 +20,13 @@ Skills are self-contained packages with a `SKILL.md` instruction file and option
 | [extract-design-tokens](extract-design-tokens/) | Design & Content | native | Extract design tokens + taste read (dials, audit) from a live site or local HTML |
 | [handoff-context](handoff-context/) | Workflow | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins) | Context engineering for session handoffs across AI tools |
 | [meta-search](meta-search/) | Workflow | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins/tree/main/plugins/search-plus) | Error recovery for web search failures (403, 429, 422) with bundled Tavily/Jina scripts |
-| [docker-agent-browser](docker-agent-browser/) | Development | native | Agent-browser + Chromium setup in Docker containers (ARM64 workaround) |
 | [caveman](caveman/) | Workflow | [JuliusBrussee](https://github.com/JuliusBrussee/caveman) | Ultra-compressed communication mode (~75% token reduction) |
 | [here-now](here-now/) | Workflow | native | Security-hardened file publishing via [here.now](https://here.now). Based on [heredotnow/skill](https://github.com/heredotnow/skill) v1.11.0 |
 | [vercel-domain-search](vercel-domain-search/) | Workflow | native | Keyless batch domain availability + pricing via Vercel's registrar API — priced read-only shortlists; purchase/transfer out of scope (endpoints pinned, [provenance](vercel-domain-search/PROVENANCE.md)) |
 | [live-system-forensics](live-system-forensics/) | Security | native | Live malware/persistence forensics: process, network, and startup audits with per-host allowlist baselines and drift detection |
 | [auditing-agent-harnesses](auditing-agent-harnesses/) | Security | native | Privacy/telemetry audits for agent harnesses and AI-coding desktop apps (Electron/asar, Tauri, thin-shell+sidecar), with re-audit triggers on version updates |
 | [cleaning-disk-storage](cleaning-disk-storage/) | System | native | Disk cleanup: scan temp/cache/build artifacts, tiered confirmations, trash-only removal, regeneration guidance |
+| [docker-agent-browser](docker-agent-browser/) | System | native | Agent-browser + Chromium setup in Docker containers (ARM64 workaround) |
 | [tokens/crypto-market-rank](tokens/crypto-market-rank/) | Crypto | [binance-skills-hub](https://github.com/binance/binance-skills-hub) | Trending tokens, smart-money inflow, meme rank, social hype |
 | [tokens/query-token-audit](tokens/query-token-audit/) | Crypto | [binance-skills-hub](https://github.com/binance/binance-skills-hub) | Honeypot/rug-pull detection, contract security audit |
 | [tokens/query-token-info](tokens/query-token-info/) | Crypto | [binance-skills-hub](https://github.com/binance/binance-skills-hub) | Token metadata, price, klines, social links |
