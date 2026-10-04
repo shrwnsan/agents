@@ -1,7 +1,7 @@
 # agents
 
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-![Skills: 23](https://img.shields.io/badge/skills-23-green.svg)
+![Skills: 25](https://img.shields.io/badge/skills-25-green.svg)
 [![skills.sh](https://skills.sh/b/shrwnsan/agents)](https://skills.sh/shrwnsan/agents)
 
 Personal hub for AI agent skills, prompts, and configurations.
@@ -10,7 +10,7 @@ Personal hub for AI agent skills, prompts, and configurations.
 
 Skills are self-contained packages with a `SKILL.md` instruction file and optional scripts/binaries. They are loaded by agents that support the `~/.agents/skills/` convention.
 
-The full catalog — 23 skills across Development, Design & Content, Workflow, Security, System, and Crypto, with sources, provenance pins, and the acceptance rules — lives in [skills/README.md](skills/README.md). Evaluated-and-rejected candidates are recorded in [rejected-skills.json](rejected-skills.json).
+The full catalog — 25 skills across Development, Design & Content, Workflow, Security, System, and Crypto, with sources, provenance pins, and the acceptance rules — lives in [skills/README.md](skills/README.md). Evaluated-and-rejected candidates are recorded in [rejected-skills.json](rejected-skills.json).
 
 Skills from vibekit are automatically synced via GitHub Actions. Upstream skills are synced manually via [sync-upstream](.github/workflows/sync-upstream.yml) — sources in [.upstream.yml](.upstream.yml).
 
