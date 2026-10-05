@@ -1,7 +1,7 @@
 # agents
 
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-![Skills: 24](https://img.shields.io/badge/skills-23-green.svg)
+![Skills: 24](https://img.shields.io/badge/skills-24-green.svg)
 [![skills.sh](https://skills.sh/b/shrwnsan/agents)](https://skills.sh/shrwnsan/agents)
 
 Personal hub for AI agent skills, prompts, and configurations.
