@@ -12,6 +12,9 @@ description: >
 Work through these when checking/fixing how a URL previews when shared.
 
 ## 1. Extract the tags
+
+First check the response: `curl -sL -o /dev/null -w '%{http_code} %{content_type}' <url>` — a non-200 or non-text/html response means there are no OG tags to validate; report that and stop.
+
 ```
 curl -sL <url> | grep -ioE '<meta property="og:[^"]*"[^>]*>|<meta name="twitter:[^"]*"[^>]*>|<link rel="canonical"[^"]*>'
 ```
