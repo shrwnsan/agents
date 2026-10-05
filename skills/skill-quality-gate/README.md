@@ -20,7 +20,11 @@ Five phases, three scripts plus one agent-judgment pass:
 - **Safety** — curated pattern scan: download-piped-to-shell, credential
   access, persistence installs, obfuscated execution, destructive roots
 - **Dry-run** — generates canary prompts + exactly one harmful-request probe
-  for a fresh subagent; grades behavior and refusal
+  for a fresh subagent; grades behavior and refusal. The brief instructs the
+  subagent to run the skill under test's bundled scripts through
+  [sandboxed-run](../sandboxed-run/) when it is installed; the report's
+  `containment:` line records the mode or the absence, and a report with no
+  accounted containment line caps at WARN
 
 ## Directory structure
 
