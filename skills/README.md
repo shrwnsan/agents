@@ -22,6 +22,7 @@ Skills are self-contained packages with a `SKILL.md` instruction file and option
 | [caveman](caveman/) | Workflow | [JuliusBrussee](https://github.com/JuliusBrussee/caveman) | Ultra-compressed communication mode (~75% token reduction) |
 | [here-now](here-now/) | Workflow | native | Security-hardened file publishing via [here.now](https://here.now). Based on [heredotnow/skill](https://github.com/heredotnow/skill) v1.11.0 |
 | [vercel-domain-search](vercel-domain-search/) | Workflow | native | Keyless batch domain availability + pricing via Vercel's registrar API — priced read-only shortlists; purchase/transfer out of scope (endpoints pinned, [provenance](vercel-domain-search/PROVENANCE.md)) |
+| [og-social-cards](og-social-cards/) | Workflow | native | OG/social-card QA: extract + validate OG/Twitter tags, test rendered previews across platform debuggers, cache-busting for stale cards |
 | [sandboxed-run](sandboxed-run/) | Workflow | native | One-command containment for untrusted/vendored code — fresh venv, throwaway clone/copy, credential-free env, torn down on exit (process hygiene, not a jail) |
 | [live-system-forensics](live-system-forensics/) | Security | native | Live malware/persistence forensics: process, network, and startup audits with per-host allowlist baselines and drift detection |
 | [auditing-agent-harnesses](auditing-agent-harnesses/) | Security | native | Privacy/telemetry audits for agent harnesses and AI-coding desktop apps (Electron/asar, Tauri, thin-shell+sidecar), with re-audit triggers on version updates |
