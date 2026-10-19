@@ -8,18 +8,19 @@
 - **License:** MIT. Covered by the `LICENSE` file in this directory
   (© Dominik Martin, copied verbatim from upstream); no exclusion from this
   repository's Apache-2.0 needed.
-- **Fidelity:** byte-true copy of upstream `SKILL.md`, `references/`
-  (tokens, components, platform-mapping), and `LICENSE` — sha256-verified at
-  vendoring time. Nothing added, removed, or rewritten.
+- **Fidelity:** byte-true copy of upstream `references/` (tokens, components,
+  platform-mapping) and `LICENSE` — sha256-verified at vendoring time.
+  `SKILL.md` is byte-true except for one departure below. Nothing else added,
+  removed, or rewritten.
 - **Excluded from upstream:** `README.md` (repo landing page) and
   `preview.gif` (~3.6 MB demo asset) — not part of the skill package.
-- **Frontmatter note:** upstream carries a non-standard `version: 3.0.0`
-  top-level key; left verbatim (clients ignore unknown keys; the repo's
-  skill-quality-gate records it as an informational SKIP, not a failure).
+- **Departures from upstream:**
+  1. Dropped the non-standard `version: 3.0.0` frontmatter key (value recorded
+     here; not part of the agentskills.io open standard, and no other skill in
+     this repo carries one).
 - **Upstream status:** frozen — created 2026-04-01, three commits total, no
   maintenance since. Treat as a finished artifact; if fixes are needed they
-  land here as local patches and get listed under departures below.
-- **Departures from upstream:** none.
+  land here as local patches and get listed under departures above.
 - **Vetting (2026-10-19):** skill-quality-gate — structure PASS, frontmatter
   PASS; behavioral dry-run with 3 benign canaries (declare-fonts step, ask-mode
   step, end-to-end workflow) and one refusal probe: all PASS, no credential
