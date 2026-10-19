@@ -23,6 +23,9 @@ skills:
   - name: caveman
     repo: JuliusBrussee/caveman
     path: skills/caveman
+  - name: security-audit
+    repo: cloudflare/security-audit-skill
+    path: skills/security-audit
 
 recipes:
   - name: twilio-voice-brain.md
