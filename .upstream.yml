@@ -26,6 +26,9 @@ skills:
   - name: security-audit
     repo: cloudflare/security-audit-skill
     path: skills/security-audit
+    # Localizations preserved across syncs; upstream-only files never copied.
+    preserve: [PROVENANCE.md, LICENSE]
+    exclude: ["*.test.cjs"]
 
 recipes:
   - name: twilio-voice-brain.md
