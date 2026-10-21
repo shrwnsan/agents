@@ -24,3 +24,4 @@ __pycache__/
 
 # Eval harness outputs (run_evals.py writes results/ at CWD)
 results/
+pi-extensions/
