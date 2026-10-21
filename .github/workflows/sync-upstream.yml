@@ -225,23 +225,45 @@ jobs:
           print(f"\nManifest: {len(manifest['entries'])} entries, changes={has_changes}")
           PYEOF
 
-      - name: Commit and push
+      - name: Commit and open PR (or push if main is unprotected)
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git add -A
-          if ! git diff --cached --quiet; then
-            CHANGED=$(git diff --cached --stat | tail -1)
-            TARGETS=$(git diff --cached --name-only | grep -E '^(skills|recipes)/' | cut -d/ -f2 | sort -u | paste -sd, -)
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git commit -m "sync: update upstream skills and recipes
-
-            Updated: ${TARGETS}
-            ${CHANGED}"
-            git push
-            echo "Pushed: ${TARGETS}"
-          else
+          if git diff --cached --quiet; then
             echo "Everything already up to date"
+            exit 0
           fi
+          CHANGED=$(git diff --cached --stat | tail -1)
+          TARGETS=$(git diff --cached --name-only | grep -E '^(skills|recipes)/' | cut -d/ -f2 | sort -u | paste -sd, -)
+          BRANCH="sync/upstream-$(date +%Y%m%d-%H%M%S)"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "sync: update upstream skills and recipes
+
+          Updated: ${TARGETS}
+          ${CHANGED}"
+          # main is PR-protected: try a direct push first (legacy behavior),
+          # fall back to a sync/* branch + PR when the push is rejected.
+          if git push origin HEAD:main 2>/dev/null; then
+            echo "Pushed directly to main: ${TARGETS}"
+            exit 0
+          fi
+          git checkout -b "$BRANCH"
+          git push -u origin "$BRANCH"
+          gh pr create \
+            --title "sync: update upstream skills and recipes (${TARGETS})" \
+            --body "Automated upstream sync by the sync-upstream workflow.
+
+          Updated: ${TARGETS}
+          ${CHANGED}
+
+          Reviewer notes: per-entry \`preserve\`/\`exclude\` options in
+          .upstream.yml guard vendored localizations (PROVENANCE.md, LICENSE,
+          dropped test files). Vendored changes still require the standard
+          re-vetting pass per skills/README.md before merge." \
+            --base main --head "$BRANCH"
+          echo "Opened PR for: ${TARGETS}"
 
       - name: Cleanup
         if: always()
