@@ -163,6 +163,9 @@ jobs:
                           rel = os.path.relpath(os.path.join(root, file), src)
                           print(f"  {rel}")
 
+                  exclude = entry.get("exclude", [])
+                  preserve = entry.get("preserve", [])
+
                   # Diff if directory already exists
                   if os.path.isdir(dst):
                       result = subprocess.run(
@@ -178,11 +181,37 @@ jobs:
                           shutil.rmtree(upstream_dir)
                           continue
 
-                  # Copy directory
+                  # Copy directory, honoring per-entry options:
+                  #   exclude:  globs never copied from upstream (e.g. tests)
+                  #   preserve: local-only files kept if upstream lacks them
+                  #             (e.g. PROVENANCE.md)
+                  kept_files = {}
                   if os.path.isdir(dst):
+                      backup_dir = dst + ".sync-backup"
+                      if os.path.exists(backup_dir):
+                          shutil.rmtree(backup_dir)
+                      os.makedirs(backup_dir)
+                      for keep in preserve:
+                          keep_path = os.path.join(dst, keep)
+                          if os.path.isfile(keep_path) or os.path.isdir(keep_path):
+                              shutil.move(keep_path, os.path.join(backup_dir, keep))
+                              kept_files[keep] = os.path.join(backup_dir, keep)
                       shutil.rmtree(dst)
-                  shutil.copytree(src, dst)
+                  shutil.copytree(
+                      src, dst,
+                      ignore=shutil.ignore_patterns(*exclude) if exclude else None,
+                  )
+                  restored = []
+                  for keep, keep_path in kept_files.items():
+                      new_path = os.path.join(dst, keep)
+                      if not os.path.exists(new_path):
+                          shutil.move(keep_path, new_path)
+                          restored.append(keep)
+                  if os.path.isdir(dst + ".sync-backup"):
+                      shutil.rmtree(dst + ".sync-backup")
                   print(f"Updated: {name} -> {dst}")
+                  if restored:
+                      print(f"Preserved localizations: {', '.join(restored)}")
                   has_changes = True
 
               manifest["entries"][name] = record
