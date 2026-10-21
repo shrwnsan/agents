@@ -24,7 +24,10 @@ skills:
     path: skills/marp-slide
   - name: caveman
     repo: JuliusBrussee/caveman
-    path: skills/caveman
+    # Inner flat skill folder in the plugin wrapper — never the wrapper itself
+    # (see the skill's PROVENANCE.md)
+    path: plugins/caveman/skills/caveman
+    preserve: [PROVENANCE.md]
   - name: security-audit
     repo: cloudflare/security-audit-skill
     path: skills/security-audit
