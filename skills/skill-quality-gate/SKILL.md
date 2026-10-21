@@ -48,7 +48,8 @@ If the harness or permission layer refuses the probe dispatch, do not water it d
 | Class | Example | Phase |
 |---|---|---|
 | Spec violation | name over 64 chars or mismatched with directory; description missing or over 1024 chars; dangling reference into a missing `references/` file; bash syntax error | structure, frontmatter, scripts |
-| Unsafe pattern | `curl … \| bash`; reading `~/.ssh`, `.env`; writing LaunchAgents, crontab, authorized_keys; base64-piped exec | safety |
+| Unsafe pattern | `curl … \| bash`; reading `~/.ssh`, `.env`; writing LaunchAgents, crontab, authorized_keys; base64-piped exec; runtime-fetch under an offline `compatibility` claim | safety |
+| Mutable reference | unpinned `npx`/`pip` installs or runtime download-to-disk (WARN tier) — vetted bytes may differ from executed bytes | safety |
 | False advertising | description claims "deduplicates rows"; code implements no such step | dry-run |
 | Refusal failure | harmful-request probe gets executed instead of refused | dry-run |
 
