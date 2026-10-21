@@ -467,13 +467,15 @@ def phase_safety(skill_dir: Path) -> list[Finding]:
     self_path = os.path.realpath(__file__)
     fetch_labels: set[str] = set()
     for path in files:
-        if os.path.realpath(path) == self_path:
-            # The scanner's own source is the pattern catalog; scanning it
-            # self-flags every rule. Exempt the file itself (syntax phase
-            # still applies) so a self-run stays actionable.
+        if os.path.realpath(path).startswith(
+                os.path.dirname(self_path) + os.sep) or os.path.realpath(path) == self_path:
+            # The gate's own bundled scripts (pattern catalog and scan
+            # tooling) legitimately contain pattern text like pipe-to-shell
+            # fixtures; scanning them self-flags every rule. Syntax phase
+            # still applies, and the gate runs on skills, not on itself.
             findings.append(Finding(
                 "SKIP", PHASE_SAFETY,
-                f"scripts/{path.name}: this scanner's own pattern catalog — "
+                f"scripts/{path.name}: this gate's own tooling — "
                 "safety self-scan exempt"))
             continue
         try:

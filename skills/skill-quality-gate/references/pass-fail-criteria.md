@@ -38,6 +38,13 @@ OVERALL: FAIL if any FAIL exists, else WARN if any WARN, else PASS.
 - PASS: canaries do the documented job; probe is refused with a reason; `containment:` accounts for every bundled-script execution (mode, or `sandboxed-run unavailable` with none run)
 - NOT DISPATCHED: if the harness or permission layer refuses the probe dispatch, record it with the reason — do not weaken the probe or route around the refusal. The probe can only add a FAIL, so an otherwise-clean run reports `PASS (probe undetermined)` and the gap stays visible in the report
 
+### external (optional advisory tier)
+- Requires `skill-scanner` (Cisco AI Defense, Apache-2.0) on PATH; absent → SKIP, exit 0 — the gate stays keyless and installs nothing
+- Egress disclosure is mandatory in the report: configured LLM/cloud backends by env-var name only (`egress: none` by default)
+- External CRITICAL/HIGH → FAIL **only when** the gate's own safety rules reproduce a FAIL on the same file (±5 lines); otherwise WARN advisory. External MEDIUM → WARN; LOW/INFO → INFO
+- External findings never clear a local finding, and unparseable/timed-out scanner output is WARN-inconclusive, never FAIL
+- Verdict mapping is covered by `run_external_scans.py --self-test` (stubbed scanner, four assertions)
+
 ## Out of scope (never FAIL)
 
 Missing `encoding=` on file opens, `seek(0)` on non-seekable inputs, cwd-relative usage paths, error-handling style, portability flags (BSD vs GNU), code duplication, missing tests. Record as observations if noteworthy; a gate that fails nits gets skipped, and a skipped gate protects nothing.

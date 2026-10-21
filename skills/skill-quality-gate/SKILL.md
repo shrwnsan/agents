@@ -33,6 +33,19 @@ python3 scripts/check_frontmatter.py <skill-dir>
 python3 scripts/run_dry_run.py       <skill-dir> --brief-only
 ```
 
+Optional fourth phase (advisory tier, no effect on the verdicts above when
+the scanner is absent):
+
+```bash
+python3 scripts/run_external_scans.py <skill-dir>
+```
+
+Wraps the Cisco AI Defense `skill-scanner` CLI (local, keyless rules engine)
+as a third-party signal. Scanner absent → SKIP; external CRITICAL/HIGH
+escalates to FAIL only when the gate's own safety rules reproduce it on the
+same file; egress (LLM/cloud keys) is disclosed by name, never value. See
+`run_external_scans.py --self-test` and `examples/runtime-fetch-cases.md`.
+
 Exit 0 = no FAIL, 1 = FAIL present, 2 = error. One finding per line: `LEVEL [phase] message`.
 
 The dry-run is the only agent-judgment phase:
