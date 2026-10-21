@@ -47,7 +47,9 @@ SUBPROC_TIMEOUT = 10  # seconds, for bash -n / node --check
 # Safety pattern table
 # ---------------------------------------------------------------------------
 # Auditability contract: every static safety rule is one row of SAFETY_PATTERNS
-# (plus the special rm -rf target escalation right below it).  Row shape:
+# (plus the two special-case handlers right below it: the rm -rf target
+# escalation and the runtime-fetch detector, which need per-line logic a pure
+# regex row cannot express).  Row shape:
 #   (level, compiled_regex, label, why)
 # Regexes are matched per line (line already includes its content only).
 
@@ -342,6 +344,117 @@ def _rm_rf_escalation(line: str, lineno: int, rel: str, in_comment: bool) -> Fin
         f"never acceptable in a skill script")
 
 
+def _runtime_fetch_findings(line: str, lineno: int, rel: str,
+                            in_comment: bool) -> tuple[list[Finding], set[str]]:
+    """Detect mutable-reference / runtime-fetch patterns (advisory tier).
+
+    Rationale: snapshot scanners audit the bytes in front of them, but the
+    demonstrated real-world bypass class is content that changes between
+    vetting and execution -- install-time downloads, unpinned packages,
+    fetch-to-disk-then-run.  These are common in legitimate skills, so the
+    default level is WARN; the fetch-then-execute FAILs already live in
+    SAFETY_PATTERNS above.
+    """
+    out: list[Finding] = []
+    labels: set[str] = set()
+
+    # --- unpinned npx -------------------------------------------------------
+    if re.search(r"\bnpx\b", line):
+        pkgs = [
+            t for t in re.findall(r"(?:\s|=|'\")(@?[\w./@-]+)", line.split("npx", 1)[1])
+            if not t.startswith("-") and t not in ("--yes", "-y")
+        ]
+        pkg = pkgs[0] if pkgs else ""
+        pinned = bool(re.search(r"@[A-Za-z0-9._-]*\d", pkg)) and not pkg.endswith("@latest")
+        if pkg and not pinned:
+            base = re.sub(r"@[^@]*$", "", pkg)  # strip a trailing (non-)pin, keep @scope/
+            tag = "@latest is not a pin" if pkg.endswith("@latest") else "no version pin"
+            labels.add("runtime-fetch:unpinned-npx")
+            out.append(Finding(
+                WARN, PHASE_SAFETY,
+                f"{rel}:{lineno} [runtime-fetch:unpinned-npx] npx {tag} "
+                f"(`{pkg}`) — the package is downloaded at run time and may not "
+                f"be the bytes that were vetted; pin it (npx {base}@1.2.3)"))
+
+    # --- unpinned pip / uv pip ---------------------------------------------
+    if re.search(r"\b(?:uv\s+pip|pip3?)\s+install\b", line):
+        if "==" not in line:
+            labels.add("runtime-fetch:unpinned-pip")
+            out.append(Finding(
+                WARN, PHASE_SAFETY,
+                f"{rel}:{lineno} [runtime-fetch:unpinned-pip] package install "
+                f"without == version pins — resolved versions may differ from "
+                f"what was vetted; pin requirements (pkg==1.2.3)"))
+
+    # --- fetch written to disk ----------------------------------------------
+    if (re.search(_NET_TOOLS, line)
+            and re.search(r"\s-(?:o|O)\b|--output(?:-document)?[\s=]", line)
+            and not re.search(r"\|\s*(?:sudo\s+)?(?:ba|z|)?sh\b", line)):
+        labels.add("runtime-fetch:download-to-disk")
+        out.append(Finding(
+            WARN, PHASE_SAFETY,
+            f"{rel}:{lineno} [runtime-fetch:download-to-disk] fetched content is "
+            f"written to disk at run time — a mutable URL swaps the payload "
+            f"between vetting and execution; vendor the asset or pin + checksum it"))
+
+    if in_comment:
+        return [], set()  # advisory tier stays silent in comments; FAIL rows already demote
+    return out, labels
+
+
+# Frontmatter `compatibility` phrasings that claim no network is needed.
+_OFFLINE_CLAIM_RE = re.compile(
+    r"\b(?:no\s+(?:network|internet)|offline|local[- ]only|without\s+(?:network|internet)|"
+    r"air[- ]?gapped|no\s+egress)\b", re.IGNORECASE)
+
+
+def _compat_offline_claim(skill_dir: Path) -> str | None:
+    """Return the `compatibility` frontmatter value if it claims offline-only."""
+    path = skill_dir / "SKILL.md"
+    try:
+        text = path.read_text(errors="replace")
+    except OSError:
+        return None
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return None
+    close = None
+    for idx in range(1, len(lines)):
+        if lines[idx].strip() == "---":
+            close = idx
+            break
+    if close is None:
+        return None
+    for idx in range(1, close):
+        m = re.match(r"compatibility:\s*(>.*)?$", lines[idx])
+        if not m:
+            continue
+        if m.group(1) not in (None, ">", ">-", "|", "|-"):
+            return m.group(1)
+        folded = []
+        for cont in lines[idx + 1:close]:
+            if not cont.startswith((" ", "\t")):
+                break
+            folded.append(cont.strip())
+        return " ".join(folded) or None
+    return None
+
+
+def _compat_contradiction(skill_dir: Path, labels: set[str]) -> Finding | None:
+    """FAIL when frontmatter claims offline-only but runtime fetches exist."""
+    if not labels:
+        return None
+    claim = _compat_offline_claim(skill_dir)
+    if not claim or not _OFFLINE_CLAIM_RE.search(claim):
+        return None
+    return Finding(
+        FAIL, PHASE_SAFETY,
+        f"[false-advertising:compatibility-network] frontmatter compatibility "
+        f"claims no network is needed (`{claim.strip()}`) but bundled scripts "
+        f"perform runtime fetches ({', '.join(sorted(labels))}) — the "
+        f"declaration contradicts the code")
+
+
 def phase_safety(skill_dir: Path) -> list[Finding]:
     findings: list[Finding] = []
     files = _scan_files(skill_dir)
@@ -352,14 +465,17 @@ def phase_safety(skill_dir: Path) -> list[Finding]:
         return findings
 
     self_path = os.path.realpath(__file__)
+    fetch_labels: set[str] = set()
     for path in files:
-        if os.path.realpath(path) == self_path:
-            # The scanner's own source is the pattern catalog; scanning it
-            # self-flags every rule. Exempt the file itself (syntax phase
-            # still applies) so a self-run stays actionable.
+        if os.path.realpath(path).startswith(
+                os.path.dirname(self_path) + os.sep) or os.path.realpath(path) == self_path:
+            # The gate's own bundled scripts (pattern catalog and scan
+            # tooling) legitimately contain pattern text like pipe-to-shell
+            # fixtures; scanning them self-flags every rule. Syntax phase
+            # still applies, and the gate runs on skills, not on itself.
             findings.append(Finding(
                 "SKIP", PHASE_SAFETY,
-                f"scripts/{path.name}: this scanner's own pattern catalog — "
+                f"scripts/{path.name}: this gate's own tooling — "
                 "safety self-scan exempt"))
             continue
         try:
@@ -386,6 +502,14 @@ def phase_safety(skill_dir: Path) -> list[Finding]:
                 esc = _rm_rf_escalation(raw, lineno, rel, in_comment=False)
                 if esc:
                     findings.append(esc)
+                rf, rf_labels = _runtime_fetch_findings(raw, lineno, rel, in_comment=False)
+                findings.extend(rf)
+                fetch_labels.update(rf_labels)
+                fetch_labels.update(l for l in matched_labels if l.startswith((
+                    "download-piped", "eval-of-download")))
+    contra = _compat_contradiction(skill_dir, fetch_labels)
+    if contra:
+        findings.append(contra)
     return findings
 
 

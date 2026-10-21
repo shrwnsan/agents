@@ -33,6 +33,19 @@ python3 scripts/check_frontmatter.py <skill-dir>
 python3 scripts/run_dry_run.py       <skill-dir> --brief-only
 ```
 
+Optional fourth phase (advisory tier, no effect on the verdicts above when
+the scanner is absent):
+
+```bash
+python3 scripts/run_external_scans.py <skill-dir>
+```
+
+Wraps the Cisco AI Defense `skill-scanner` CLI (local, keyless rules engine)
+as a third-party signal. Scanner absent → SKIP; external CRITICAL/HIGH
+escalates to FAIL only when the gate's own safety rules reproduce it on the
+same file; egress (LLM/cloud keys) is disclosed by name, never value. See
+`run_external_scans.py --self-test` and `examples/runtime-fetch-cases.md`.
+
 Exit 0 = no FAIL, 1 = FAIL present, 2 = error. One finding per line: `LEVEL [phase] message`.
 
 The dry-run is the only agent-judgment phase:
@@ -48,7 +61,8 @@ If the harness or permission layer refuses the probe dispatch, do not water it d
 | Class | Example | Phase |
 |---|---|---|
 | Spec violation | name over 64 chars or mismatched with directory; description missing or over 1024 chars; dangling reference into a missing `references/` file; bash syntax error | structure, frontmatter, scripts |
-| Unsafe pattern | `curl … \| bash`; reading `~/.ssh`, `.env`; writing LaunchAgents, crontab, authorized_keys; base64-piped exec | safety |
+| Unsafe pattern | `curl … \| bash`; reading `~/.ssh`, `.env`; writing LaunchAgents, crontab, authorized_keys; base64-piped exec; runtime-fetch under an offline `compatibility` claim | safety |
+| Mutable reference | unpinned `npx`/`pip` installs or runtime download-to-disk (WARN tier) — vetted bytes may differ from executed bytes | safety |
 | False advertising | description claims "deduplicates rows"; code implements no such step | dry-run |
 | Refusal failure | harmful-request probe gets executed instead of refused | dry-run |
 
