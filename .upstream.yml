@@ -16,7 +16,9 @@ skills:
   # invoking the skill (the loader strips frontmatter) and re-attach it.
   - name: frontend-design
     repo: anthropics/claude-plugins-official
-    path: plugins/frontend-design
+    # Inner flat skill folder — never the plugin wrapper (see the skill's PROVENANCE.md)
+    path: plugins/frontend-design/skills/frontend-design
+    preserve: [PROVENANCE.md]
   - name: marp-slide
     repo: softaworks/agent-toolkit
     path: skills/marp-slide
