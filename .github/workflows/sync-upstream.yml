@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   sync:
@@ -69,6 +70,8 @@ jobs:
               manifest["entries"] = {}
 
           has_changes = False
+          previous_manifest = json.loads(json.dumps(manifest))
+          previous_entries = json.loads(json.dumps(manifest["entries"]))
           now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
           for entry in entries:
@@ -186,7 +189,19 @@ jobs:
                   #   preserve: local-only files kept if upstream lacks them
                   #             (e.g. PROVENANCE.md)
                   kept_files = {}
+                  pre_hashes = {}
                   if os.path.isdir(dst):
+                      for root, dirs, files in os.walk(dst):
+                          dirs[:] = [d for d in dirs if d != ".sync-backup"]
+                          for f in files:
+                              fp = os.path.join(root, f)
+                              rel = os.path.relpath(fp, dst)
+                              import hashlib
+                              h = hashlib.sha256()
+                              with open(fp, "rb") as fh:
+                                  for chunk in iter(lambda: fh.read(65536), b""):
+                                      h.update(chunk)
+                              pre_hashes[rel] = h.hexdigest()
                       backup_dir = dst + ".sync-backup"
                       if os.path.exists(backup_dir):
                           shutil.rmtree(backup_dir)
@@ -209,20 +224,56 @@ jobs:
                           restored.append(keep)
                   if os.path.isdir(dst + ".sync-backup"):
                       shutil.rmtree(dst + ".sync-backup")
-                  print(f"Updated: {name} -> {dst}")
-                  if restored:
-                      print(f"Preserved localizations: {', '.join(restored)}")
-                  has_changes = True
+                  # Content-level no-op detection: the diff gate above fires on
+                  # vendored localizations (preserve/exclude deltas), but if the
+                  # resulting tree is byte-identical to what we had, nothing
+                  # changed — keep has_changes False so an idempotent run does
+                  # not produce a manifest-timestamp-only commit/PR.
+                  post_hashes = {}
+                  for root, dirs, files in os.walk(dst):
+                      dirs[:] = [d for d in dirs if d != ".sync-backup"]
+                      for f in files:
+                          fp = os.path.join(root, f)
+                          rel = os.path.relpath(fp, dst)
+                          import hashlib
+                          h = hashlib.sha256()
+                          with open(fp, "rb") as fh:
+                              for chunk in iter(lambda: fh.read(65536), b""):
+                                  h.update(chunk)
+                          post_hashes[rel] = h.hexdigest()
+                  if pre_hashes == post_hashes:
+                      print(f"Updated: {name} -> {dst} (content unchanged)")
+                  else:
+                      print(f"Updated: {name} -> {dst}")
+                      has_changes = True
 
               manifest["entries"][name] = record
               shutil.rmtree(upstream_dir)
 
-          # Write manifest
-          manifest["generated_at"] = now
-          with open(manifest_path, "w") as f:
-              json.dump(manifest, f, indent=2)
-              f.write("\n")
-          print(f"\nManifest: {len(manifest['entries'])} entries, changes={has_changes}")
+          # Write manifest only when something meaningfully changed (file
+          # content, an upstream pin, or a new entry). Timestamp-only churn
+          # (synced_at/generated_at on an otherwise identical run) must not
+          # produce commits/PRs — the commit step below would otherwise open
+          # a PR every dispatch.
+          entries_meaningful = any(
+              old.get("commit") != new.get("commit")
+              or old.get("repo") != new.get("repo")
+              or old.get("path") != new.get("path")
+              or old.get("file") != new.get("file")
+              for old, new in zip(previous_entries, [manifest["entries"].get(k) for k in previous_entries.keys()])
+          ) or set(previous_entries) != set(manifest["entries"])
+          if has_changes or entries_meaningful:
+              manifest["generated_at"] = now
+              with open(manifest_path, "w") as f:
+                  json.dump(manifest, f, indent=2)
+                  f.write("\n")
+          else:
+              # Restore pre-run manifest so synced_at churn never lands.
+              manifest = previous_manifest
+              with open(manifest_path, "w") as f:
+                  json.dump(manifest, f, indent=2)
+                  f.write("\n")
+          print(f"\nManifest: {len(manifest['entries'])} entries, changes={has_changes}, meaningful={has_changes or entries_meaningful}")
           PYEOF
 
       - name: Commit and open PR (or push if main is unprotected)
