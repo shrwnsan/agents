@@ -8,11 +8,11 @@ Personal hub for AI agent skills, prompts, and configurations.
 
 ## Skills
 
-Skills are self-contained packages with a `SKILL.md` instruction file and optional scripts/binaries. They are loaded by agents that support the `~/.agents/skills/` convention.
+Each skill is a self-contained package: a `SKILL.md` instruction file plus optional scripts or binaries. Any agent that supports the `~/.agents/skills/` convention can load them.
 
-The full catalog — 32 skills across Development, Design & Content, Workflow, Security, System, and Crypto, with sources, provenance pins, and the acceptance rules — lives in [skills/README.md](skills/README.md). Evaluated-and-rejected candidates are recorded in [rejected-skills.json](rejected-skills.json).
+[skills/README.md](skills/README.md) has the full catalog of 32 skills across Development, Design & Content, Workflow, Security, System, and Crypto. It lists each skill's source and provenance pin, plus the rules for adding one. [rejected-skills.json](rejected-skills.json) records the candidates we evaluated and turned down. [Why these skills](docs/ref-005-why-these-skills.md) explains the standard behind both.
 
-Skills from vibekit are automatically synced via GitHub Actions. Upstream skills are synced manually via [sync-upstream](.github/workflows/sync-upstream.yml) — sources in [.upstream.yml](.upstream.yml).
+A GitHub Actions workflow syncs skills from vibekit automatically. Other upstream skills sync when someone runs [sync-upstream](.github/workflows/sync-upstream.yml) by hand, using the sources in [.upstream.yml](.upstream.yml).
 
 ## Usage
 
@@ -54,22 +54,22 @@ cp /tmp/agents/global/AGENTS.md ~/.agents/AGENTS.md   # clone from Usage above
 ln -s ~/.agents/AGENTS.md ~/.codex/AGENTS.md          # same for the OpenCode, Pi, and Amp paths
 ```
 
-`global/AGENTS.md` is the published copy. The live one is `~/.agents/AGENTS.md`: edit that, then copy it here to publish.
+`global/AGENTS.md` is the published copy. The live one is `~/.agents/AGENTS.md`. Edit that, then copy it here to publish.
 
 Don't link Gemini CLI or Qwen Code. Their memory tools append to their global files, which would write into the shared rules.
 
 ## Recipes
 
-Recipes are integration playbooks. Unlike skills, they are **not** agent-executable capabilities — they are reference material documenting production-hardened integration architectures and patterns. See [docs/research-001-claw-recipes-vs-skills.md](docs/research-001-claw-recipes-vs-skills.md) for the recipe vs skill distinction.
+Recipes are integration playbooks. Agents don't execute them the way they run skills. They are reference material that documents integration architectures and patterns proven in production. See [docs/research-001-claw-recipes-vs-skills.md](docs/research-001-claw-recipes-vs-skills.md) for the recipe vs skill distinction.
 
 ### Maintained in this repo
 
-- **[model-bakeoff-gate](recipes/model-bakeoff-gate/)** — Pre-deletion guard + model bakeoff harness for risky agent actions. Deterministic git checks hard-block first; a model call judges only the fuzzy remainder, with provider failover (TypeSafe Jev → Vercel AI Gateway → OpenRouter) and keyless fail-closed degradation. Ships its three runnable files (`lab.py`, `run_evals.py`, `guard.py`) under `scripts/` as a working stdlib-only harness.
-- **[listening-post](recipes/listening-post.md)** — Bounded, polite tailnet capture of a logged-in web community you belong to, with sanitize-at-ingest discipline and a committed classifier calibration. No API keys.
+- [model-bakeoff-gate](recipes/model-bakeoff-gate/) is a pre-deletion guard and model bakeoff harness for risky agent actions. Deterministic git checks block first, and a model call judges only the cases they can't decide. Providers fail over from TypeSafe Jev to Vercel AI Gateway to OpenRouter, and with no keys the guard fails closed. Its three runnable files (`lab.py`, `run_evals.py`, `guard.py`) live under `scripts/` and need only the Python standard library.
+- [listening-post](recipes/listening-post.md) captures a logged-in web community you belong to through your own browser, over a temporary tailnet connection. Sessions stay under an hour and back off on rate limits. It sanitizes content as it ingests it and ships a committed classifier calibration. It needs no API keys.
 
 ### Synced from upstream repos
 
-- **twilio-voice-brain** — Phone-to-knowledge pipeline via Twilio + voice AI. From [garrytan/gbrain](https://github.com/garrytan/gbrain). Tracked read-only from upstream.
+- twilio-voice-brain connects phone calls to a knowledge base through Twilio and a voice AI. It comes from [garrytan/gbrain](https://github.com/garrytan/gbrain), and we track it read-only.
 
 ## License
 
