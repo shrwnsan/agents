@@ -2,7 +2,7 @@
 
 Catalog and lifecycle rules for the skills in this repo. Root README: [← back](../README.md).
 
-Skills are self-contained packages with a `SKILL.md` instruction file and optional scripts/binaries. They are loaded by agents that support the `~/.agents/skills/` convention.
+Skills are self-contained packages with a `SKILL.md` instruction file and optional scripts/binaries. They are loaded by agents that support the `~/.agents/skills/` convention. For the taste behind the selection, see [Why These Skills](../docs/ref-005-why-these-skills.md).
 
 | Skill | Category | Source | Description |
 |-------|----------|--------|-------------|
