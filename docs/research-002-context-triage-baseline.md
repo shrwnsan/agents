@@ -1,53 +1,59 @@
-# research-002: context triage for harness audits (System One API; measured on jev-latest)
+# research-002: context triage for agent-harness audits with the System One API, measured on jev-latest
 
 **Date:** 2026-10-02
-**Companion:** `evals/context-triage-baseline/` (corpus + harness + results)
+**Companion:** `evals/context-triage-baseline/` (corpus, harness, and results)
 
 ## Question
 
-Can TypeSafe's System One model (Jev) absorb the judgment grind in
-agent-harness privacy audits — classifying extracted binary byte-window
-contexts as `benign-vendored` / `declared-telemetry` / `feature-wired` /
-`pipeline-indicator` — without weakening verdict safety?
+Can TypeSafe's System One model (Jev) take over the repetitive judgment
+work in agent-harness privacy audits without weakening verdict safety?
+That work is classifying byte-window contexts extracted from binaries as
+`benign-vendored`, `declared-telemetry`, `feature-wired`, or
+`pipeline-indicator`.
 
 ## What a skill user gets
 
-- The noise grind disappears: in real audit rounds, most context hits are
-  attribution false positives (`amplitude` = a PNG asset, `segment` =
-  JPEG codec strings, `ngrok` = public-suffix list). Baseline auto-resolved
-  ~19/24; the two real audits this corpus is drawn from each spent
-  ~6–8 extraction round-trips and ~15–30K main-thread tokens on this class
-  of work.
-- A small escalation queue instead of full review: measured calibration
-  (wrong ≈ 0.59 mean confidence, correct ≈ 0.87) makes the ≥0.75
-  auto-resolve threshold meaningful.
-- No safety regression by construction: zero pipeline false-clears in the
-  baseline; anything pipeline-shaped scoring benign escalates regardless
-  of confidence; verdict authority and dual-run cross-validation are
-  untouched.
-- ~$0.002/audit, seconds of latency: parity in dollars on flash-tier
-  sessions (real win there: context-window budget and fewer round-trips),
-  ~30–300× cheaper on the triage slice for premium-tier main threads.
+- Less manual triage of noise. In real audit rounds, most context hits
+  are attribution false positives. The `amplitude` hit came from a PNG
+  asset, `segment` from JPEG codec strings, and `ngrok` from the
+  public-suffix list. The baseline auto-resolved about 19 of 24. The two
+  real audits this corpus comes from each spent about 6 to 8 extraction
+  round-trips and about 15K to 30K main-thread tokens on this class of
+  work.
+- A small escalation queue instead of full review. The measured
+  confidence is calibrated. Wrong answers averaged about 0.59 confidence
+  and correct ones about 0.87, which makes an auto-resolve threshold of
+  0.75 or higher meaningful.
+- No safety regression by construction. The baseline had zero pipeline
+  false-clears. Anything pipeline-shaped that scores benign escalates
+  regardless of confidence. Verdict authority and dual-run
+  cross-validation are untouched.
+- About $0.002 per audit, with seconds of latency. On flash-tier
+  sessions the dollar cost is about the same, and the real gains are
+  context-window budget and fewer round-trips. For premium-tier main
+  threads, the triage slice is about 30 to 300 times cheaper.
 
 ## Verdict
 
 Adopted as an **optional, advisory** Phase-2 accelerator in
-`skills/auditing-agent-harnesses` (PR #64). It is not an implementation
-inside the skill — the skill instructs the agent to use the harness in
-`evals/context-triage-baseline/` when `TYPESAFE_API_KEY` is present and to
-skip cleanly when absent. Jev is not served by OpenAI-shaped aggregators
-(OpenRouter, Vercel AI Gateway): the System One API has its own protocol;
-`run.py` accepts `TYPESAFE_BASE_URL` for a future compat endpoint, and
-the measured threshold is model-specific until re-run on another model.
+`skills/auditing-agent-harnesses` (PR #64). The skill does not contain
+an implementation. It instructs the agent to use the harness in
+`evals/context-triage-baseline/` when `TYPESAFE_API_KEY` is present and
+to skip cleanly when it is absent. OpenAI-compatible aggregators such as
+OpenRouter and Vercel AI Gateway do not serve Jev, because the System
+One API has its own protocol. `run.py` accepts `TYPESAFE_BASE_URL` for a
+future compatible endpoint. The measured threshold applies only to this
+model until someone re-runs the eval on another model.
 
 ## Limits
 
-- Never the verdict: the baseline itself contains a 0.95-confidence
-  over-flag (a sample-env template string classified as live telemetry —
-  safe direction, but proof that confidence ≠ correctness).
-- Vendor-documented injected-instruction risk on hostile `state`; audit
-  inputs are potentially hostile binaries. Adversarial-sample testing is
-  pending.
-- Two of five baseline "misses" were label-taxonomy errors on our side
-  (the model's answer was defensible), so raw accuracy understates
-  agreement.
+- Jev is never the verdict. The baseline itself contains an over-flag at
+  0.95 confidence, where the model classified a sample-env template
+  string as live telemetry. The error is in the safe direction, but it
+  shows that high confidence does not mean a correct answer.
+- The vendor documents a risk of injected instructions in hostile
+  `state`, and audit inputs may be hostile binaries. Adversarial-sample
+  testing is pending.
+- Two of the five baseline "misses" were errors in our label taxonomy,
+  and the model's answer was defensible. Raw accuracy therefore
+  understates agreement.

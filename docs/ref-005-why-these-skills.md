@@ -24,6 +24,26 @@ The collection stays small on purpose. A loaded skill spends tokens and attentio
 
 **It keeps context small.** [caveman](../skills/caveman/) compresses replies. [handoff-context](../skills/handoff-context/) starts a new thread from a structured summary instead of the full history. Rejections follow the same rule. We turned down `find-skills` because it put 5 KB in every prompt to replace a one-line CLI call.
 
+## How a candidate is decided
+
+Every candidate goes through the same checks, and every no ends up in the rejection log.
+
+```mermaid
+flowchart TD
+    A[Candidate skill] --> B{Recurring job that<br/>agents get wrong?}
+    B -- No --> R[Log in rejected-skills.json<br/>with a one-line reason]
+    B -- Yes --> C{Does a skill here<br/>already cover it?}
+    C -- "Yes, and the existing one is better" --> R
+    C -- "Yes, but the new one is better" --> D[Remove the old skill<br/>in the same commit]
+    C -- No --> E
+    D --> E{Needs keys, a wallet,<br/>or auth?}
+    E -- "Yes, and the value doesn't justify it" --> R
+    E -- "No, or justified" --> F[Read every file end to end]
+    F --> G{Quality gate and a dry run<br/>in a real container pass?}
+    G -- No --> R
+    G -- Yes --> H[Pin third-party skills to a commit<br/>and add the skill to the catalog]
+```
+
 ## The jobs the skills cover
 
 | Job | What it gives you | Examples |

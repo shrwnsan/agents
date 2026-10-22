@@ -1,4 +1,4 @@
-# Global AGENTS.md Consolidation
+# Global AGENTS.md consolidation
 
 How the global agent rules went from a 184-line copy repeated per repo to a 71-line canonical file, and why each section was cut.
 
@@ -12,7 +12,7 @@ The canonical rules now live at [global/AGENTS.md](../global/AGENTS.md), publish
 
 1. **A global rule must change behavior in every repo.** Anything niche pays a token cost everywhere for effect in a few places.
 2. **No restatement.** If another line already enforces it, the duplicate goes.
-3. **Reference material for humans moves out of the rules file** — into human-facing notes, not agent context.
+3. **Reference material for humans moves out of the rules file** and into human-facing notes, not agent context.
 4. **Niche or harness-specific content lives where it operates**, not in the shared file.
 
 ## What was cut, and why
@@ -20,16 +20,16 @@ The canonical rules now live at [global/AGENTS.md](../global/AGENTS.md), publish
 | Old section | Reason |
 |-------------|--------|
 | Design Philosophy (anti-AI-slop) | Affects frontend and design work only, so it fails the every-repo test. Detailed taste guidance lives in the `frontend-design` skill, which loads when design work happens; the generic bullets (purple gradients, Inter/Roboto) are knowledge models already carry. |
-| Development Philosophy ("ship small, iterate often") | Pure restatement: the Git section already enforces small, reviewable commits. |
+| Development Philosophy ("ship small, iterate often") | Pure restatement. The Git section already enforces small, reviewable commits. |
 | Filename prefix table (purpose, phase, example columns) | The operative rule is one line: `<prefix>-NNN-<slug>.md`, with the seven prefixes inline. The columns restated the prefix list or were derivable from the pattern; the full table and timeline flow moved to a human-facing guide. |
 | `tasks-{m}-prd-{n}` special case, retro use cases, timeline flow | Derivable from the naming pattern; reference material for humans. |
 | Tools Reference | gh and trash rules appear where they are used (GitHub and Files sections); a reference section mostly restates what models already know. |
-| Slash Commands | Claude-only, pointing at machine-local dirs Claude Code loads natively; the other five harnesses ignore it. |
+| Slash Commands | Claude-only, pointing at machine-local directories Claude Code loads natively; the other five harnesses ignore it. |
 | Browser Automation details | The operative line stays in Stacks: the open/snapshot/click/fill workflow, plus "ask before installing". The install command and external link are discoverable. |
 | CI & Quality Gates, Pull Requests | Merged into Quality and GitHub. "No ship without docs (if applicable)" was vague; the Docs section now requires updates on change. |
 | Code Style | Folded into Quality: match repo patterns, simple direct code, no speculative abstractions. |
 | Critical Thinking | Folded into the header and Quality: root causes, conflicting instructions, safer path. |
-| Test-Driven Bug Fixes (four steps) | Compressed to one operative sentence (failing test first, then fix, then confirm it passes); the debug test-plan path kept. |
+| Test-Driven Bug Fixes (four steps) | Compressed to one operative sentence: failing test first, then the fix, then confirm it passes. The debug test-plan path stays. |
 | Important Locations | Folded into Workspace; the `~/.claude/` entry cut because Claude Code knows its own directory. |
 | Maintenance, Learn More links, Inspired by | Guidance for the file's maintainer and links for humans; moved to human-facing notes. |
 | Welcome header, Agent Protocol wrapper | Zero effect on behavior. |
@@ -42,6 +42,6 @@ Net effect: 184 lines to 71, with nothing operative lost.
 
 ## References
 
-- [global/AGENTS.md](../global/AGENTS.md) — the canonical rules.
-- [Global rules wiring](../README.md#global-rules) — how each harness loads the file.
-- [Pre-consolidation version](https://github.com/shrwnsan/shrwnsan/blob/182fc65/AGENTS.md) — shrwnsan/shrwnsan @ 182fc65, the last revision before removal.
+- [global/AGENTS.md](../global/AGENTS.md), the canonical rules.
+- [Global rules wiring](../README.md#global-rules), which shows how each harness loads the file.
+- [Pre-consolidation version](https://github.com/shrwnsan/shrwnsan/blob/182fc65/AGENTS.md) at shrwnsan/shrwnsan @ 182fc65, the last revision before removal.

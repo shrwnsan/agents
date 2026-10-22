@@ -1,62 +1,62 @@
-# SKILL.md Frontmatter Reference
+# SKILL.md frontmatter reference
 
-Reference for YAML frontmatter fields recognized by skill clients. Covers the [agentskills.io](https://agentskills.io) open standard and Claude Code's official implementation.
+This page lists the YAML frontmatter fields that skill clients recognize. It covers the [agentskills.io](https://agentskills.io) open standard and Claude Code's official implementation.
 
 Sources:
 - agentskills.io spec: <https://github.com/agentskills/agentskills>
 - Claude Code docs: <https://code.claude.com/docs/en/skills#frontmatter-reference>
 - Claude Code best practices: <https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices>
 
-## Open Standard (agentskills.io)
+## Open standard (agentskills.io)
 
-Six fields. Any agent implementing the standard should recognize these.
+The standard defines six fields. Any agent that implements the standard should recognize them.
 
 | Field | Required | Constraints | Notes |
 |-------|----------|-------------|-------|
-| `name` | Yes | Max 64 chars. Lowercase alphanumeric + hyphens. Must match directory name. | |
-| `description` | Yes | Max 1024 chars. Should describe what + when. | |
+| `name` | Yes | Max 64 chars. Lowercase alphanumeric characters and hyphens. Must match the directory name. | |
+| `description` | Yes | Max 1024 chars. Should describe what the skill does and when to use it. | |
 | `license` | No | License name or file reference. | |
 | `compatibility` | No | Max 500 chars. Free-text environment requirements. | e.g. "Requires git, docker, jq" |
-| `metadata` | No | Arbitrary string-to-string key-value map. | Escape hatch for custom data. Use unique key names. |
-| `allowed-tools` | No | Space-delimited tool list (experimental). | e.g. `allowed-tools: Bash(git:*) Read` |
+| `metadata` | No | Arbitrary string-to-string key-value map. | The place for custom data. Use unique key names. |
+| `allowed-tools` | No | Space-delimited tool list. Experimental. | e.g. `allowed-tools: Bash(git:*) Read` |
 
-## Claude Code Extension
+## Claude Code extension
 
-Claude Code supports all agentskills.io fields **plus** these additional fields. Other clients will ignore them.
+Claude Code supports all agentskills.io fields plus the fields below. Other clients ignore them.
 
 | Field | Required | Description |
 |-------|----------|-------------|
 | `argument-hint` | No | Placeholder shown when invoking (e.g. `[issue-number]`). |
-| `disable-model-invocation` | No | `true` prevents Claude from auto-triggering. User must invoke via `/name`. |
-| `user-invocable` | No | `false` hides from `/` menu. Use for background knowledge skills. |
-| `model` | No | Override model when skill is active. |
+| `disable-model-invocation` | No | `true` stops Claude from triggering the skill on its own. The user must invoke it with `/name`. |
+| `user-invocable` | No | `false` hides the skill from the `/` menu. Use it for background knowledge skills. |
+| `model` | No | Overrides the model while the skill is active. |
 | `effort` | No | Effort level: `low`, `medium`, `high`, `max`. |
-| `context` | No | `fork` or `agent` — runs skill in isolated subagent. |
+| `context` | No | `fork` or `agent`. Runs the skill in an isolated subagent. |
 | `hooks` | No | Hook configuration within the skill. |
 | `paths` | No | Path-specific rules. |
 | `shell` | No | Shell to use: `bash` or `powershell`. |
 
-## Differences Summary
+## Differences summary
 
 | Concern | agentskills.io | Claude Code |
 |---------|---------------|-------------|
-| `name` | Required | Optional (falls back to directory name) |
+| `name` | Required | Optional, falls back to the directory name |
 | `description` | Required, max 1024 chars | Recommended, truncated at 250 chars in listing |
-| `allowed-tools` format | Space-delimited string | Space-separated string **or** YAML list |
-| `user-invocable` | Not defined | `false` hides from `/` menu |
-| `disable-model-invocation` | Not defined | `true` prevents auto-trigger |
-| `metadata` | Arbitrary KV map | Recognized but no specific keys defined |
+| `allowed-tools` format | Space-delimited string | Space-separated string or YAML list |
+| `user-invocable` | Not defined | `false` hides the skill from the `/` menu |
+| `disable-model-invocation` | Not defined | `true` prevents automatic triggering |
+| `metadata` | Arbitrary key-value map | Recognized but no specific keys defined |
 
-## Agent-Specific Targeting
+## Agent-specific targeting
 
-There is no standard field for targeting skills at specific agents or platforms. The recommended approaches:
+No standard field targets skills at specific agents or platforms. Use one of these approaches instead:
 
-1. **`compatibility`** (standard, free-text) — human-readable, not machine-parseable.
+1. **`compatibility`** is a standard free-text field. People can read it, but tools can't parse it.
    ```yaml
    compatibility: Designed for Claude Code
    ```
 
-2. **`metadata`** (standard, arbitrary KV) — the spec's official escape hatch.
+2. **`metadata`** is a standard map with arbitrary keys. The spec designates it for custom data.
    ```yaml
    metadata:
      agent_affinity: nanoclaw
@@ -64,15 +64,15 @@ There is no standard field for targeting skills at specific agents or platforms.
      upstream_version: "1.11.0"
    ```
 
-3. **Claude Code-specific fields** — `disable-model-invocation`, `user-invocable`, etc. Only recognized by Claude Code, ignored by other clients.
+3. **Claude Code-specific fields**, such as `disable-model-invocation` and `user-invocable`, work only in Claude Code. Other clients ignore them.
 
-## Current Skill Compliance
+## Current skill compliance
 
 | Skill | agentskills.io compliant | Claude Code compliant | Notes |
 |-------|------------------------|----------------------|-------|
-| crafting-commits | Yes | Yes | Uses `user-invocable` (CC extension) |
-| handoff-context | Yes | Yes | Uses `user-invocable`, `disable-model-invocation` (CC extensions) |
-| systematic-debugging | Yes | Yes | Uses `user-invocable` (CC extension) |
+| crafting-commits | Yes | Yes | Uses `user-invocable`, a Claude Code extension |
+| handoff-context | Yes | Yes | Uses `user-invocable` and `disable-model-invocation`, both Claude Code extensions |
+| systematic-debugging | Yes | Yes | Uses `user-invocable`, a Claude Code extension |
 | meta-search | Yes | Yes | Standard fields only |
 | frontend-design | Yes | Yes | Standard fields only |
 | here-now | Yes | Yes | Standard fields only |

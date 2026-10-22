@@ -1,11 +1,11 @@
-# Claw Recipes vs Skills
+# Claw recipes vs skills
 
 Research into the recipe/skill distinction in the OpenClaw/Hermes/*Claw ecosystem, and whether recipes are a standardized concept or an ad-hoc pattern.
 
 Date: 2026-04-13
 Sources: garrytan/gbrain, openclaw/openclaw, NousResearch/hermes-agent, JIGGAI/ClawRecipes, agentskills.io
 
-## Ecosystem Context
+## Ecosystem context
 
 | Project | Stars | Role |
 |---------|-------|------|
@@ -13,14 +13,14 @@ Sources: garrytan/gbrain, openclaw/openclaw, NousResearch/hermes-agent, JIGGAI/C
 | [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) | 65k | Personal AI agent with learning loop. OpenClaw-compatible (`hermes claw migrate`). |
 | [garrytan/gbrain](https://github.com/garrytan/gbrain) | 5.9k | Personal knowledge brain (memex) that runs on top of OpenClaw or Hermes. Git-backed markdown files + pgvector retrieval. |
 
-The `*Claw` ecosystem centers on OpenClaw as the harness/runtime. Skills are the standard unit of capability distribution via the [AgentSkills spec](https://agentskills.io).
+The `*Claw` ecosystem centers on OpenClaw as the agent harness and runtime. Skills, defined by the [AgentSkills spec](https://agentskills.io), are the standard way to distribute capabilities.
 
 ## Skills (the standard)
 
-Skills are reusable procedural capabilities that teach the agent HOW to do something.
+Skills are reusable procedural capabilities that teach the agent how to do something.
 
 - **Format**: `SKILL.md` in a directory, with YAML frontmatter (`name`, `description`, optional `metadata`)
-- **Spec**: [agentskills.io](https://agentskills.io) — open standard supported by OpenClaw, Hermes, Claude Code
+- **Spec**: [agentskills.io](https://agentskills.io), an open standard supported by OpenClaw, Hermes, and Claude Code
 - **Lifecycle**: Invoked repeatedly as slash commands (e.g., `/briefing`, `/enrich`)
 - **Discovery**: `/skills` command, [ClawHub](https://clawhub.ai) registry
 - **Install**: `openclaw skills install <slug>`
@@ -29,11 +29,11 @@ Frontmatter reference: [docs/ref-001-skill-frontmatter.md](ref-001-skill-frontma
 
 ## Recipes (emergent pattern)
 
-Recipes are installation/integration playbooks that teach the agent how to SET UP an external capability end-to-end.
+Recipes are installation and integration playbooks that teach the agent how to set up an external capability end to end.
 
-### GBrain's Recipe Format
+### GBrain's recipe format
 
-Garry Tan's GBrain repo (`recipes/` directory, 7 recipes as of 2026-04-13):
+Garry Tan's GBrain repo has 7 recipes in its `recipes/` directory as of 2026-04-13:
 
 ```yaml
 ---
@@ -57,19 +57,19 @@ cost_estimate: "$15-25/mo"
 Key properties:
 - Written as **agent-executable instructions** ("You are the installer. Follow these instructions precisely.")
 - Sequential with stop-points and validation after each step
-- Handles credential collection, dependency resolution, health checks
-- Runs once (or rarely) to set up infrastructure; skills then operate on that infrastructure
+- Handles credential collection, dependency resolution, and health checks
+- Runs once or rarely to set up infrastructure, and skills then operate on that infrastructure
 
 Available GBrain recipes: `calendar-to-brain`, `credential-gateway`, `email-to-brain`, `meeting-sync`, `ngrok-tunnel`, `twilio-voice-brain`, `x-to-brain`.
 
-### JIGGAI's ClawRecipes Format
+### JIGGAI's ClawRecipes format
 
 [JIGGAI/ClawRecipes](https://github.com/JIGGAI/ClawRecipes) (97 stars, created 2026-02-09):
 
-- Full OpenClaw plugin (`@jiggai/recipes`) with CLI, scaffolding engine, workflow runner
+- Full OpenClaw plugin (`@jiggai/recipes`) with a CLI, a scaffolding engine, and a workflow runner
 - Different frontmatter: `kind`, `requiredSkills`, `templates`, `files`, `tools`
-- Different purpose: agent personas and team workflows (not integrations)
-- Supporting tools: ClawKitchen (web dashboard), ClawMarket (marketplace)
+- Different purpose: agent personas and team workflows, not integrations
+- Supporting tools: ClawKitchen, a web dashboard, and ClawMarket, a marketplace
 
 ### Comparison
 
@@ -81,9 +81,9 @@ Available GBrain recipes: `calendar-to-brain`, `credential-gateway`, `email-to-b
 | Tooling | None (agent-executable markdown) | CLI, scaffolding, web dashboard |
 | Cross-references | No | No |
 
-## Community Adoption Status
+## Community adoption status
 
-### Official Projects
+### Official projects
 
 | Project | "Recipe" in docs? | "Recipe" in code? |
 |---------|-------------------|-------------------|
@@ -92,26 +92,27 @@ Available GBrain recipes: `calendar-to-brain`, `credential-gateway`, `email-to-b
 | openclaw/clawhub | No | No |
 | VoltAgent/awesome-openclaw-skills | No (only cooking recipes) | N/A |
 
-**Neither OpenClaw nor Hermes officially recognize "recipe" as a concept.**
+**Neither OpenClaw nor Hermes recognizes "recipe" as a concept.**
 
-### Broader Signal
+### Broader signal
 
-GitHub search for "openclaw recipe" returns ~28 repos, mostly:
-- Low-effort cookbook-style collections (0-2 stars)
+A GitHub search for "openclaw recipe" returns about 28 repos. Most are:
+- Low-effort cookbook-style collections with 0-2 stars
 - Web automation patterns
-- No RFCs, no working groups, no formal standardization proposals
+
+None of them include RFCs, working groups, or formal standardization proposals.
 
 ### Verdict
 
-"Recipe" is an **emergent, fragmented pattern** — not a standardized concept:
+"Recipe" is an **emergent, fragmented pattern**, not a standardized concept:
 
 - Two notable independent implementations (GBrain, ClawRecipes) with incompatible formats
 - No cross-pollination between implementations
 - No official recognition from OpenClaw or Hermes
 - No community effort to unify or standardize
-- GBrain's implementation is the most thoughtful (production-hardened, real deployment lessons) but remains a personal convention
+- GBrain's implementation is the most thoughtful, hardened in production and shaped by real deployment lessons, but it remains a personal convention
 
-## Decision Framework
+## Decision framework
 
 From Garry Tan's "Thin Harness, Fat Skills" essay:
 
@@ -125,8 +126,8 @@ From Garry Tan's "Thin Harness, Fat Skills" essay:
 
 Recipes produce the infrastructure that skills then operate on.
 
-## Implications for This Repo
+## Implications for this repo
 
-Recipes are worth tracking as upstream references (the production patterns and architecture insights are valuable), but not worth adopting as a first-class concept until/unless the ecosystem standardizes.
+Recipes are worth tracking as upstream references because their production patterns and architecture notes are useful. They are not worth adopting as a first-class concept unless the ecosystem standardizes them.
 
-Current approach: track selected recipes as read-only reference material in `recipes/`, separate from the `skills/` directory which follows the agentskills.io standard.
+For now, this repo tracks selected recipes as read-only reference material in `recipes/`, separate from the `skills/` directory, which follows the agentskills.io standard.
