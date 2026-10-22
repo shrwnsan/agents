@@ -255,13 +255,16 @@ jobs:
           # (synced_at/generated_at on an otherwise identical run) must not
           # produce commits/PRs — the commit step below would otherwise open
           # a PR every dispatch.
-          entries_meaningful = any(
-              old.get("commit") != new.get("commit")
-              or old.get("repo") != new.get("repo")
-              or old.get("path") != new.get("path")
-              or old.get("file") != new.get("file")
-              for old, new in zip(previous_entries, [manifest["entries"].get(k) for k in previous_entries.keys()])
-          ) or set(previous_entries) != set(manifest["entries"])
+          entries_meaningful = (
+              set(previous_entries) != set(manifest["entries"])
+              or any(
+                  (previous_entries.get(k) or {}).get("commit") != (manifest["entries"][k] or {}).get("commit")
+                  or (previous_entries.get(k) or {}).get("repo") != (manifest["entries"][k] or {}).get("repo")
+                  or (previous_entries.get(k) or {}).get("path") != (manifest["entries"][k] or {}).get("path")
+                  or (previous_entries.get(k) or {}).get("file") != (manifest["entries"][k] or {}).get("file")
+                  for k in manifest["entries"]
+              )
+          )
           if has_changes or entries_meaningful:
               manifest["generated_at"] = now
               with open(manifest_path, "w") as f:
