@@ -1,45 +1,45 @@
-# Why These Skills
+# Why these skills
 
-The [catalog](../skills/README.md) says what is on the shelf. This page says why, so the next addition or removal can be judged against the same taste.
+The [catalog](../skills/README.md) lists the skills in this repo. This page explains why they are here, so you can judge the next addition or removal by the same standard.
 
 ## The thesis
 
-Left alone, an agent reaches for the median: the purple gradient, the plausible fix, the confident guess. Each skill here exists to pull one recurring job off the median and toward what a careful senior person would do.
+Without guidance, an agent produces the most common answer, like a purple gradient or a fix that looks right and misses the root cause. Each skill here moves one recurring job closer to what a careful senior engineer or designer would do.
 
-The shelf is edited, not accumulated. Every skill costs something each time it loads: tokens, attention, and a chance to fire at the wrong moment. So the bar is not "useful." The bar is "worth loading on every agent I run."
+The collection stays small on purpose. A loaded skill spends tokens and attention, and it can trigger at the wrong moment. A skill belongs here only if it is worth loading on every agent we run.
 
-## What earns a place
+## What a skill needs to get in
 
-**A real job, done better.** Each skill answers work that keeps coming back, not work that might. [fare-verdict](../skills/fare-verdict/) and [vercel-domain-search](../skills/vercel-domain-search/) exist because real decisions needed better evidence. When a new skill does an old one's job better, the old one leaves in the same commit.
+**It does a recurring job better.** Each skill answers work that keeps coming back. [fare-verdict](../skills/fare-verdict/) and [vercel-domain-search](../skills/vercel-domain-search/) exist because real decisions needed better evidence. When a new skill does an old one's job better, the same commit removes the old one.
 
-**Taste as a capability.** Design is the largest cluster because it is where agents most visibly default to slop. The skills split the work the way a good design team does. [frontend-design](../skills/frontend-design/) sets direction, [motion-craft](../skills/motion-craft/) executes, [no-ai-design-slop](../skills/no-ai-design-slop/) guards while building, [audit-ai-design-slop](../skills/audit-ai-design-slop/) reviews after, and [extract-design-tokens](../skills/extract-design-tokens/) reads taste off a live site. Making and judging stay separate roles: [dataviz](../skills/dataviz/) builds charts and [dataviz-tufte](../skills/dataviz-tufte/) critiques them, because the hand that made something rarely sees its flaws.
+**It treats taste as a capability.** Design is the largest group because agents fall back on generic design more visibly than anywhere else. The design skills divide the work like a design team. [frontend-design](../skills/frontend-design/) sets direction, [motion-craft](../skills/motion-craft/) handles animation, [no-ai-design-slop](../skills/no-ai-design-slop/) checks UI work during the build, [audit-ai-design-slop](../skills/audit-ai-design-slop/) reviews it afterward, and [extract-design-tokens](../skills/extract-design-tokens/) measures the design of a live site. [unslop](../skills/unslop/) applies the same standard to writing, and this page went through it. Making and reviewing are separate skills. [dataviz](../skills/dataviz/) builds charts and [dataviz-tufte](../skills/dataviz-tufte/) critiques them, because a reviewer catches flaws the author misses.
 
-**Math where math decides, judgment where it must.** [fare-verdict](../skills/fare-verdict/) is arithmetic on Google's own price data, with no model in the loop. [skill-quality-gate](../skills/skill-quality-gate/) returns the same findings for the same input. [branch-hygiene](../skills/branch-hygiene/) shows its evidence before anything is deleted. Models judge only the fuzzy remainder, and uncertainty escalates to a person ([ADR-001](adr-001-advisory-judge-for-skill-quality-gate.md)).
+**It runs deterministic checks first.** [fare-verdict](../skills/fare-verdict/) computes its verdict from Google's own price data, with no model in the loop. [skill-quality-gate](../skills/skill-quality-gate/) returns the same findings for the same input. [branch-hygiene](../skills/branch-hygiene/) shows its evidence before it deletes anything. Models judge only what the checks can't decide, and an uncertain judgment goes to a person ([ADR-001](adr-001-advisory-judge-for-skill-quality-gate.md)).
 
-**Honest scope.** A good skill says what it won't do. [sandboxed-run](../skills/sandboxed-run/) calls itself "process hygiene, not a jail." fare-verdict is not a booking tool. [nothing-design](../skills/nothing-design/) runs only when you name it. Overclaiming is a defect, and the quality gate checks for it.
+**It states its limits.** [sandboxed-run](../skills/sandboxed-run/) calls itself "process hygiene, not a jail." fare-verdict does not book flights. [nothing-design](../skills/nothing-design/) runs only when you name it. The quality gate flags a skill that claims behavior it doesn't implement.
 
-**Safe by default.** Reversible beats fast. Trash instead of delete, read-only classification before cleanup, credential-free runs for untrusted code, secret scans before anything is published. Keyless wherever possible: a skill that wants your wallet or API key has to be worth that trust, and none of the Binance hub's wallet or trading skills were.
+**It is safe by default.** Skills prefer reversible actions. They move files to trash instead of deleting them, classify branches before cleanup, run untrusted code without credentials, and scan for secrets before publishing. They avoid API keys where they can. A skill that needs your wallet or keys has to justify that access, and none of the Binance hub's wallet or trading skills did.
 
-**Borrowed taste, earned trust.** We take freely from people whose craft we admire: Anthropic, Cloudflare, Emil Kowalski, MengTo. Every vendored skill is pinned to a recorded commit, read end to end, and run once in a sandbox before it lands. A version bump earns that trust again from scratch. Native skills fill the gaps upstream leaves.
+**We pin and vet third-party skills.** We vendor from people whose work we admire, including Anthropic, Cloudflare, Emil Kowalski, and MengTo. We pin each skill to a recorded commit, read it end to end, and run it once in a real container before merging. Bumping the pin repeats the whole check. We write our own skill when no upstream one is good enough.
 
-**Context is a budget.** [caveman](../skills/caveman/) compresses replies. [handoff-context](../skills/handoff-context/) carries a thread forward without dragging all of it along. The same instinct drives rejections: `find-skills` was turned down for putting 5 KB in every prompt to save a one-line CLI call.
+**It keeps context small.** [caveman](../skills/caveman/) compresses replies. [handoff-context](../skills/handoff-context/) starts a new thread from a structured summary instead of the full history. Rejections follow the same rule. We turned down `find-skills` because it put 5 KB in every prompt to replace a one-line CLI call.
 
-## The shape of the shelf
+## The jobs the skills cover
 
-| Job | What it buys | For example |
-|-----|--------------|-------------|
-| Ship with craft | Work that doesn't look generated | frontend-design, motion-craft, no-ai-design-slop |
-| Keep the code honest | Reviews, commits, and fixes a senior engineer would sign | review-pr, systematic-debugging, skill-quality-gate |
-| Contain risk | Untrusted code and machines stay in their lane | sandboxed-run, security-audit, live-system-forensics |
-| Ask the real world | Answers grounded in live data, not recall | fare-verdict, meta-search, og-social-cards |
-| Keep momentum | Sessions and environments that pick up where they left off | handoff-context, caveman, docker-agent-browser |
+| Job | What it gives you | Examples |
+|-----|-------------------|----------|
+| Craft | Work that doesn't look or read as generated | frontend-design, no-ai-design-slop, unslop |
+| Code quality | Reviews, commits, and fixes a senior engineer would approve | review-pr, systematic-debugging, skill-quality-gate |
+| Risk containment | Untrusted code runs away from your credentials and working tree | sandboxed-run, security-audit, live-system-forensics |
+| Live data | Answers from current sources instead of model memory | fare-verdict, meta-search, og-social-cards |
+| Continuity | New sessions and containers start with the context and tools they need | handoff-context, docker-agent-browser |
 
 ## What we say no to
 
-The [rejection log](../rejected-skills.json) is half the point. It is where taste is most legible: too narrow, auth for little gain, a duplicate of something better, or a behavior change everywhere for value somewhere. Each no is written down the day it's decided, with one line of why, so the next enthusiastic install doesn't reopen it.
+The [rejection log](../rejected-skills.json) is where our standards are most visible. Common reasons are a use case that is too narrow, an auth requirement that buys little, a duplicate of a better skill, or a change to agent behavior in every repo for value in a few. We log each rejection on the day we decide it, with a one-line reason, so nobody has to evaluate the same skill again.
 
-## How it evolves
+## How the collection changes
 
-The shelf should get sharper, not bigger. Add a skill when a job keeps recurring and agents keep getting it wrong. Re-vet when upstream moves. Retire a skill once models have learned what it teaches; the generic anti-slop rules left the global AGENTS.md for exactly that reason ([ref-004](ref-004-agents-md-consolidation.md)).
+The goal is fewer, better skills. We add a skill when agents keep getting a recurring job wrong. We re-vet a skill when its upstream changes. We retire a skill once models already know what it teaches, which is why the generic anti-slop rules left the global AGENTS.md ([ref-004](ref-004-agents-md-consolidation.md)).
 
-One test covers most decisions: would a thoughtful lead want this loaded on every agent on the team?
+One question settles most decisions. Would a thoughtful lead want this skill loaded on every agent on the team?
