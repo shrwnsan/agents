@@ -1,0 +1,270 @@
+{
+  "summary": {
+    "total": 25,
+    "scored": 25,
+    "errors": 0,
+    "accuracy": 0.8,
+    "mean_confidence_correct": 0.82,
+    "mean_confidence_wrong": 0.698,
+    "pipeline_false_clears": 1,
+    "misclassified": [
+      {
+        "id": "zcode-feedback-masker",
+        "label": "benign-vendored",
+        "predicted": "feature-wired",
+        "confidence": 0.71
+      },
+      {
+        "id": "zcode-sentry-placeholder",
+        "label": "benign-vendored",
+        "predicted": "declared-telemetry",
+        "confidence": 0.91
+      },
+      {
+        "id": "zcode-shadcn-mcp",
+        "label": "benign-vendored",
+        "predicted": "feature-wired",
+        "confidence": 0.68
+      },
+      {
+        "id": "syn-capture-stage",
+        "label": "pipeline-indicator",
+        "predicted": "feature-wired",
+        "confidence": 0.71
+      },
+      {
+        "id": "zcode-3163-capture-repo-snapshot",
+        "label": "benign-vendored",
+        "predicted": "declared-telemetry",
+        "confidence": 0.48
+      }
+    ]
+  },
+  "rows": [
+    {
+      "id": "zcode-feedback-masker",
+      "label": "benign-vendored",
+      "predicted": "feature-wired",
+      "confidence": 0.71,
+      "pipeline_shaped": true,
+      "gate": "escalate",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "zcode-route-vocab",
+      "label": "benign-vendored",
+      "predicted": "benign-vendored",
+      "confidence": 0.28,
+      "pipeline_shaped": true,
+      "gate": "escalate",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "zcode-ngrok-psl",
+      "label": "benign-vendored",
+      "predicted": "benign-vendored",
+      "confidence": 0.61,
+      "pipeline_shaped": false,
+      "gate": "escalate",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "conductor-amplitude-png",
+      "label": "benign-vendored",
+      "predicted": "benign-vendored",
+      "confidence": 0.72,
+      "pipeline_shaped": false,
+      "gate": "escalate",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "conductor-segment-jpeg",
+      "label": "benign-vendored",
+      "predicted": "benign-vendored",
+      "confidence": 1.0,
+      "pipeline_shaped": false,
+      "gate": "auto-resolve",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "zcode-sentry-placeholder",
+      "label": "benign-vendored",
+      "predicted": "declared-telemetry",
+      "confidence": 0.91,
+      "pipeline_shaped": false,
+      "gate": "auto-resolve",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "zcode-shadcn-mcp",
+      "label": "benign-vendored",
+      "predicted": "feature-wired",
+      "confidence": 0.68,
+      "pipeline_shaped": false,
+      "gate": "escalate",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "conductor-posthog-sdk",
+      "label": "declared-telemetry",
+      "predicted": "declared-telemetry",
+      "confidence": 0.99,
+      "pipeline_shaped": false,
+      "gate": "auto-resolve",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "conductor-sentry-dsn",
+      "label": "declared-telemetry",
+      "predicted": "declared-telemetry",
+      "confidence": 0.95,
+      "pipeline_shaped": false,
+      "gate": "auto-resolve",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "zcode-arms-rum",
+      "label": "declared-telemetry",
+      "predicted": "declared-telemetry",
+      "confidence": 0.84,
+      "pipeline_shaped": false,
+      "gate": "auto-resolve",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "zcode-otlp-delegates",
+      "label": "declared-telemetry",
+      "predicted": "declared-telemetry",
+      "confidence": 0.8,
+      "pipeline_shaped": false,
+      "gate": "auto-resolve",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "zcode-feedback-attachment",
+      "label": "feature-wired",
+      "predicted": "feature-wired",
+      "confidence": 0.99,
+      "pipeline_shaped": true,
+      "gate": "auto-resolve",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "zcode-recorder",
+      "label": "feature-wired",
+      "predicted": "feature-wired",
+      "confidence": 1.0,
+      "pipeline_shaped": false,
+      "gate": "auto-resolve",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "conductor-runlocal-flag",
+      "label": "feature-wired",
+      "predicted": "feature-wired",
+      "confidence": 0.68,
+      "pipeline_shaped": false,
+      "gate": "escalate",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "zcode-update-poller",
+      "label": "feature-wired",
+      "predicted": "feature-wired",
+      "confidence": 0.97,
+      "pipeline_shaped": false,
+      "gate": "auto-resolve",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "zcode-telegram-bot",
+      "label": "feature-wired",
+      "predicted": "feature-wired",
+      "confidence": 0.97,
+      "pipeline_shaped": false,
+      "gate": "auto-resolve",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "zcode-ws-relay",
+      "label": "feature-wired",
+      "predicted": "feature-wired",
+      "confidence": 0.99,
+      "pipeline_shaped": false,
+      "gate": "auto-resolve",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "syn-snapshot-credential",
+      "label": "pipeline-indicator",
+      "predicted": "pipeline-indicator",
+      "confidence": 0.97,
+      "pipeline_shaped": false,
+      "gate": "auto-resolve",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "syn-envelope-crypto",
+      "label": "pipeline-indicator",
+      "predicted": "pipeline-indicator",
+      "confidence": 0.6,
+      "pipeline_shaped": false,
+      "gate": "escalate",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "syn-sidecar-class",
+      "label": "pipeline-indicator",
+      "predicted": "pipeline-indicator",
+      "confidence": 0.69,
+      "pipeline_shaped": false,
+      "gate": "escalate",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "syn-git-unconditional",
+      "label": "pipeline-indicator",
+      "predicted": "pipeline-indicator",
+      "confidence": 0.91,
+      "pipeline_shaped": false,
+      "gate": "auto-resolve",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "syn-artifact-path",
+      "label": "pipeline-indicator",
+      "predicted": "pipeline-indicator",
+      "confidence": 0.63,
+      "pipeline_shaped": false,
+      "gate": "escalate",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "syn-capture-stage",
+      "label": "pipeline-indicator",
+      "predicted": "feature-wired",
+      "confidence": 0.71,
+      "pipeline_shaped": false,
+      "gate": "escalate",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "syn-settings-key",
+      "label": "pipeline-indicator",
+      "predicted": "pipeline-indicator",
+      "confidence": 0.8,
+      "pipeline_shaped": false,
+      "gate": "auto-resolve",
+      "model": "jev-1.14.0"
+    },
+    {
+      "id": "zcode-3163-capture-repo-snapshot",
+      "label": "benign-vendored",
+      "predicted": "declared-telemetry",
+      "confidence": 0.48,
+      "pipeline_shaped": true,
+      "gate": "escalate",
+      "model": "jev-1.14.0"
+    }
+  ]
+}
