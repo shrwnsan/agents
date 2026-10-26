@@ -58,3 +58,25 @@ model until someone re-runs the eval on another model.
 - Two of the five baseline "misses" were errors in our label taxonomy,
   and the model's answer was defensible. Raw accuracy therefore
   understates agreement.
+
+## Skill provenance
+
+History for the `auditing-agent-harnesses` skill itself, kept out of the
+portable package — PR numbers and campaign details mean nothing to a
+user who installed the skill on its own:
+
+- The skill came out of a 2026-09 audit campaign across six blind
+  baselines. The failure mode it targets was observed directly: earlier
+  unaudited rounds had missed the real update channel (C4), credential
+  file modes (C6), and capture-API sweeps (C1).
+- PR #64 (2026-10-04) added the skill. PR #95 made it self-contained —
+  harness in `scripts/`, corpus in `assets/`, receipts and corpus README
+  in `references/`; #98 removed the last `docs/evals` leftovers; #99
+  added the README context split, pinned measured model versions
+  (jev-1.13.0, jev-1.14.0), and gate-review fixes.
+- The public corpus inside the skill is the sanitized mirror; the
+  unsanitized canonical lives in a private repo (see the sanitization
+  notice in the skill's `references/corpus-README.md`).
+- `metadata.version` in the skill's frontmatter is the package label;
+  bump it in the same PR as any skill-content change. Git history and
+  the PR numbers above remain the real changelog.
