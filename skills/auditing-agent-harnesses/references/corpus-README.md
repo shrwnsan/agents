@@ -2,7 +2,9 @@
 
 A labeled corpus and harness that measure whether TypeSafe's System One
 API (jev-latest) can work as an **advisory** triage layer for
-binary-audit context extraction. Result (2026-10-02): adopted as
+binary-audit context extraction. Measured results (per run) are in the
+Results section below; each receipt pins the resolved model version in
+its rows, since "jev-latest" is a moving alias. Adopted as
 advisory-only. It auto-resolves at confidence of 0.75 or higher and
 escalates everything else. Any pipeline-shaped needle that scores benign
 escalates regardless of confidence. The full rationale is in
@@ -49,14 +51,15 @@ escalates regardless of confidence. The full rationale is in
 
 ## Results
 
-- 2026-10-02, jev-latest, 24/24 scored: raw accuracy 0.79, 6/7 on
-  synthetic positives, **0 pipeline false-clears**, mean confidence
-  0.866 when correct and 0.588 when wrong.
-- 2026-10-23, jev-latest, 25/25 scored: raw accuracy 0.80, 6/7 on
-  synthetic positives, mean confidence 0.82 when correct and 0.698 when
-  wrong — the correct/wrong confidence spread narrowed versus
-  2026-10-02, so treat calibration as drifting and re-run `baseline`
-  per model update. 14 contexts auto-resolved, 11 escalated. The one
+- 2026-10-02, jev-1.13.0 ("jev-latest" at the time), 24/24 scored: raw
+  accuracy 0.79, 6/7 on synthetic positives, **0 pipeline false-clears**,
+  mean confidence 0.866 when correct and 0.588 when wrong.
+- 2026-10-23, jev-1.14.0 ("jev-latest" at the time), 25/25 scored: raw
+  accuracy 0.80, 6/7 on synthetic positives, mean confidence 0.82 when
+  correct and 0.698 when wrong — the correct/wrong confidence spread
+  narrowed versus 2026-10-02, so treat calibration as drifting and
+  re-run `baseline` per model update. 14 contexts auto-resolved, 11
+  escalated. The one
   wrong auto-resolve was `zcode-sentry-placeholder` read as
   `declared-telemetry` at 0.91 (a known hard case: a sample-env
   placeholder DSN). `zcode-route-vocab` scored `benign-vendored` at

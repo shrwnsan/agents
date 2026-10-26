@@ -3,7 +3,7 @@
 
 Modes:
   baseline   Score assets/corpus.jsonl against its labels (reproduces the
-             2026-10-02 eval-024 baseline; refresh receipts land in
+             2026-10-02 baseline, jev-1.13.0; refresh receipts land in
              references/baseline-results.json).
   contexts   Triage new byte-window contexts from a JSONL file
              (rows: id, context, optional pipeline_shaped). Emits one JSONL
