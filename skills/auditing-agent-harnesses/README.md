@@ -11,11 +11,11 @@ measured results that an agent does not need at audit time.
 The skill is a **coverage-contract skill**: it does not teach audit
 technique (byte sweeps, asar parsing, endpoint attribution are assumed
 competent). It exists because the failure mode of real audit rounds was
-silent omission — documented gaps in earlier unaudited rounds included
-the real update channel (C4), credential file modes (C6), and
-capture-API sweeps (C1). The nine concern classes and the
-evidence-or-gap reporting rule were validated across 6 blind baselines
-in a 2026-09 audit campaign.
+silent omission — earlier rounds missed the real update channel (C4),
+credential file modes (C6), and capture-API sweeps (C1) before the
+coverage rule existed. Provenance and validation history (six blind
+baselines, adoption timeline):
+[docs/research-002](https://github.com/shrwnsan/agents/blob/main/docs/research-002-context-triage-baseline.md).
 
 ## Layout
 
@@ -29,7 +29,7 @@ in a 2026-09 audit campaign.
 
 ## Context-triage accelerator: history and results
 
-The context-triage layer was adopted (PR #64) as an **optional,
+The context-triage layer was adopted on 2026-10-02 as an **optional,
 advisory** Phase-2 accelerator. Payoff: the false-positive attribution
 grind disappears — the baseline auto-resolved about 19 of 24 contexts,
 absorbing the ~6–8 extraction round-trips and ~15–30K main-thread
