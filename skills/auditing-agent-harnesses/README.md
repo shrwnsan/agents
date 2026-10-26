@@ -41,9 +41,12 @@ resolved version in its rows):
 | Date | Model | Scored | Raw accuracy | Mean conf (correct) | Mean conf (wrong) | Pipeline false-clears |
 |---|---|---|---|---|---|---|
 | 2026-10-02 | jev-1.13.0 | 24/24 | 0.79 | 0.866 | 0.588 | 0 |
-| 2026-10-23 | jev-1.14.0 | 25/25 | 0.80 | 0.82 | 0.698 | 0 |
+| 2026-10-23 | jev-1.14.0 | 25/25 | 0.80 | 0.82 | 0.698 | 1 (escalated) |
 
-The 2026-10-23 re-run held accuracy but narrowed the correct/wrong
+The 2026-10-23 false-clear is `zcode-route-vocab` scoring `benign-vendored`
+at 0.28 — the regardless-of-confidence rule escalated it, so no
+pipeline-shaped needle auto-resolved. The 2026-10-23 re-run held accuracy
+but narrowed the correct/wrong
 confidence spread, so calibration is treated as **drifting**: re-run
 `context-triage.py baseline` on every model update. The ≥0.75
 auto-resolve threshold is model-specific and applies only to
