@@ -1,7 +1,8 @@
 # research-002: context triage for agent-harness audits with the System One API, measured on jev-latest
 
 **Date:** 2026-10-02
-**Companion:** `evals/context-triage-baseline/` (corpus, harness, and results)
+**Companion:** `skills/auditing-agent-harnesses` (corpus in `assets/`, harness in
+`scripts/`, baseline results in `references/`)
 
 ## Question
 
@@ -36,13 +37,13 @@ That work is classifying byte-window contexts extracted from binaries as
 ## Verdict
 
 Adopted as an **optional, advisory** Phase-2 accelerator in
-`skills/auditing-agent-harnesses` (PR #64). The skill does not contain
-an implementation. It instructs the agent to use the harness in
-`evals/context-triage-baseline/` when `TYPESAFE_API_KEY` is present and
-to skip cleanly when it is absent. OpenAI-compatible aggregators such as
-OpenRouter and Vercel AI Gateway do not serve Jev, because the System
-One API has its own protocol. `run.py` accepts `TYPESAFE_BASE_URL` for a
-future compatible endpoint. The measured threshold applies only to this
+`skills/auditing-agent-harnesses` (PR #64). The skill ships the harness
+itself (PR #95): `scripts/context-triage.py`, with the corpus in
+`assets/corpus.jsonl`. It instructs the agent to use the harness when
+`TYPESAFE_API_KEY` is present and to skip cleanly when it is absent.
+OpenAI-compatible aggregators such as OpenRouter and Vercel AI Gateway
+do not serve Jev, because the System One API has its own protocol. The
+harness accepts `TYPESAFE_BASE_URL` for a future compatible endpoint. The measured threshold applies only to this
 model until someone re-runs the eval on another model.
 
 ## Limits
