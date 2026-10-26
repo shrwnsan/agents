@@ -8,7 +8,8 @@ its rows, since "jev-latest" is a moving alias. Adopted as
 advisory-only. It auto-resolves at confidence of 0.75 or higher and
 escalates everything else. Any pipeline-shaped needle that scores benign
 escalates regardless of confidence. The full rationale is in
-`docs/research-002-context-triage-baseline.md` (agents repo).
+[docs/research-002-context-triage-baseline.md](https://github.com/shrwnsan/agents/blob/main/docs/research-002-context-triage-baseline.md)
+(in the skill's source repo).
 
 ## Contents
 
