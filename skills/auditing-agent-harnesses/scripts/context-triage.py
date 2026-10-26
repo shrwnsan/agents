@@ -3,7 +3,7 @@
 
 Modes:
   baseline   Score assets/corpus.jsonl against its labels (reproduces the
-             2026-10-02 eval-024 baseline; refresh receipts land in
+             2026-10-02 baseline, jev-1.13.0; refresh receipts land in
              references/baseline-results.json).
   contexts   Triage new byte-window contexts from a JSONL file
              (rows: id, context, optional pipeline_shaped). Emits one JSONL
@@ -141,9 +141,21 @@ def gate(predicted: str | None, confidence: float | None, pipeline_shaped: bool)
     return "auto-resolve"
 
 
+def load_jsonl(path: str) -> list[dict]:
+    rows = []
+    with open(path) as f:
+        for n, line in enumerate(f, 1):
+            if not line.strip():
+                continue
+            try:
+                rows.append(json.loads(line))
+            except json.JSONDecodeError as e:
+                sys.exit(f"{path}: invalid JSON on line {n}: {e.msg}")
+    return rows
+
+
 def run_baseline(corpus_path: str, delay: float, out: str | None, force: bool) -> int:
-    with open(corpus_path) as f:
-        corpus = [json.loads(line) for line in f if line.strip()]
+    corpus = load_jsonl(corpus_path)
 
     rows = []
     for s in corpus:
@@ -166,7 +178,15 @@ def run_baseline(corpus_path: str, delay: float, out: str | None, force: bool) -
 
     out_path = open_out(out, "triage-baseline", force)
     with open(out_path, "w") as f:
-        json.dump({"summary": summarize_baseline(rows), "rows": rows}, f, indent=2)
+        json.dump(
+            {
+                "generated": datetime.now().isoformat(timespec="seconds"),
+                "summary": summarize_baseline(rows),
+                "rows": rows,
+            },
+            f,
+            indent=2,
+        )
     print(json.dumps(summarize_baseline(rows), indent=2))
     print(f"receipt: {out_path}")
     return 0
@@ -202,8 +222,7 @@ def summarize_baseline(rows: list[dict]) -> dict:
 
 
 def run_contexts(path: str, delay: float, out: str | None, force: bool) -> int:
-    with open(path) as f:
-        contexts = [json.loads(line) for line in f if line.strip()]
+    contexts = load_jsonl(path)
 
     out_path = open_out(out, "triage-contexts", force)
     with open(out_path, "w") as f:
