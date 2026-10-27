@@ -14,6 +14,8 @@ description: >
   "analytics", "visualize data", "categorical colors", "sequential / diverging
   palette", "stat tile", "sparkline", "heatmap", "legend", "axis", "tooltip",
   "chart colors", "color by series".
+metadata:
+  version: "1.0.0"
 ---
 
 # Data Visualization

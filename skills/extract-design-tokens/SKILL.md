@@ -10,6 +10,8 @@ description: >
   visual language from this site", "clone the look of <site>", "grab the
   style/tokens from <url>", or "audit this page's design".
 user-invocable: true
+metadata:
+  version: "1.0.0"
 ---
 
 # Extract Design Tokens

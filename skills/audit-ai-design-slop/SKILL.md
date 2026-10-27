@@ -1,6 +1,8 @@
 ---
 name: audit-ai-design-slop
 description: Audit websites, apps, screenshots, mockups, and design code for harmful AI-design clichés, generic generated defaults, and established UI defects. Use when the user wants evidence-backed design feedback, an anti-slop review, or a removal-first cleanup plan without a speculative redesign.
+metadata:
+  version: "1.0.0"
 ---
 
 # Audit AI Design Slop

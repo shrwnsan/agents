@@ -5,6 +5,8 @@ description: >
   QA and debug Open Graph / social-card (link-preview) tags and images. Extract
   and validate OG/Twitter meta tags, test the rendered card across platform
   debuggers, and cache-bust stale previews on Slack/X/iMessage/LinkedIn/Telegram.
+metadata:
+  version: "1.0.0"
 ---
 
 # OG / Social-Card QA

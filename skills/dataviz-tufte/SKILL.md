@@ -13,6 +13,8 @@ description: >-
   "Tufte", "why does my chart look bad", "improve this chart",
   "chart review".
 allowed-tools: Read, Glob, Grep
+metadata:
+  version: "1.0.0"
 ---
 
 # Tufte Data Visualization

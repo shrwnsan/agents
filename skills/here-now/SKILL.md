@@ -13,12 +13,8 @@ metadata:
   agent_affinity: nanoclaw
   upstream: heredotnow/skill
   upstream_version: "1.11.0"
-  hardening:
-    - dangerous_extension_blocking
-    - suspicious_extension_warnings
-    - pre_upload_secret_scanning
-    - credential_file_permissions
-    - unknown_mime_type_blocking
+  hardening: "dangerous_extension_blocking, suspicious_extension_warnings, pre_upload_secret_scanning, credential_file_permissions, unknown_mime_type_blocking"
+  version: "2.1.0"
 ---
 
 # here.now

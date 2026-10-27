@@ -11,6 +11,8 @@ description: >-
   craft that makes an interface feel right. Triggers on: "animation",
   "transition", "easing", "spring", "feels sluggish", "polish this
   interaction", "micro-interaction".
+metadata:
+  version: "1.0.0"
 ---
 
 # Motion Craft
