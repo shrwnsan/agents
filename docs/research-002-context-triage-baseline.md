@@ -79,4 +79,8 @@ user who installed the skill on its own:
   notice in the skill's `references/corpus-README.md`).
 - `metadata.version` in the skill's frontmatter is the package label;
   bump it in the same PR as any skill-content change. Git history and
-  the PR numbers above remain the real changelog.
+  the PR numbers above remain the real changelog. Vendored skills add
+  `upstream`/`upstream_version` alongside when the upstream carries a
+  semver (here-now 1.11.0, typesafe-ai 0.5.7, dataviz cli 2.1.267,
+  nothing-design 3.0.0); commit pins in each skill's `PROVENANCE.md`
+  stay the upstream tracker for the rest.

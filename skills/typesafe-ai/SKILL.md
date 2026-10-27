@@ -11,6 +11,10 @@ description: >
   Applications include routing, ranking, extraction, verification, and
   interactive experiences; these are starting points, not the limits.
   Read live docs and cookbooks to find useful patterns and discover new combinations.
+metadata:
+  upstream: typesafe-ai/skills
+  upstream_version: "0.5.7"
+  version: "1.0.0"
 ---
 
 # Build with TypeSafe
