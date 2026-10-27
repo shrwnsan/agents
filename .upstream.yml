@@ -34,6 +34,10 @@ skills:
     # Localizations preserved across syncs; upstream-only files never copied.
     preserve: [PROVENANCE.md, LICENSE]
     exclude: ["*.test.cjs"]
+  - name: html-reel
+    repo: MengTo/Skills
+    path: agent-skills/media/html-reel
+    preserve: [PROVENANCE.md, LICENSE]
 
 recipes:
   - name: twilio-voice-brain.md
