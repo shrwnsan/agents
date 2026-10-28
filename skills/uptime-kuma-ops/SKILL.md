@@ -1,6 +1,10 @@
 ---
 name: uptime-kuma-ops
 license: Apache-2.0
+compatibility: Requires python3, python-socketio==5.13.0 and websocket-client>=0.58 (writes only), plus network access to the configured Kuma host; reads work with urllib alone.
+metadata:
+  author: shrwnsan
+  version: "0.1.0"
 description: "Automate Uptime Kuma 2.x: monitor CRUD, push dead-man's-switch monitors, heartbeats, status/SSL reads. Use when the user mentions Uptime Kuma, wants monitors automated, or debugs Kuma errors (SQLITE columns, pushToken missing)."
 ---
 
@@ -13,9 +17,13 @@ read it before any `add`/`editMonitor` operation.
 
 ## Configuration (opt-in)
 
-The skill is fleet-agnostic: with no config it runs against any Kuma using
-per-invocation details. For standing use, create a config that **names secret
-sources without containing them**:
+Fleet-agnostic: with no config, run against any Kuma with per-invocation flags —
+nothing is persisted. For standing use, create `~/.agents/uptime-kuma.json` from
+the shipped [config.example.json](config.example.json) (template also printed by
+`python3 scripts/kuma.py init`). It names secret sources (env-file paths + key
+names) without containing them; values resolve at runtime and are never printed,
+logged, or written anywhere except the configured push-env file's `PUSH_<NAME>`
+lines. Full key reference: [references/config.md](references/config.md).
 
 ```bash
 python3 scripts/kuma.py init            # writes template to stdout; save as:
@@ -24,21 +32,7 @@ python3 scripts/kuma.py init            # writes template to stdout; save as:
 
 Config schema (all keys optional except `base_url` in fleet mode):
 
-```jsonc
-{
-  "base_url": "https://kuma.internal",           // or "base_url_key" to resolve from env
-  "auth_env_file": "~/.config/kuma.env",         // 600-mode file holding credentials
-  "username_key": "KUMA_ADMIN_USER",             // env key names inside auth_env_file
-  "password_key": "KUMA_ADMIN_PASSWORD",
-  "api_key_key": "KUMA_API_KEY",
-  "push_env_file": "~/.config/kuma-monitor.env", // where PUSH_<NAME> tokens are written
-  "ping_script": null                            // optional heartbeat helper to call after writes
-}
-```
 
-Credential rules: the env file is read at runtime only; values are never printed,
-logged, or written anywhere except the push-env file's `PUSH_<NAME>` lines (the
-documented home of push tokens). No other files are created.
 
 ## Reads — metrics (no socket needed)
 
