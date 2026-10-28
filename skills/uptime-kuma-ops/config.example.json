@@ -1,0 +1,9 @@
+{
+  "base_url": "https://kuma.internal",
+  "auth_env_file": "~/.config/kuma.env",
+  "username_key": "KUMA_ADMIN_USER",
+  "password_key": "KUMA_ADMIN_PASSWORD",
+  "api_key_key": "KUMA_API_KEY",
+  "push_env_file": "~/.config/kuma-monitor.env",
+  "ping_script": null
+}

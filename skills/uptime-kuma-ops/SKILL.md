@@ -1,0 +1,75 @@
+---
+name: uptime-kuma-ops
+license: Apache-2.0
+description: "Automate Uptime Kuma 2.x: monitor CRUD, push dead-man's-switch monitors, heartbeats, status/SSL reads. Use when the user mentions Uptime Kuma, wants monitors automated, or debugs Kuma errors (SQLITE columns, pushToken missing)."
+---
+
+# Uptime Kuma Ops
+
+Automate Uptime Kuma 2.x (battle-tested on 2.5.3) without the web UI. Two surfaces:
+the **metrics endpoint** (reads, API key) and **socket.io** (writes, username/password).
+Version-pinned gotchas live in [references/quirks-2.5.md](references/quirks-2.5.md) —
+read it before any `add`/`editMonitor` operation.
+
+## Configuration (opt-in)
+
+The skill is fleet-agnostic: with no config it runs against any Kuma using
+per-invocation details. For standing use, create a config that **names secret
+sources without containing them**:
+
+```bash
+python3 scripts/kuma.py init            # writes template to stdout; save as:
+# ~/.agents/uptime-kuma.json   (user-owned, no secrets inside)
+```
+
+Config schema (all keys optional except `base_url` in fleet mode):
+
+```jsonc
+{
+  "base_url": "https://kuma.internal",           // or "base_url_key" to resolve from env
+  "auth_env_file": "~/.config/kuma.env",         // 600-mode file holding credentials
+  "username_key": "KUMA_ADMIN_USER",             // env key names inside auth_env_file
+  "password_key": "KUMA_ADMIN_PASSWORD",
+  "api_key_key": "KUMA_API_KEY",
+  "push_env_file": "~/.config/kuma-monitor.env", // where PUSH_<NAME> tokens are written
+  "ping_script": null                            // optional heartbeat helper to call after writes
+}
+```
+
+Credential rules: the env file is read at runtime only; values are never printed,
+logged, or written anywhere except the push-env file's `PUSH_<NAME>` lines (the
+documented home of push tokens). No other files are created.
+
+## Reads — metrics (no socket needed)
+
+API keys authenticate via **HTTP Basic with an empty username**:
+
+```bash
+curl -sf -u ":$KUMA_API_KEY" "$BASE_URL/metrics" | grep '^monitor_status{'   # 1=Up 0=Down
+```
+
+`monitor_response_time` (ms), `monitor_cert_days_remaining`, `monitor_cert_is_valid`
+per monitor. Or `python3 scripts/kuma.py metrics`.
+
+## Writes — socket.io
+
+```bash
+python3 scripts/kuma.py monitors                     # list (waits for monitorList push)
+python3 scripts/kuma.py add-push NAME --interval 360 # create push monitor, token minted client-side
+python3 scripts/kuma.py set-token NAME --token HEX32 # attach/replace a push token
+python3 scripts/kuma.py push NAME                    # send one heartbeat (status=up)
+```
+
+Dependency: `python-socketio==5.13.0` + `websocket-client>=0.58` (websocket transport) — install into a
+venv or `pip install --user`; the script names the exact command in its error if absent).
+
+## Critical conventions (full list in references/quirks-2.5.md)
+
+- `add` needs **`accepted_statuscodes`** (snake_case). camelCase → server crash
+  `Cannot read properties of undefined (reading 'every')`.
+- Do NOT send `group` / `path` / `pathName` / `tags` / `retries` on 2.5.x — not columns.
+- **`pushToken` is client-generated** (32-char hex). Creating a push monitor without
+  one yields a push-less monitor; fix with `set-token` (editMonitor).
+- A `monitor_notification` FK error *after* creation is post-store and harmless.
+- Login emit must carry an ack callback; on success the login ack may or may not
+  arrive — treat the `monitorList` push event as the auth proof.
