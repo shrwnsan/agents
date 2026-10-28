@@ -7,6 +7,8 @@ description: >-
   evals, a stranger's repo — or when repo conventions route untrusted code
   through sandboxed-run.
 user-invocable: true
+metadata:
+  version: "1.0.0"
 ---
 
 # Sandboxed Run

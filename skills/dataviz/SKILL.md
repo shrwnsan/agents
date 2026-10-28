@@ -14,6 +14,10 @@ description: >
   "analytics", "visualize data", "categorical colors", "sequential / diverging
   palette", "stat tile", "sparkline", "heatmap", "legend", "axis", "tooltip",
   "chart colors", "color by series".
+metadata:
+  upstream: claude-code-cli (bundled skill, vendored per PROVENANCE.md)
+  upstream_version: "2.1.267"
+  version: "1.0.0"
 ---
 
 # Data Visualization

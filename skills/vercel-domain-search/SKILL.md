@@ -9,6 +9,8 @@ description: >
   picking a domain for a new site or property, checking "is X.com available",
   or pricing a domain shortlist.
 user-invocable: true
+metadata:
+  version: "1.0.0"
 ---
 
 # Vercel Domain Search

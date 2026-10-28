@@ -2,6 +2,10 @@
 name: nothing-design
 description: This skill should be used when the user explicitly says "Nothing style", "Nothing design", "/nothing-design", or directly asks to use/apply the Nothing design system. NEVER trigger automatically for generic UI or design tasks.
 allowed-tools: [Read, Write, Edit, Glob, Grep]
+metadata:
+  upstream: dominikmartn/nothing-design-skill
+  upstream_version: "3.0.0"
+  version: "1.0.0"
 ---
 
 # Nothing-Inspired UI/UX Design System

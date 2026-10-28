@@ -7,6 +7,8 @@ description: >
   review a PR, check a pull request, or says "review PR #<number>". Also triggers
   on "code review", "PR review", "check this PR", or when a PR URL is provided.
 user-invocable: true
+metadata:
+  version: "1.0.0"
 ---
 
 # Peer Code Review

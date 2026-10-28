@@ -2,6 +2,8 @@
 name: skill-quality-gate
 license: Apache-2.0
 description: Use when a skill directory is about to be published or shipped to an agent-skills hub, when an existing skill has just been edited, or when asked to check whether a SKILL.md package is ready to publish.
+metadata:
+  version: "1.0.0"
 ---
 
 # Skill Quality Gate
