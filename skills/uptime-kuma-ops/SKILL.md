@@ -18,8 +18,8 @@ read it before any `add`/`editMonitor` operation.
 ## Configuration (opt-in)
 
 Fleet-agnostic: with no config, run against any Kuma with per-invocation flags —
-nothing is persisted. For standing use, create `~/.agents/uptime-kuma.json` from
-the shipped [config.example.json](config.example.json) (template also printed by
+nothing is persisted. For standing use, create `~/.agents/uptime-kuma-config.json` from
+the shipped [uptime-kuma-config.example.json](uptime-kuma-config.example.json) (template also printed by
 `python3 scripts/kuma.py init`). It names secret sources (env-file paths + key
 names) without containing them; values resolve at runtime and are never printed,
 logged, or written anywhere except the configured push-env file's `PUSH_<NAME>`
@@ -27,7 +27,7 @@ lines. Full key reference: [references/config.md](references/config.md).
 
 ```bash
 python3 scripts/kuma.py init            # writes template to stdout; save as:
-# ~/.agents/uptime-kuma.json   (user-owned, no secrets inside)
+# ~/.agents/uptime-kuma-config.json   (user-owned, no secrets inside)
 ```
 
 Config schema (all keys optional except `base_url` in fleet mode):

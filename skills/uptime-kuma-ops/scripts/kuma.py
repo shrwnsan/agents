@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """uptime-kuma-ops — Kuma automation entry point.
 
-Fleet-agnostic: no config = per-invocation flags; config = ~/.agents/uptime-kuma.json
+Fleet-agnostic: no config = per-invocation flags; config = ~/.agents/uptime-kuma-config.json
 (names secret sources; never contains secrets itself).
 """
 import argparse, base64, json, os, secrets, sys, time, urllib.request, urllib.error
 
-CONFIG_PATH = os.path.expanduser("~/.agents/uptime-kuma.json")
+CONFIG_PATH = os.path.expanduser("~/.agents/uptime-kuma-config.json")
 PINNED_DEP = "python-socketio==5.13.0"
 
 def load_config():
@@ -41,7 +41,7 @@ def resolve(cfg, args):
     pw = args.password or env.get(cfg.get("password_key", ""), "")
     key = args.api_key or env.get(cfg.get("api_key_key", ""), "")
     if not base:
-        sys.exit("no base_url: pass --base-url or create ~/.agents/uptime-kuma.json (see: kuma.py init --help)")
+        sys.exit("no base_url: pass --base-url or create ~/.agents/uptime-kuma-config.json (see: kuma.py init --help)")
     return base.rstrip("/"), user, pw, key
 
 def cmd_metrics(a, cfg):
@@ -173,7 +173,7 @@ def cmd_init(a, cfg=None):
         "api_key_key": "KUMA_API_KEY",
         "push_env_file": "~/.config/kuma-monitor.env",
         "ping_script": None,
-    }, indent=2) + "\n# save as ~/.agents/uptime-kuma.json (chmod 600). Secrets live in auth_env_file, not here.")
+    }, indent=2) + "\n# save as ~/.agents/uptime-kuma-config.json (chmod 600). Secrets live in auth_env_file, not here.")
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)

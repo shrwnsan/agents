@@ -1,7 +1,7 @@
 # Configuration
 
-Runtime config lives at `~/.agents/uptime-kuma.json` (user-owned, `chmod 600`).
-The shipped [`config.example.json`](../config.example.json) is the template —
+Runtime config lives at `~/.agents/uptime-kuma-config.json` (user-owned, `chmod 600`).
+The shipped [`uptime-kuma-config.example.json`](../uptime-kuma-config.example.json) is the template —
 copy it there and fill in your values. Secrets never go in this file: it names
 env files and env-key names; credentials are resolved from those files at runtime.
 
