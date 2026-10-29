@@ -1,9 +1,8 @@
 # Provenance
 
-- 2026-10-29, authored by shrwnsan + Claude Code session on oci-prime.
 - Schema findings (events vs events_v2, events_v2 columns, empty-legacy-table
-  signature) independently verified against a live Plausible CE v3-era stack
-  (ClickHouse 24.12.6) the same day; all example queries executed for real.
+  signature) verified against a live Plausible CE v3-era stack
+  (ClickHouse 24.12.6); all example queries executed for real.
 - Stats API pairing rules (metric/dimension combinations, pagination object,
   filter wildcards, date-range tokens) cross-checked against the community
   skill alexanderop/claude-plausible-analytics; that repo is unlicensed, so
