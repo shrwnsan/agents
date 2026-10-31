@@ -58,7 +58,7 @@ The handoff-context skill looks for configuration in the following order (highes
 |----------|----------|-------|----------|
 | 1 | `~/.config/agents/handoff-context-config.yml` | Cross-tool | Amp, other AI tools |
 | 2 | `~/.claude/handoff-context-config.yml` | Claude Code | Claude Code specific |
-| 3 | `.agents/handoff-context-config.yml` | Project-local | Per-project overrides |
+| 3 | `handoff-context-config.yml` in the project root `.agents/` directory | Project-local | Per-project overrides |
 | 4 | Built-in defaults | Fallback | Ships with plugin |
 
 ### Quick Setup
