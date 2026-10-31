@@ -18,7 +18,11 @@ Unsure? Read more code, then ask with short options.
 
 ## Security
 - Never open or print secrets files: `.env*`, `*.key`, `*.pem`, `credentials.json`, `~/.aws/credentials`, `.npmrc` with tokens.
-- Never print env var values (`env`, `printenv`, `echo $SOME_KEY`). Check presence only: `[ -n "$VAR" ]`.
+- Never print env var values (`env`, `printenv`, `echo $SOME_KEY`). Check presence
+  only: `[ -n "$VAR" ]` for live vars, `grep -q '^VAR=' .env` for files. Never
+  cat/grep/tail secrets files with output — `grep -q` answers "does it exist"
+  without surfacing the value. If an inspection command unexpectedly matches a
+  secret line, redact or discard the output; don't quote it back.
 - Secret found in code: report where, never the value. Reviews: flag hardcoded secrets and secrets files missing from `.gitignore`.
 - Before committing: no secrets files in `git diff --cached --name-only`.
 
