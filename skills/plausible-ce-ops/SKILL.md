@@ -1,7 +1,7 @@
 ---
 name: plausible-ce-ops
 license: Apache-2.0
-compatibility: Requires python3 (urllib only, no dependencies) and network access to the Plausible CE stack's ClickHouse HTTP port (default 8123). Read-only: the skill never inserts, deletes, or mutates analytics data.
+compatibility: "Requires python3 (urllib only, no dependencies) and network access to the Plausible CE stack's ClickHouse HTTP port (default 8123). Read-only: the skill never inserts, deletes, or mutates analytics data."
 metadata:
   author: shrwnsan
   version: "1.0.0"
