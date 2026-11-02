@@ -8,6 +8,14 @@ Modes:
   contexts   Triage new byte-window contexts from a JSONL file
              (rows: id, context, optional pipeline_shaped). Emits one JSONL
              row per context: predicted label, confidence, gate decision.
+  probe      One unauthenticated GET to the API root; any HTTP response
+             proves egress. The key is never sent.
+
+Confidence drifts run-to-run (measured 2026-11-02: 15/25 corpus items,
+two crossing the 0.75 line without changing class). contexts re-scores
+once when a confidence lands in the 0.70-0.80 confirm band and keeps
+the lower-confidence answer; baseline --reps N uses majority prediction
+with the median of its confidences.
 
 Gating (advisory only — Jev never issues the audit verdict):
   auto-resolve  confidence >= 0.75 AND NOT (pipeline_shaped AND benign prediction)
@@ -23,11 +31,13 @@ overwrite; TRIAGE_OUT_DIR moves receipts elsewhere. Receipts are never
 written inside the skill directory.
 
 Usage:
-  context-triage.py baseline [--corpus PATH] [--delay S] [--out PATH] [--force]
-  context-triage.py contexts FILE [--delay S] [--out PATH] [--force]
+  context-triage.py probe
+  context-triage.py baseline [--corpus PATH] [--delay S] [--reps N] [--out PATH] [--force]
+  context-triage.py contexts FILE [--delay S] [--confirm-band F] [--out PATH] [--force]
 
 Env: TYPESAFE_API_KEY (required; presence-checked, never printed),
-TYPESAFE_BASE_URL (gateway/compat override).
+TYPESAFE_BASE_URL (gateway/compat override), TYPESAFE_MODEL (scored
+model alias, default jev-latest).
 """
 
 import argparse
@@ -38,13 +48,16 @@ import time
 import urllib.error
 import urllib.request
 from datetime import datetime
+from statistics import median
 
 API = os.environ.get("TYPESAFE_BASE_URL", "https://api.typesafe.ai/v1/systemone")
 HERE = os.path.dirname(os.path.abspath(__file__))
 SKILL_DIR = os.path.dirname(HERE)
 DEFAULT_CORPUS = os.path.join(SKILL_DIR, "assets", "corpus.jsonl")
 
+MODEL = os.environ.get("TYPESAFE_MODEL", "jev-latest")
 AUTO_RESOLVE_THRESHOLD = 0.75
+CONFIRM_BAND = 0.05
 
 QUESTIONS = {
     "classification": {
@@ -91,7 +104,7 @@ QUESTIONS = {
 
 def call_jev(state: str, delay: float) -> dict:
     body = json.dumps(
-        {"state": state, "model": "jev-latest", "questions": QUESTIONS}
+        {"state": state, "model": MODEL, "questions": QUESTIONS}
     ).encode()
     req = urllib.request.Request(
         API,
@@ -112,6 +125,44 @@ def call_jev(state: str, delay: float) -> dict:
                 continue
             raise
     raise RuntimeError("unreachable")
+
+
+def score_once(context: str, delay: float) -> tuple[str | None, float | None, str | None]:
+    r = call_jev(context, delay)
+    cls = r.get("answers", {}).get("classification", {})
+    return cls.get("choice"), cls.get("confidence"), r.get("model")
+
+
+def score_majority(context: str, delay: float, reps: int) -> tuple[str | None, float | None, str | None]:
+    """Score reps times: majority prediction, median of its confidences,
+    most-common resolved model. A prediction tie resolves to (None, None, ..),
+    which gates to escalate."""
+    samples = [score_once(context, delay) for _ in range(reps)]
+    preds = [p for p, _, _ in samples]
+    top = max(set(preds), key=preds.count)
+    if preds.count(top) * 2 <= len(preds):
+        return None, None, None
+    confs = sorted(c for p, c, _ in samples if p == top and c is not None)
+    models = [m for _, _, m in samples if m]
+    resolved = max(set(models), key=models.count) if models else None
+    return top, (median(confs) if confs else None), resolved
+
+
+def run_probe() -> int:
+    """One unauthenticated GET to the API root; any HTTP status proves
+    egress (404s are normal for bare roots). The key is never sent."""
+    root = API.split("/v1/", 1)[0]
+    req = urllib.request.Request(root, method="GET")
+    try:
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            print(f"reachable status={resp.status} url={root}")
+        return 0
+    except urllib.error.HTTPError as e:
+        print(f"reachable status={e.code} url={root}")
+        return 0
+    except Exception as e:  # noqa: BLE001
+        print(f"blocked url={root} error={e}")
+        return 3
 
 
 def open_out(path: str | None, kind: str, force: bool) -> str:
@@ -143,7 +194,11 @@ def gate(predicted: str | None, confidence: float | None, pipeline_shaped: bool)
 
 def load_jsonl(path: str) -> list[dict]:
     rows = []
-    with open(path) as f:
+    try:
+        f = open(path)
+    except OSError as e:
+        sys.exit(f"{path}: cannot open input: {e.strerror}")
+    with f:
         for n, line in enumerate(f, 1):
             if not line.strip():
                 continue
@@ -154,15 +209,15 @@ def load_jsonl(path: str) -> list[dict]:
     return rows
 
 
-def run_baseline(corpus_path: str, delay: float, out: str | None, force: bool) -> int:
+def run_baseline(corpus_path: str, delay: float, reps: int, out: str | None, force: bool) -> int:
     corpus = load_jsonl(corpus_path)
+    if not corpus:
+        sys.exit(f"{corpus_path}: 0 corpus items; nothing to score")
 
     rows = []
     for s in corpus:
         try:
-            r = call_jev(s["context"], delay)
-            cls = r.get("answers", {}).get("classification", {})
-            predicted, confidence = cls.get("choice"), cls.get("confidence")
+            predicted, confidence, resolved = score_majority(s["context"], delay, reps)
             rows.append({
                 "id": s["id"],
                 "label": s["label"],
@@ -170,10 +225,12 @@ def run_baseline(corpus_path: str, delay: float, out: str | None, force: bool) -
                 "confidence": confidence,
                 "pipeline_shaped": s.get("pipeline_shaped", False),
                 "gate": gate(predicted, confidence, s.get("pipeline_shaped", False)),
-                "model": r.get("model"),
+                "model": resolved,
+                "reps": reps,
             })
         except Exception as e:  # noqa: BLE001 — record and continue
-            rows.append({"id": s["id"], "label": s["label"], "error": str(e)})
+            rows.append({"id": s.get("id", "<missing>"), "label": s.get("label", "<missing>"),
+                         "error": str(e)})
         time.sleep(delay)
 
     out_path = open_out(out, "triage-baseline", force)
@@ -221,25 +278,36 @@ def summarize_baseline(rows: list[dict]) -> dict:
     }
 
 
-def run_contexts(path: str, delay: float, out: str | None, force: bool) -> int:
+def run_contexts(path: str, delay: float, confirm_band: float, out: str | None, force: bool) -> int:
     contexts = load_jsonl(path)
+    if not contexts:
+        sys.exit(f"{path}: 0 contexts in input; nothing to triage")
 
     out_path = open_out(out, "triage-contexts", force)
     with open(out_path, "w") as f:
         for c in contexts:
             try:
-                r = call_jev(c["context"], delay)
-                cls = r.get("answers", {}).get("classification", {})
-                predicted, confidence = cls.get("choice"), cls.get("confidence")
+                predicted, confidence, model = score_once(c["context"], delay)
+                rerun = False
+                if (confirm_band > 0 and predicted is not None and confidence is not None
+                        and AUTO_RESOLVE_THRESHOLD - confirm_band
+                        <= confidence < AUTO_RESOLVE_THRESHOLD + confirm_band):
+                    p2, c2, m2 = score_once(c["context"], delay)
+                    if c2 is not None and (confidence is None or c2 < confidence):
+                        predicted, confidence, model = p2, c2, m2
+                    rerun = True
                 row = {
                     "id": c["id"],
                     "predicted": predicted,
                     "confidence": confidence,
                     "pipeline_shaped": c.get("pipeline_shaped", False),
                     "gate": gate(predicted, confidence, c.get("pipeline_shaped", False)),
+                    "model": model,
                 }
+                if rerun:
+                    row["confirm_rerun"] = True
             except Exception as e:  # noqa: BLE001
-                row = {"id": c["id"], "error": str(e)}
+                row = {"id": c.get("id", "<missing>"), "error": str(e)}
             f.write(json.dumps(row) + "\n")
             print(json.dumps(row))
             time.sleep(delay)
@@ -251,15 +319,19 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = ap.add_subparsers(dest="mode", required=True)
 
+    p = sub.add_parser("probe", help="egress reachability check (one unauthenticated GET)")
+
     b = sub.add_parser("baseline", help="score assets/corpus.jsonl against labels")
     b.add_argument("--corpus", default=DEFAULT_CORPUS)
     b.add_argument("--delay", type=float, default=0.4)
+    b.add_argument("--reps", type=int, default=1)
     b.add_argument("--out", default=None)
     b.add_argument("--force", action="store_true")
 
     c = sub.add_parser("contexts", help="triage new contexts from a JSONL file")
     c.add_argument("file")
     c.add_argument("--delay", type=float, default=0.4)
+    c.add_argument("--confirm-band", type=float, default=CONFIRM_BAND, dest="confirm_band")
     c.add_argument("--out", default=None)
     c.add_argument("--force", action="store_true")
 
@@ -274,9 +346,11 @@ def main() -> int:
         "(measured on jev-latest); re-run baseline before trusting other models",
         file=sys.stderr,
     )
+    if args.mode == "probe":
+        return run_probe()
     if args.mode == "baseline":
-        return run_baseline(args.corpus, args.delay, args.out, args.force)
-    return run_contexts(args.file, args.delay, args.out, args.force)
+        return run_baseline(args.corpus, args.delay, args.reps, args.out, args.force)
+    return run_contexts(args.file, args.delay, args.confirm_band, args.out, args.force)
 
 
 if __name__ == "__main__":

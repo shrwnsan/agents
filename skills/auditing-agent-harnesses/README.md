@@ -22,9 +22,10 @@ baselines, adoption timeline):
 | Path | Purpose |
 |---|---|
 | `SKILL.md` | Operational contract: phases, concern classes, gates |
-| `scripts/context-triage.py` | Context-triage harness (baseline + contexts modes) |
+| `scripts/context-triage.py` | Context-triage harness (probe + baseline + contexts modes) |
 | `assets/corpus.jsonl` | 25 labeled byte-window excerpts (sanitized mirror) |
 | `references/corpus-README.md` | Corpus contents, rules, results, sanitization, threat model |
+| `references/dual-run-prompt-template.md` | Mechanical contract for the unscaffolded dual-run reproducer |
 | `references/baseline-results.json` | Latest baseline receipt (refreshed by re-running the harness) |
 
 ## Context-triage accelerator: history and results
@@ -42,6 +43,7 @@ resolved version in its rows):
 |---|---|---|---|---|---|---|
 | 2026-10-02 | jev-1.13.0 | 24/24 | 0.79 | 0.866 | 0.588 | 0 |
 | 2026-10-23 | jev-1.14.0 | 25/25 | 0.80 | 0.82 | 0.698 | 1 (escalated) |
+| 2026-11-02 | jev-1.14.0 | 25/25 | 0.80 | 0.816 | 0.666 | 1 (escalated) |
 
 The 2026-10-23 false-clear is `zcode-route-vocab` scoring `benign-vendored`
 at 0.28 — the regardless-of-confidence rule escalated it, so no
@@ -51,6 +53,16 @@ confidence spread, so calibration is treated as **drifting**: re-run
 `context-triage.py baseline` on every model update. The ≥0.75
 auto-resolve threshold is model-specific and applies only to
 jev-latest until re-measured.
+
+The 2026-11-02 runs (two single-shot pre-refactor runs plus the pinned run
+from the 1.2.0 harness) held accuracy at 0.80 on the same misclassification
+set, and the jev-1.14.0 alias did not move. Identical single-shot runs
+differed in confidence on 15/25 items (drift 0.03–0.11) and two items
+crossed the 0.75 line without changing class, so single-shot auto-resolve
+has a live boundary band: `contexts` now re-scores once inside 0.70–0.80
+and keeps the lower-confidence answer, and `baseline --reps N` scores with
+majority prediction and the median of its confidences. The stable hard
+cases are documented in the corpus results.
 
 Why advisory only: the model produced a 0.95-confidence error on its
 own baseline (a sample-env placeholder DSN read as live telemetry),
