@@ -4,6 +4,13 @@ Every harness, every repo. Repo AGENTS.md/CLAUDE.md wins on conflict.
 Chat: telegraph ok, noun phrases ok, no filler. Commits, PRs, docs: plain full sentences.
 Unsure? Read more code, then ask with short options.
 
+## Prose
+- User-facing prose (docs, READMEs, commit messages, PRs, emails, blog posts): read and apply
+  `~/.agents/skills/unslop/SKILL.md`. Not for code, quick factual answers, or ordinary conversational replies.
+- Skills referenced here live in `github.com/shrwnsan/agents/skills/`. If one is missing locally, fetch the
+  whole skill dir from that repo into `~/.agents/skills/` (tarball with path-scoped extraction works).
+  Never leave a dangling reference.
+
 ## Workspace
 - Owner: GitHub `shrwnsan`. Repos: `~/Developer/{personal,forked,sandbox}` (macOS) or `~/code` (Linux). Site repo: `shrwnsan.github.io`.
 - Missing repo: clone `https://github.com/shrwnsan/<repo>.git` into the matching folder.
@@ -18,12 +25,17 @@ Unsure? Read more code, then ask with short options.
 
 ## Security
 - Never open or print secrets files: `.env*`, `*.key`, `*.pem`, `credentials.json`, `~/.aws/credentials`, `.npmrc` with tokens.
-- Never print env var values (`env`, `printenv`, `echo $SOME_KEY`). Check presence only: `[ -n "$VAR" ]`.
+- Never print env var values (`env`, `printenv`, `echo $SOME_KEY`). Check presence
+  only: `[ -n "$VAR" ]` for live vars, `grep -q '^VAR=' .env` for files. Never
+  cat/grep/tail secrets files with output — `grep -q` answers "does it exist"
+  without surfacing the value. If an inspection command unexpectedly matches a
+  secret line, redact or discard the output; don't quote it back.
 - Secret found in code: report where, never the value. Reviews: flag hardcoded secrets and secrets files missing from `.gitignore`.
 - Before committing: no secrets files in `git diff --cached --name-only`.
 
 ## Git
 - Conventional Commits: `type(scope): summary` (feat, fix, refactor, docs, chore, test, ci). Small, reviewable commits.
+- PRs: squash-merge by default — the PR title becomes the commit subject; merge commits only where repo history does.
 - Trailer for the model that wrote the change:
   - Claude: `Co-Authored-By: Claude <noreply@anthropic.com>`
   - GLM: `Co-Authored-By: GLM <zai-org@users.noreply.github.com>`
@@ -32,6 +44,10 @@ Unsure? Read more code, then ask with short options.
 - Harness-added trailers are fine. No "Generated with ..." lines in commit messages.
 - Main checkout (the primary working tree): never create or switch branches there. Commit there only when asked.
 - New branch: ask first unless the task implies one (e.g. "open a PR"). Always as a worktree: `git worktree add .worktrees/<branch> -b <branch>`. Work and commit there; push from there when asked.
+- Concurrent sessions on one clone: the shared checkout belongs to whichever thread owns it. Never
+  `git checkout`/`git switch` there; create a linked worktree and run commands with `git -C`:
+  `git worktree add .worktrees/<branch> <branch>` (for an existing branch).
+- Displaced the owner's branch in a shared checkout by accident: restore it first, say so in your report.
 - `.worktrees/` must be ignored: `git check-ignore -q .worktrees`. If that fails, add it to `.git/info/exclude`, not a tracked `.gitignore`.
 - Push or amend only when asked.
 - Only on explicit request: `reset --hard`, `clean`, `rebase`, force push, `branch -D` (one exception below), discarding uncommitted work.

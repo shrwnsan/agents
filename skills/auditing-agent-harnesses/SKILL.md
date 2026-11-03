@@ -2,9 +2,9 @@
 name: auditing-agent-harnesses
 license: Apache-2.0
 metadata:
-  version: "1.1.0"
-compatibility: "Optional context-triage accelerator needs Python 3.10+, network access to api.typesafe.ai, and TYPESAFE_API_KEY set."
-description: Use when a new agent harness or AI-coding desktop app is installed on macOS, an already-audited harness ships a version update, a public claim about such an app needs verification, or a periodic harness privacy sweep is due. Applies to Electron/asar, Tauri, and thin-shell-plus-sidecar apps (ZCode, Conductor, Antigravity, Windsurf-class IDEs).
+  version: "1.2.0"
+compatibility: "Optional context-triage accelerator needs Python 3.10+, network access to api.typesafe.ai, and TYPESAFE_API_KEY set. TYPESAFE_MODEL overrides the scored model alias (default jev-latest)."
+description: Use when a new agent harness or AI-coding desktop app is installed on macOS, an already-audited harness ships a version update, an OS privacy/network permission prompt appears for an already-audited app, a public claim about such an app needs verification, or a periodic harness privacy sweep is due. Applies to Electron/asar, Tauri, and thin-shell-plus-sidecar apps (ZCode, Conductor, Antigravity, Windsurf-class IDEs).
 ---
 
 # Auditing Agent Harnesses
@@ -17,7 +17,7 @@ Produce privacy/capability verdicts on agent-harness desktop apps that are **def
 
 **Phase 0 — Identity.** Bundle id, version, codesign TeamID, notarization, `codesign --verify --deep --strict`. Hash-seal the exact bytes audited (the receipt line: `sha256 <first-16>…`).
 
-**Phase 1 — Architecture discovery FIRST.** Find where executable logic actually lives before choosing a sweep method: Electron/asar (raw-byte scan, no unpack), Tauri/native Mach-O (strings sweep), or thin shell + sidecar/language_server (the sidecar is the app — sweep *it*). Never assume from vendor fame.
+**Phase 1 — Architecture discovery FIRST.** Find where executable logic actually lives before choosing a sweep method: Electron/asar (raw-byte scan, no unpack), Tauri/native Mach-O (strings sweep), or thin shell + sidecar/language_server (the sidecar is the app — sweep *it*). Never assume from vendor fame. Re-enumerate the sidecar/package layout on every version jump: new package directories are new C5/C9 surface, and bundled native modules (FFI bridges, koffi/ctypes-class) are capability markers to attribute like C1.
 
 **Phase 2 — Nine concern classes.** Each must be explicitly cleared **with evidence** — a class not mentioned in the report is a class not audited:
 
@@ -33,11 +33,11 @@ Produce privacy/capability verdicts on agent-harness desktop apps that are **def
 | C8 | Remote-exec / relay / tunnel surfaces | Standing WS relays, remote-command channels, ngrok/tunnel allowlists |
 | C9 | Third-party extensions inside the host | Their own telemetry **and** self-installation into other tools (e.g. MCP registration into agent CLIs) |
 
-**Optional Phase-2 accelerator — context triage.** Pre-score extracted byte-window contexts through TypeSafe's System One API with the packaged harness (`scripts/context-triage.py`, corpus in `assets/corpus.jsonl`, latest receipt in `references/baseline-results.json`). Gating: runs only when `TYPESAFE_API_KEY` is set (presence-check `[ -n … ]`, never print it); absent → skip, no behavior change. Rules: auto-resolve only at confidence ≥ 0.75, escalate everything else; a pipeline-shaped needle that scores benign escalates **regardless of confidence** (false-clear is disqualifying — the gate enforces this in code). The ≥0.75 threshold is **model-specific**: calibration drifts between model versions, so re-run `baseline` on every model update and before trusting any other provider (measured history in `README.md`, per-run details in `references/corpus-README.md`). Jev is not available via OpenAI-shaped gateways (OpenRouter, Vercel AI Gateway) — the System One API has its own protocol; `context-triage.py` accepts `TYPESAFE_BASE_URL` for a future compat endpoint. Advisory only — Jev never issues the verdict and never replaces the dual-run.
+**Optional Phase-2 accelerator — context triage.** Pre-score extracted byte-window contexts through TypeSafe's System One API with the packaged harness (`scripts/context-triage.py`, corpus in `assets/corpus.jsonl`, latest receipt in `references/baseline-results.json`). Gating: runs only when `TYPESAFE_API_KEY` is set (presence-check `[ -n … ]`, never print it); absent → skip, no behavior change; `probe` verifies egress first with one unauthenticated GET. Rules: auto-resolve only at confidence ≥ 0.75, escalate everything else; a pipeline-shaped needle that scores benign escalates **regardless of confidence** (false-clear is disqualifying — the gate enforces this in code). Scored confidence drifts run-to-run (measured 2026-11-02: 15/25 corpus items, two crossing the 0.75 line), so `contexts` re-scores once when a confidence lands in the 0.70–0.80 confirm band and keeps the lower-confidence answer; `baseline --reps N` applies majority/median scoring. The ≥0.75 threshold is **model-specific**: calibration drifts between model versions, so re-run `baseline` on every model update and before trusting any other provider (measured history in `README.md`, per-run details in `references/corpus-README.md`). Jev is not available via OpenAI-shaped gateways (OpenRouter, Vercel AI Gateway) — the System One API has its own protocol; `context-triage.py` accepts `TYPESAFE_BASE_URL` for a future compat endpoint. Advisory only — Jev never issues the verdict and never replaces the dual-run.
 
-**Phase 3 — Runtime corroboration.** Logs (sizes/mtimes for coverage), live sockets (`lsof +c0 -i -P -n`), data dirs, outbox/queue tables empty-or-not.
+**Phase 3 — Runtime corroboration.** Logs (sizes/mtimes for coverage), live sockets (`lsof +c0 -i -P -n`), data dirs, outbox/queue tables empty-or-not. OS privacy prompts (Local Network, screen recording) can fire from compiled framework layers such as Chromium/Electron instead of app code: attribute by elimination across app JS, sidecars, and helper binaries before alarming. Zero genuine discovery needles in script layers with a live prompt usually means framework behavior (worked example: the ZCode 2026-10-27 Local Network prompt; the asar and both CUA helper binaries swept clean).
 
-**Phase 4 — Verdict + persistence.** Verdict + coverage statement (`9/9 classes cleared`) + confidence + falsifiers ("what would make this wrong"). Persist: per-app guide in your docs repo (`guide-NNN` pattern: facts + regression recipe), memory entry, JSONL forensics log. Dual-run cross-validation (unscaffolded pair, one flash-tier) when the verdict goes public.
+**Phase 4 — Verdict + persistence.** Verdict + coverage statement (`9/9 classes cleared`) + confidence + falsifiers ("what would make this wrong"). Persist: per-app guide in your docs repo (`guide-NNN` pattern: facts + regression recipe), memory entry, JSONL forensics log to a durable non-temp directory (workspace convention: `~/.cache/live-system-forensics/<app>-v<version>-<date>.jsonl`; a /tmp receipt must note its own volatility). Dual-run cross-validation (unscaffolded pair, one flash-tier, mechanical contract in `references/dual-run-prompt-template.md`) when the verdict goes public.
 
 ## Version-Jump Regression
 

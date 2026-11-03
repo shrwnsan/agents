@@ -7,8 +7,6 @@ allowed-tools:
   - bash(sh:*)
   - bash(bash:*)
   - Read
-metadata:
-  version: "1.0.0"
 ---
 
 # Branch & Worktree Hygiene

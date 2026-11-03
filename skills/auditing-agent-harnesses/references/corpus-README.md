@@ -49,6 +49,13 @@ escalates regardless of confidence. The full rationale is in
   `feature-wired`; the masker alone is `benign-vendored`).
 - The threshold of 0.75 is **model-specific**, so re-run the harness
   before trusting it on any other model or provider.
+- Single-shot confidences drift between identical runs (2026-11-02: 15/25
+  items, two crossings of the 0.75 line). In `contexts` mode the harness
+  re-scores once when a confidence lands in the 0.70–0.80 band and keeps
+  the lower-confidence answer; `baseline --reps N` uses majority
+  prediction and the median of its confidences. Receipts carry the
+  resolved model per row in both modes, and `TYPESAFE_MODEL` overrides
+  the requested alias.
 
 ## Results
 
@@ -67,6 +74,18 @@ escalates regardless of confidence. The full rationale is in
   0.28 — label-agreeing, but escalated by the
   regardless-of-confidence rule, so the safety invariant held: no
   pipeline-shaped needle auto-resolved.
+- 2026-11-02, jev-1.14.0 (alias unchanged), 25/25 scored across three runs
+  (two single-shot pre-refactor, one pinned from the 1.2.0 harness): raw
+  accuracy 0.80 in all three on the same misclassification set, 1
+  pipeline-shaped false-clear (`syn-capture-stage`, 0.61–0.68, escalated —
+  the safety invariant held in every run). Run-to-run confidence drift
+  touched 15/25 items (0.03–0.11) and crossed the 0.75 threshold on two
+  items without changing class, which motivated the confirm-band rule
+  below. Stable hard cases, all in the safe direction: the feedback-masker
+  read as `feature-wired` at 0.61–0.72 (exactly the reading the trim rule
+  above predicts for the neighboring-client window), the sentry
+  placeholder read as `declared-telemetry` at 0.91–0.95, and the shadcn
+  and capture-stage entries at 0.65–0.69.
 
 ## Sanitization notice
 

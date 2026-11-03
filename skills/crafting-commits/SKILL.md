@@ -5,8 +5,6 @@ user-invocable: true
 allowed-tools:
   - bash(git:*)
   - Read
-metadata:
-  version: "1.0.0"
 ---
 
 # Crafting Git Commits

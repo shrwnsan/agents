@@ -1,6 +1,6 @@
 ---
 name: html-reel
-description: Turn a tweet, a video, a YouTube video or a landing page into a 9:16 reel (Instagram Reels, TikTok, Shorts) that says what the source says and looks like it, with every cut on a word. HTML scenes on one clock, a cloned ElevenLabs voice with word timestamps, assembled in Fil's video editor over MCP; the creator's own takes replace placeholders and everything is retimed to their delivery by word anchors; a reel can also be faceless. Use when someone wants a reel, a short or a vertical video from a post, a thread, a launch, a landing page, a demo video or a YouTube video, "a reel like this one", or a talking-head promo cut to their own delivery.
+description: Turn a tweet, video, YouTube video, or landing page into a 9:16 reel (Instagram Reels, TikTok, Shorts) that says what the source says and looks like it, every cut on a word. Reads the source's words, media, and measured fonts and colours; writes the script in the creator's voice from the source's own facts; makes the voice with their cloned ElevenLabs voice (timestamps); builds HTML scenes on one clock (window.__frame(t)) in the source's look; assembles in Fil's video editor over MCP. The creator appears from the first draft as a placeholder, swapped for their phone takes; faceless reels also supported. Use when someone wants a reel, a short, or a vertical video from a post, a thread, a launch, a landing page, a demo video, or a YouTube video, "a reel like this one", or a talking-head promo cut to their own delivery.
 ---
 
 # HTML Reel
