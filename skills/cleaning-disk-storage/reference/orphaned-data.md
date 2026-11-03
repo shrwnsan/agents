@@ -78,6 +78,9 @@ When uninstalling a pipx tool (`pipx uninstall {tool}`), model caches downloaded
 - `marker-pdf` → leaves Surya OCR models in `~/Library/Caches/datalab/` (~3 GB)
 - Document AI tools → leave HuggingFace model caches
 
+#### Check mtimes before calling a model cache stale
+A big cache is not automatically an orphan. Before proposing deletion of any `~/.cache/huggingface` (or similar) contents, check blob file dates. Non-standard layouts usually back a deliberately installed local model: a top-level `hub/blobs/` with sharded revisions alongside a `*-local` model dir, and recently-touched shards mean it is in active use. Observed: 39 GB Nemotron MLX cache, shards written the same day as the scan. Deleting it costs a full re-download, not a regeneration. Present those to the user as a keep/delete decision, never as safe-tier cleanup.
+
 ## Cleanup Commands
 
 ```bash

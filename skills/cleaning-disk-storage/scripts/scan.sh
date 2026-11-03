@@ -8,6 +8,11 @@
 #   scan.sh [root]        # scan root (default: $HOME; scoping to a project dir is faster)
 #
 # Notes:
+# - Sections 1 (build artifacts) and 6 (.DS_Store) honor [root]. Sections 2–5
+#   (package caches, general caches, AI dirs, crash logs) always measure real
+#   $HOME regardless of [root] — a scratch-scoped run still reads user cache sizes.
+# - Target lists below mirror reference/targets.json (the data source of truth);
+#   keep them in sync when adding targets there.
 # - Full-home scans can take minutes on large volumes. Scope the root when you can.
 # - Sizes come from `du` (actual blocks). See reference/GOTCHAS.md for sparse-file
 #   and BSD/GNU drift caveats.
@@ -47,7 +52,7 @@ if [ "$COUNT" -gt 0 ]; then
   TOTAL="$(kb_to_human "$(tr '\n' '\0' < "$BUILD_LIST" | total_size)")"
   printf 'Found %s build dirs, total %s. Largest:\n' "$COUNT" "$TOTAL"
   tr '\n' '\0' < "$BUILD_LIST" | xargs -0 du -sk 2>/dev/null | sort -rn | head -15 |
-    awk '{printf "  %8.0f MB  %s\n", $1/1024, substr($0, index($0, $2))}'
+    awk '{v=$1/1024; if (v < 1) printf "  %8.0f KB  %s\n", $1, substr($0, index($0, $2)); else printf "  %8.0f MB  %s\n", v, substr($0, index($0, $2))}'
 else
   printf 'None found.\n'
 fi
@@ -75,6 +80,9 @@ for d in "$HOME/.claude/debug" "$HOME/.claude/shell-snapshots" "$HOME/.claude/pr
          "$HOME/.factory/sessions" "$HOME/.continue/index" "$HOME/.codex/sessions"; do
   [ -d "$d" ] && printf '  %-40s %s\n' "$d" "$(du -sh "$d" 2>/dev/null | cut -f1)"
 done
+# per-project agent dirs (created inside any project cwd, not a fixed path)
+find "$ROOT" -type d -name .gemini-clipboard -prune -print0 2>/dev/null | \
+  while IFS= read -r -d '' c; do printf '  %-40s %s\n' "$c" "$(du -sh "$c" 2>/dev/null | cut -f1)"; done
 
 section "5. Crash logs"
 for d in "$HOME/Library/Logs/DiagnosticReports" "$HOME/.local/state"; do

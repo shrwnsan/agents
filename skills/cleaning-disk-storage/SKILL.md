@@ -3,7 +3,7 @@ name: cleaning-disk-storage
 license: Apache-2.0
 description: Scan for and safely remove temporary files, cache directories, and build artifacts to free disk space. Use when user asks to clean up disk, free storage, remove temp files, mentions running out of space, or needs system maintenance. Includes detection of AI agent temp directories (.gemini-clipboard, antigravity scratch).
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Cleaning Disk Storage
@@ -12,7 +12,7 @@ metadata:
 
 1. Scan for temporary files and report space usage (or run `scripts/scan.sh [root]` — bundled read-only scanner)
 2. Confirm with user before deletion
-3. Use `trash` command (not `rm -rf`) for safe removal
+3. Use `trash` command (not `rm -rf`) for safe removal. **Dotfile rules:** the trash CLI cannot reliably move bare dot-named files to the Trash (observed: deleted outright, not recoverable), and trashing **any** sibling deletes the parent's `.DS_Store` as a silent side effect (exit 0). So for dot-named files (e.g. `.DS_Store`; `.env*` never anyway): stage them into a non-dot-named directory and trash that, or delete via Finder — `osascript -e 'tell application "Finder" to delete POSIX file "<path>"'` prints the `.Trash` destination, making recovery self-verifying. Stage or Finder-delete dotfiles **before** any other trash call in the same parent directory
 4. Provide summary with space freed and regeneration instructions
 
 ## Purpose
