@@ -1,0 +1,43 @@
+name: skill-quality-gate
+
+# Canonical gate phases (structure + frontmatter) on every PR that touches
+# skills/. The behavioral dry-run needs an agent judge and stays out of CI;
+# run_dry_run.py handles it locally. The external scanner phase is advisory
+# and skipped here (run_external_scans.py, optional locally).
+
+on:
+  pull_request:
+    paths:
+      - "skills/**"
+      - ".github/workflows/skill-quality-gate.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "skills/**"
+      - ".github/workflows/skill-quality-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Gate every skill directory
+        run: |
+          status=0
+          for dir in skills/*/ skills/*/*/; do
+            dir="${dir%/}"
+            [ -f "$dir/SKILL.md" ] || continue
+            echo "== $dir"
+            python3 skills/skill-quality-gate/scripts/check_structure.py "$dir" || status=1
+            python3 skills/skill-quality-gate/scripts/check_frontmatter.py "$dir" || status=1
+          done
+          exit $status

@@ -34,7 +34,7 @@ The skill supports flexible configuration through YAML files. Configuration is l
 |----------|----------|----------|
 | 1 | `~/.config/agents/handoff-context-config.yml` | Cross-tool standard (Amp, other AI tools) |
 | 2 | `~/.claude/handoff-context-config.yml` | Claude Code specific |
-| 3 | `.agents/handoff-context-config.yml` | Project-local |
+| 3 | `handoff-context-config.yml` in the project root `.agents/` directory | Project-local |
 | 4 | Built-in defaults | Fallback |
 
 ### Quick Setup

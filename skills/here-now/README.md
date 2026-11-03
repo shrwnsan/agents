@@ -42,7 +42,7 @@ lacks bash outright), so a standalone bash implementation has no remaining niche
 - JSON handling natively (replaces jq)
 - All 5 security layers ported 1:1
 - File upload, create, finalize, metadata patch
-- State management (`.herenow/state.json`)
+- State management (a `.herenow/` directory holding `state.json`, created on first publish)
 
 ### Why not other approaches?
 
