@@ -43,6 +43,10 @@ Each skill is a self-contained package: a `SKILL.md` instruction file plus optio
 | [tokens/query-token-audit](tokens/query-token-audit/) | Crypto | [binance-skills-hub](https://github.com/binance/binance-skills-hub) | Honeypot/rug-pull detection, contract security audit |
 | [tokens/query-token-info](tokens/query-token-info/) | Crypto | [binance-skills-hub](https://github.com/binance/binance-skills-hub) | Token metadata, price, klines, social links |
 | [tokens/trading-signal](tokens/trading-signal/) | Crypto | [binance-skills-hub](https://github.com/binance/binance-skills-hub) | Smart-money buy/sell signals with trigger prices |
+| [tier-0-trivial](tier-0-trivial/) | Workflow | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins/tree/main/plugins/tempo) | Tier-0 trivial-change rules (typo, copy tweak, one-line fix). Rarely needs loading — the tempo session routing table… |
+| [tier-1-standard](tier-1-standard/) | Workflow | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins/tree/main/plugins/tempo) | Tier-1 standard-change flow — one-line plan note, test-first, single agent, systematic debugging on failures. Use… |
+| [triage](triage/) | Workflow | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins/tree/main/plugins/tempo) | Classify a coding task as risk tier 0, 1, or 2 before starting work, and route to the matching tier flow. Use at the… |
+| [tier-2-risky](tier-2-risky/) | Workflow | [vibekit](https://github.com/shrwnsan/vibekit-claude-plugins/tree/main/plugins/tempo) | Tier-2 risky-change flow — short plan file, deliberate build, review gate and verify gate before done. Use for… |
 
 A GitHub Actions workflow syncs skills from vibekit automatically. Other upstream skills sync when someone runs [sync-upstream](../.github/workflows/sync-upstream.yml) by hand, using the sources in [.upstream.yml](../.upstream.yml).
 
