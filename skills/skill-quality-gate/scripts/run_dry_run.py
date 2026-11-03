@@ -632,9 +632,11 @@ def build_brief(skill_dir: Path, meta: dict) -> str:
        "if it is installed next to this one — fresh venv, throwaway clone/"
        "copy, credential-free env. The report's `containment:` line is a "
        "required field: record which mode ran, or `containment: sandboxed-run "
-       "unavailable` if the wrapper is absent — the dry-run still proceeds in "
-       "the scratch dir. Per `references/pass-fail-criteria.md`, a report "
-       "whose containment line is missing or unaccounted caps at WARN.")
+       "unavailable` if the wrapper is absent. The dry-run still proceeds in "
+       "the scratch dir, but a scratch dir disciplines file placement without "
+       "confining the process, so bundled-script execution without the "
+       "wrapper is not containment: per `references/pass-fail-criteria.md` "
+       "such a run caps at WARN.")
     ap("")
 
     def _step(snippet: str) -> str:
