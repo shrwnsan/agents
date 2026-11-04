@@ -117,6 +117,13 @@ token.
 - An authorization code is single-use and short-lived. If the exchange fails
   with `Value passed for the authorization code was invalid`, do not retry
   the same code; run a fresh authorize round.
+- **New-console apps gate PKCE-minted user tokens** (observed 2026-11-05):
+  the PKCE flow completes and grants list scopes, but the resulting token
+  403s on every endpoint with a bare `Forbidden`, while the console's own
+  "OAuth 2.0 Access Token" generator (Keys & Tokens, per-scope checkboxes)
+  produces a working user token. If PKCE tokens 403 while app-only Bearer
+  works, generate the user token in the console with the scopes you need
+  instead of debugging the flow.
 - Old API Keys (25-character IDs) are not OAuth 2.0 Client IDs (34
   characters ending `:MTpjaQ`). The authorize endpoint accepts the former but
   consent fails; use the OAuth 2.0 Client ID from after the user
