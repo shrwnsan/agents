@@ -38,6 +38,10 @@ skills:
     repo: MengTo/Skills
     path: agent-skills/media/html-reel
     preserve: [PROVENANCE.md, LICENSE]
+  - name: herdr
+    repo: herdrdev/herdr
+    path: skills/herdr
+    preserve: [PROVENANCE.md]
 
 recipes:
   - name: twilio-voice-brain.md
