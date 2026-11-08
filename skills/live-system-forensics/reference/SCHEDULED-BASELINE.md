@@ -13,7 +13,7 @@ the previous snapshot, and sends a macOS notification on any **new** item. It:
 - uses absolute binary paths (launchd provides a minimal environment)
 - chains each snapshot to the previous one's SHA-256, so silent edits to stored
   snapshots break the chain detectably
-- prunes snapshots and JSONL logs to `FORENSICS_LOG_KEEP` newest files (default 30)
+- prunes its snapshots and this host's findings logs (`<hostname>-<digits>.jsonl`) to the `FORENSICS_LOG_KEEP` newest of each (default 30); other JSONL in the directory, such as app audit receipts, is never pruned
 
 **Known limitation (accepted):** an attacker with your UID can edit both the
 current snapshot *and* the stored chain tail. This raises the bar, it does not

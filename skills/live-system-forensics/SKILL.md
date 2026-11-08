@@ -3,7 +3,7 @@ name: live-system-forensics
 license: Apache-2.0
 description: Perform live forensic analysis on Unix systems to detect malware and suspicious activity. Analyzes running processes, network connections, startup persistence (systemd, LaunchAgents, cron), recent files, and IDE extensions. Use when user asks to check for malware, investigate suspicious activity, audit system security, or analyze unknown applications like AI IDEs.
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Live System Forensics
@@ -244,15 +244,17 @@ Include *every* persistence item and unexplained process/destination — not jus
 
 **Drift check** (escalate in the report any unknown item not present last time):
 ```bash
-cd ~/.cache/live-system-forensics && ls -t *.jsonl | head -2
+cd ~/.cache/live-system-forensics && ls -t "$(hostname)"-[0-9]*.jsonl | head -2
 diff <(jq -r 'select(.class=="unknown") | .item' <(newest) | sort) \
      <(jq -r 'select(.class=="unknown") | .item' <(previous) | sort)
 ```
 No `jq`? `grep '"class":"unknown"' <file> | sed 's/.*"item":"\([^"]*\)".*/\1/' | sort` per file, then `comm -13`.
 
+Diff only this host's findings logs. App audit receipts (`<app>-v<version>-<date>.jsonl`) share the directory and carry no `class` key, so a diff that picks one up prints nothing, which reads as no drift.
+
 This is the one sanctioned write during recon — everything else stays read-only.
 
-**Retention:** logs are pruned to `FORENSICS_LOG_KEEP` newest files (default 30) by the drift watcher (see `reference/SCHEDULED-BASELINE.md` for the opt-in scheduled baseline).
+**Retention:** the drift watcher keeps the `FORENSICS_LOG_KEEP` newest of this host's findings logs (default 30) and never prunes other JSONL in the directory, such as app audit receipts (see `reference/SCHEDULED-BASELINE.md` for the opt-in scheduled baseline).
 
 **Scheduled baseline (opt-in):** between full audits, `scripts/drift-watch.sh` can watch persistence drift with zero tokens — see `reference/SCHEDULED-BASELINE.md`. The skill never installs it itself.
 
