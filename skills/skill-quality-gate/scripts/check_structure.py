@@ -5,12 +5,14 @@ Checks (phase "structure"):
   1. SKILL.md exists and has content after the frontmatter fence
      (fence presence check only -- deep parsing lives in check_frontmatter.py).
   2. Internal references: path-like tokens in SKILL.md / README.md that are
-     relative and resolve inside the skill dir must exist.
+     relative and resolve inside the skill dir must exist. A path under a
+     dot-folder the skill does not ship, such as `.agents/config.yml`, names
+     a file in the user's project; it is reported as SKIP, not checked.
   3. scripts/*.sh and scripts/*.py must be non-empty; .sh files need the
      executable bit and a shebang (WARN-level). No syntax checking here.
   4. Unexpected top-level entries are reported as informational SKIP.
 
-Usage: python3 check_structure.py <skill-dir> [--json]
+Usage: python3 check_structure.py <skill-dir> [--json] [--self-test]
 Exit codes: 0 = no FAIL findings, 1 = at least one FAIL, 2 = usage/IO error.
 Python 3.9+, stdlib only.
 """
@@ -20,6 +22,7 @@ import json
 import os
 import re
 import sys
+import tempfile
 from urllib.parse import unquote
 
 PHASE = "structure"
@@ -117,14 +120,23 @@ def check_skill_md(root, findings):
         findings.append(("FAIL", "SKILL.md has no content after the frontmatter block"))
 
 
+def is_project_path(base, tok):
+    parts = [p for p in tok.split("/") if p not in ("", ".")]
+    first = parts[0] if parts else ""
+    return first.startswith(".") and first != ".." and not os.path.exists(os.path.join(base, first))
+
+
 def check_references(root, findings):
-    checked, dangling = 0, 0
+    checked, dangling, project = 0, 0, []
     for fname in ("SKILL.md", "README.md"):
         path = os.path.join(root, fname)
         if not os.path.isfile(path):
             continue
         base = os.path.dirname(path)
         for tok in extract_ref_tokens(strip_fenced(read_text(path).splitlines())):
+            if is_project_path(base, tok):
+                project.append("{}: {}".format(fname, tok))
+                continue
             checked += 1
             resolved = os.path.normpath(os.path.join(base, tok))
             inside = resolved == root or resolved.startswith(root + os.sep)
@@ -139,6 +151,12 @@ def check_references(root, findings):
             ))
     if checked and not dangling:
         findings.append(("PASS", "all {} internal reference(s) resolve".format(checked)))
+    if project:
+        findings.append((
+            "SKIP",
+            "project paths under dot-folders the skill does not ship "
+            "(informational, not checked): " + ", ".join(project),
+        ))
 
 
 def first_line(path):
@@ -192,14 +210,54 @@ def check_top_level(root, findings):
         ))
 
 
+def self_test():
+    """Fixture test for the reference check. Returns an exit code."""
+    with tempfile.TemporaryDirectory(prefix="structure-selftest-") as root:
+        os.makedirs(os.path.join(root, "references"))
+        os.makedirs(os.path.join(root, ".claude-plugin"))
+        with open(os.path.join(root, "references", "ok.md"), "w") as fh:
+            fh.write("ok\n")
+        with open(os.path.join(root, "SKILL.md"), "w") as fh:
+            fh.write(
+                "---\nname: fixture\n---\n"
+                "See `references/ok.md` and `references/missing.md`.\n"
+                "Copy the example to `.agents/project-config.yml` or `./.agents/local.yml`.\n"
+                "The manifest is `.claude-plugin/plugin.json`.\n"
+            )
+        findings = []
+        check_references(root, findings)
+    fails = " ".join(msg for lvl, msg in findings if lvl == "FAIL")
+    skips = " ".join(msg for lvl, msg in findings if lvl == "SKIP")
+    checks = [
+        ("missing-bundle-file-fails", "'references/missing.md'" in fails),
+        ("existing-bundle-file-passes", "'references/ok.md'" not in fails),
+        ("project-dot-folder-skipped",
+         ".agents/project-config.yml" in skips and "project-config.yml" not in fails),
+        ("dot-slash-project-path-skipped", "./.agents/local.yml" in skips and "local.yml" not in fails),
+        ("shipped-dot-folder-still-checked", "'.claude-plugin/plugin.json'" in fails),
+    ]
+    ok = True
+    for name, passed in checks:
+        print("{}  [self-test] {}".format("PASS" if passed else "FAIL", name))
+        ok = ok and passed
+    print("SELF-TEST: {}".format("PASS" if ok else "FAIL"))
+    return 0 if ok else 1
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(
         description="Validate agent skill directory structure (SKILL.md, internal refs, scripts/)."
     )
-    parser.add_argument("skill_dir", help="path to the skill directory")
+    parser.add_argument("skill_dir", nargs="?", help="path to the skill directory")
     parser.add_argument("--json", action="store_true", help="emit a single JSON object to stdout")
+    parser.add_argument("--self-test", action="store_true",
+                        help="run the reference-check self-test on a fixture and exit")
     args = parser.parse_args(argv)
 
+    if args.self_test:
+        return self_test()
+    if not args.skill_dir:
+        parser.error("skill_dir is required unless --self-test")
     root = os.path.abspath(args.skill_dir)
     if not os.path.isdir(root):
         print("error: not a directory: {}".format(args.skill_dir), file=sys.stderr)
