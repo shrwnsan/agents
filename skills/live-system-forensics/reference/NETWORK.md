@@ -11,14 +11,14 @@ lsof -i -P -n | grep -E "(LISTEN|ESTABLISHED)"
 
 ### Find Process by Port
 ```bash
-lsof -i :<PORT>
-lsof -i :443
-lsof -i :8080
+lsof -nP -i :<PORT>
+lsof -nP -i :443
+lsof -nP -i :8080
 ```
 
 ### Find Ports by Process
 ```bash
-lsof -i -a -p <PID>
+lsof -nP -i -a -p <PID>
 ```
 
 ### Established Connections Only

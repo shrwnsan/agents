@@ -6,7 +6,7 @@ This file is **machine-specific** and **user-maintained**. It lists persistence 
 
 **Rules:**
 - After every audit that comes back clean, add any new legitimate items you verified here.
-- During an audit, classify every finding as: `allowlisted` (in this file) / `known-apple` (Apple-stock, under /System) / `unknown` (investigate).
+- During an audit, classify every finding as: `allowlisted` (in this file) / `known-apple` (Apple-stock, on the sealed system volume: /System, /bin, /sbin, /usr) / `unknown` (investigate).
 - Anything not in this file and not vendor-stock = investigate, not ignore.
 - Porting this skill to a new machine? Reset this file to empty and rebuild it from that host's first clean audit.
 

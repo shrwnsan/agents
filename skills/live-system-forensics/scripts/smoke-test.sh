@@ -6,9 +6,15 @@
 PASS=0; FAIL=0; SKIP=0
 OS=$(uname)
 SUDO=0
-[ "$(id -u)" = "0" ] && SUDO=1
-# Detect passwordless sudo without prompting
-sudo -n true 2>/dev/null && SUDO=1
+SUDOCMD=""
+if [ "$(id -u)" = "0" ]; then
+  SUDO=1
+elif sudo -n true 2>/dev/null; then
+  # Passwordless sudo, detected without prompting. The root commands still
+  # have to go through sudo, or they fail as the unprivileged user.
+  SUDO=1
+  SUDOCMD="sudo -n"
+fi
 
 # timeout is not stock on macOS — use it only when present
 if command -v timeout >/dev/null 2>&1; then
@@ -25,6 +31,7 @@ run() {  # run <id> <condition: any|macos|linux|sudo-macos|sudo-linux> <command.
     sudo-macos) if [ "$OS" != Darwin ] || [ "$SUDO" != 1 ]; then echo "SKIP(needs-sudo)  $id  $cmd"; SKIP=$((SKIP+1)); return; fi ;;
     sudo-linux) if [ "$OS" != Linux ] || [ "$SUDO" != 1 ]; then echo "SKIP(needs-sudo)  $id  $cmd"; SKIP=$((SKIP+1)); return; fi ;;
   esac
+  case "$cond" in sudo-*) cmd="$SUDOCMD $cmd" ;; esac
   if $GUARD sh -c "$cmd" >/dev/null 2>&1; then
     echo "PASS  $id  $cmd"; PASS=$((PASS+1))
   else
@@ -67,6 +74,8 @@ run P3-19 any     "grep -nE \"(curl|wget|nc -|base64|eval|python|perl)\" ~/.zshr
 run P4-01 any     "find ~ -maxdepth 3 -name '*.sh' -mtime -7 2>/dev/null || true  # find exits 1 on perm errors; output still valid"
 run P4-02 any     "ls -la ~/.ssh/ 2>/dev/null || true  # absent dir = clean"
 run P4-03 any     "grep -E \"(command=|from=)\" ~/.ssh/authorized_keys 2>/dev/null || true  # absent file = clean"
+run P4-04 linux   "find ~/.config/systemd -name '*.service' -mtime -7 2>/dev/null || true  # absent dir = clean"
+run P4-05 macos   "find ~/Library/LaunchAgents -mtime -30 2>/dev/null || true  # absent dir = clean"
 
 # Phase 5 - Extensions / NMH
 run P5-01 any     "ls -la ~/.antigravity/extensions/ 2>/dev/null || true  # absent dir = clean"
@@ -76,6 +85,7 @@ run P5-04 any     "ls -la ~/.continue/ 2>/dev/null || true  # absent dir = clean
 run P5-05 macos   "ls -la ~/Library/Application\ Support/Google/Chrome/NativeMessagingHosts/ 2>/dev/null || true  # absent dir = clean"
 run P5-06 macos   "ls -la ~/Library/Application\ Support/Mozilla/NativeMessagingHosts/ 2>/dev/null || true  # absent dir = clean"
 run P5-07 any     "pgrep -fl mcp || true"
+run P5-08 macos   "for d in \"Google/Chrome\" \"Microsoft Edge\" \"Mozilla\" \"BraveSoftware/Brave-Browser\" \"Chromium\"; do ls -la \"\$HOME/Library/Application Support/\$d/NativeMessagingHosts/\" 2>/dev/null; done; true  # absent dirs = clean"
 
 echo
 echo "Summary: $PASS pass, $FAIL fail, $SKIP skip (platform/sudo)"

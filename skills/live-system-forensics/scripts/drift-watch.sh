@@ -14,7 +14,9 @@ KEEP="${FORENSICS_LOG_KEEP:-30}"
 HOST=$(hostname 2>/dev/null || uname -n)
 TS=$(/bin/date +%Y%m%d-%H%M%S)-$$
 SNAP="${STATE_DIR}/watch-snapshot-${TS}.txt"
-PREV=$(/bin/ls -t "${STATE_DIR}"/watch-snapshot-*.txt 2>/dev/null | /usr/bin/sed -n 2p)
+# computed before SNAP is written below, so the newest existing snapshot (1p)
+# is the previous run; 2p would diff against two runs back
+PREV=$(/bin/ls -t "${STATE_DIR}"/watch-snapshot-*.txt 2>/dev/null | /usr/bin/sed -n 1p)
 
 /bin/mkdir -p "${STATE_DIR}"
 

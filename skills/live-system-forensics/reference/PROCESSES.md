@@ -30,16 +30,18 @@ ps -o ppid= -p <PID>
 
 ### High Resource Processes
 ```bash
-# Top CPU
-ps auxww --sort=-%cpu | head -20
+# Top CPU (macOS BSD ps has no --sort; it sorts with -r, procps with --sort)
+ps auxwwr | head -20               # macOS
+ps auxww --sort=-%cpu | head -20   # Linux
 
 # Top Memory
-ps auxww --sort=-%mem | head -20
+ps auxwwm | head -20               # macOS
+ps auxww --sort=-%mem | head -20   # Linux
 ```
 
 ## Classifying Processes
 
-- Anything under `/System/Library/...` is Apple-stock (`known-apple`).
+- Anything on the sealed system volume (`/System`, `/bin`, `/sbin`, `/usr`) is Apple-stock (`known-apple`); codesign-verify when unsure.
 - Everything else: check against the per-host `ALLOWLIST.md` in this directory.
 - Not allowlisted and not Apple-stock → `unknown` → investigate (codesign check on macOS).
 
