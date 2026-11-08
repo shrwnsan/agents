@@ -2,7 +2,7 @@
 name: auditing-agent-harnesses
 license: Apache-2.0
 metadata:
-  version: "1.2.0"
+  version: "1.2.1"
 compatibility: "Optional context-triage accelerator needs Python 3.10+, network access to api.typesafe.ai, and TYPESAFE_API_KEY set. TYPESAFE_MODEL overrides the scored model alias (default jev-latest)."
 description: Use when a new agent harness or AI-coding desktop app is installed on macOS, an already-audited harness ships a version update, an OS privacy/network permission prompt appears for an already-audited app, a public claim about such an app needs verification, or a periodic harness privacy sweep is due. Applies to Electron/asar, Tauri, and thin-shell-plus-sidecar apps (ZCode, Conductor, Antigravity, Windsurf-class IDEs).
 ---
