@@ -34,14 +34,29 @@ python3 scripts/copilot_delegate.py check
 
 Reports CLI presence, the pinned version in use, auth state (read-only—the
 script never starts a login), and ledger writability. If the CLI is missing,
-install it pinned and record the pin:
+install it pinned and record the pin. Official channels (docs.github.com
+Copilot CLI install, checked 2026-11-03):
+
+- npm (needs Node 22+): `npm install -g @github/copilot@<pin>`. If
+  `~/.npmrc` sets `ignore-scripts=true`, the documented form is
+  `npm_config_ignore_scripts=false npm install -g @github/copilot@<pin>`
+  — follow the official guidance rather than reasoning about package
+  internals (the published packages currently carry no install scripts,
+  but that is not a contract).
+- Homebrew cask: `brew install --cask copilot-cli` — not the bare `copilot`
+  formula, which is Amazon's AWS Copilot CLI, an unrelated tool.
+- Install script (macOS/Linux): `curl -fsSL https://gh.io/copilot-install | bash`
+  — supports `VERSION=<pin>` and `PREFIX=` for pinned, per-user installs.
+- Direct download: `github.com/github/copilot-cli/releases`.
 
 ```bash
-npm install -g @github/copilot@1.0.105   # replace with the operator's chosen pin
+npm install -g @github/copilot@1.0.105   # example pin; choose the operator's own
 ```
 
-Unpinned installs (bare `npx @github/copilot`) are a mutable-reference
-hazard—the bytes you vetted are not the bytes you run next week. If auth is
+Bun, pnpm, and yarn install the same registry package — pin the version.
+Bare `bunx`/`npx` runs are a mutable-reference hazard—the bytes you vetted
+are not the bytes you run next week. Whatever the channel, the `copilot`
+binary must end up on PATH (or point `COPILOT_BIN` at it). If auth is
 missing, stop and tell the operator to run `copilot` once interactively; the
 device flow needs a browser and cannot be scripted from here.
 

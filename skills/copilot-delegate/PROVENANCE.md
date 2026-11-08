@@ -22,3 +22,11 @@
 - The JSON output contract is a prompt-side convention, not a CLI feature;
   `--output-format json` exists (JSONL events) and is documented as an
   alternative in flags.md.
+- Install channels verified 2026-11-03 against docs.github.com: npm
+  (Node 22+; with `ignore-scripts=true` the documented form is
+  `npm_config_ignore_scripts=false npm install -g @github/copilot@<pin>`),
+  Homebrew cask `copilot-cli`, the gh.io install script, and release
+  downloads. The bare `copilot` Homebrew formula is Amazon's AWS Copilot
+  CLI, not this tool. The published packages carry no install scripts;
+  the docs' ignore-scripts note is followed as the official line rather
+  than second-guessed from package internals.

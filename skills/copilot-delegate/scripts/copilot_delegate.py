@@ -206,8 +206,9 @@ def cmd_check(_args) -> int:
     problems = 0
     binary = copilot_bin()
     if not binary:
-        print("FAIL: copilot CLI not found (set COPILOT_BIN or install "
-              "npm install -g @github/copilot@<pin>)")
+        print("FAIL: copilot CLI not found (set COPILOT_BIN, or install via "
+              "npm / 'brew install --cask copilot-cli' / the gh.io install "
+              "script — see SKILL.md Preflight)")
         return 2
     print(f"OK: CLI at {binary}")
     try:
