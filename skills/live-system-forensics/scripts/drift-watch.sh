@@ -5,7 +5,7 @@
 # items it watches, never requires root, never contacts the network.
 #
 # Retention: deletes its own snapshots, and this host's findings logs
-# (<hostname>-<digits>.jsonl), beyond the FORENSICS_LOG_KEEP newest of each
+# (<hostname>-YYYYMMDD-HHMM.jsonl), beyond the FORENSICS_LOG_KEEP newest of each
 # (default 30; 0 disables). Other JSONL in the directory, such as app audit
 # receipts, is never pruned. Set in the launchd plist or your env.
 
@@ -65,13 +65,15 @@ else
 fi
 
 # retention: keep the newest $KEEP snapshots and this host's findings logs.
-# The JSONL glob is host-scoped: app audit receipts (<app>-v<ver>-<date>.jsonl)
-# share this directory and must never be pruned.
+# The JSONL glob spells out <hostname>-YYYYMMDD-HHMM.jsonl: app audit receipts
+# (<app>-v<ver>-<date>.jsonl) and the logs of a host whose name starts with
+# this one (<hostname>-2-...) share this directory and must never be pruned.
 # Note: ls-then-delete has a small TOCTOU window; harmless for a scheduler-cadence
 # watcher (worst case: a snapshot created mid-prune survives to the next prune).
 if [ "$KEEP" -gt 0 ]; then
   /bin/ls -t "${STATE_DIR}"/watch-snapshot-*.txt 2>/dev/null | /usr/bin/tail -n +"$((KEEP+1))" | while read -r f; do /bin/rm -f "$f"; done
   if [ -n "$HOST" ]; then
-    /bin/ls -t "${STATE_DIR}/${HOST}"-[0-9]*.jsonl 2>/dev/null | /usr/bin/tail -n +"$((KEEP+1))" | while read -r f; do /bin/rm -f "$f"; done
+    /bin/ls -t "${STATE_DIR}/${HOST}"-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9].jsonl 2>/dev/null \
+      | /usr/bin/tail -n +"$((KEEP+1))" | while read -r f; do /bin/rm -f "$f"; done
   fi
 fi

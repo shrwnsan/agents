@@ -244,13 +244,13 @@ Include *every* persistence item and unexplained process/destination — not jus
 
 **Drift check** (escalate in the report any unknown item not present last time):
 ```bash
-cd ~/.cache/live-system-forensics && ls -t "$(hostname)"-[0-9]*.jsonl | head -2
+cd ~/.cache/live-system-forensics && ls -t "$(hostname)"-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9].jsonl | head -2
 diff <(jq -r 'select(.class=="unknown") | .item' <(newest) | sort) \
      <(jq -r 'select(.class=="unknown") | .item' <(previous) | sort)
 ```
 No `jq`? `grep '"class":"unknown"' <file> | sed 's/.*"item":"\([^"]*\)".*/\1/' | sort` per file, then `comm -13`.
 
-Diff only this host's findings logs. App audit receipts (`<app>-v<version>-<date>.jsonl`) share the directory and carry no `class` key, so a diff that picks one up prints nothing, which reads as no drift.
+Diff only this host's findings logs. App audit receipts (`<app>-v<version>-<date>.jsonl`) share the directory and carry no `class` key, so a diff that picks one up prints nothing, which reads as no drift. The glob spells out the full `<hostname>-YYYYMMDD-HHMM.jsonl` name, so it also skips the logs of a host named, say, `<hostname>-2`.
 
 This is the one sanctioned write during recon — everything else stays read-only.
 

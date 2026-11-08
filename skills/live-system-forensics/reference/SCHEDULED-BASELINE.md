@@ -9,11 +9,11 @@ monitoring between full audits, install the zero-token watcher yourself:
 XDG autostart, user systemd units, crontab, ld.so.preload presence), diffs against
 the previous snapshot, and sends a macOS notification on any **new** item. It:
 
-- runs as your user — no root, no network, never deletes anything except its own old snapshots
+- runs as your user, needs no root, and never contacts the network
 - uses absolute binary paths (launchd provides a minimal environment)
 - chains each snapshot to the previous one's SHA-256, so silent edits to stored
   snapshots break the chain detectably
-- prunes its snapshots and this host's findings logs (`<hostname>-<digits>.jsonl`) to the `FORENSICS_LOG_KEEP` newest of each (default 30); other JSONL in the directory, such as app audit receipts, is never pruned
+- prunes its snapshots and this host's findings logs (`<hostname>-YYYYMMDD-HHMM.jsonl`) to the `FORENSICS_LOG_KEEP` newest of each (default 30); other JSONL in the directory, such as app audit receipts, is never pruned
 
 **Known limitation (accepted):** an attacker with your UID can edit both the
 current snapshot *and* the stored chain tail. This raises the bar, it does not
