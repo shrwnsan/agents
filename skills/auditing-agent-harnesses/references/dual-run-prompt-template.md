@@ -6,14 +6,16 @@ mechanical commands below and a report format, never attributions, never
 the audit skill, never expected results. Pair one unscaffolded session with
 the primary run; one flash-tier session is the documented pairing.
 
-Fill in before pasting:
+Fill in before pasting. Single-quote every path and needle so spaces and `$`
+reach the commands unchanged, and leave no needle empty: an empty needle
+matches at every byte.
 
-- `<APP_RESOURCES>` — the app Resources directory holding the files to sweep
-- `<PRIMARY_FILE>` — the file the hash seal covers
-- `<NEEDLES>` — the signature needle list, space-separated, quoted per item,
-  taken from the app's `guide-NNN` regression recipe
-- `<VARIANT_NEEDLES>` — the needles with at least one positive hit, for the
-  offset pass
+- `<APP_RESOURCES>`: the app Resources directory holding the files to sweep
+- `<PRIMARY_FILE>`: the file the hash seal covers
+- `<SWEEP_FILES>`: `<PRIMARY_FILE>` plus every sidecar script, space-separated,
+  as paths relative to `<APP_RESOURCES>`
+- `<NEEDLES>`: the signature needle list, space-separated, taken from the
+  app's `guide-NNN` regression recipe
 
 ---
 
@@ -22,37 +24,49 @@ exactly as given, in order, and report outputs verbatim. Do not read any
 documentation, do not draw conclusions, do not commit anything, do not write
 files. Work read-only.
 
-All commands run from `<APP_RESOURCES>`. Use `rg`, never plain `grep`:
-`grep -c` counts lines, not matches, and times out on bundles this size.
+All commands run from `<APP_RESOURCES>`. Use `rg`, never plain `grep`, which
+times out on bundles this size. Count positions, not lines. In either tool,
+`-c` counts matching lines, and a minified bundle can hold several matches
+on one line. Every `rg` call carries `--no-config`, so a personal ripgrep
+config, such as one that sets `--smart-case`, cannot change the counts.
 
-1. Hash seal:
+1. Sweep files and hash seal. A sweep file that is missing or unreadable
+   prints a MISSING line:
 
+       for f in <SWEEP_FILES>; do [ -f "$f" ] && [ -r "$f" ] || echo "MISSING $f"; done
        shasum -a 256 <PRIMARY_FILE>
 
-2. Needle counts, one line per needle, repeated for each file in the sweep
-   set (primary bundle plus every sidecar script):
+2. Needle counts, one line per needle and file:
 
-       for s in <NEEDLES>; do printf "%-22s file:%s\n" "$s" \
-         "$(rg -a --no-filename -F -c "$s" <FILE> 2>/dev/null || echo 0)"; done
+       for s in <NEEDLES>; do for f in <SWEEP_FILES>; do
+         printf "%-22s %-16s %s\n" "$s" "$f" \
+           "$(rg --no-config -a -o -F -- "$s" "$f" | wc -l | tr -d ' ')"
+       done; done
 
-3. Byte offsets of every needle with a positive count:
+3. Byte offsets, one line per position, for every needle in every file. A
+   needle with no hits in a file prints nothing. Do not cap or truncate
+   this output:
 
-       rg -a -b -o "<VARIANT_NEEDLES>" <PRIMARY_FILE> | head -8
+       for s in <NEEDLES>; do for f in <SWEEP_FILES>; do
+         rg --no-config -a -b -o -F -- "$s" "$f" |
+           while IFS= read -r o; do printf '%s:%s@%s\n' "$f" "$s" "$o"; done
+       done; done
 
 4. Route extraction, count and filtered:
 
-       rg -a -o "/api/v[0-9]/[a-zA-Z0-9/_-]+" <PRIMARY_FILE> | sort -u | wc -l
-       rg -a -o "/api/v[0-9]/[a-zA-Z0-9/_-]+" <PRIMARY_FILE> | sort -u | rg -i "upload|ingest|snapshot" || echo "no matching routes"
+       rg --no-config -a -o "/api/v[0-9]/[a-zA-Z0-9/_-]+" <PRIMARY_FILE> | sort -u | wc -l | tr -d ' '
+       rg --no-config -a -o "/api/v[0-9]/[a-zA-Z0-9/_-]+" <PRIMARY_FILE> | sort -u | rg --no-config -i "upload|ingest|snapshot" || echo "no matching routes"
 
-Report format: a plain table of needle counts (needle, per-file counts),
-then the hash line, then the offsets, then the two route lines. If a
-command errors, report the error text verbatim and continue with the rest.
-Do not commit anything, do not write files.
+Report format: every line steps 1 to 4 print, verbatim and in step order.
+If a command errors, report the error text verbatim and continue with the
+rest. Do not commit anything, do not write files.
 
 ---
 
 Acceptance: every count, every offset, and the hash match the primary run.
-Any divergence blocks the public verdict until explained. The reproducer's
-own mechanical observations (such as line-count versus match-count notes)
-are welcome; its conclusions are not — attribution stays with the primary
-run.
+Any divergence blocks the public verdict until explained, and so does a
+MISSING line or an error. Within the reproducer's output, the offset lines
+for each needle and file must also equal that pair's step-2 count; a
+mismatch means a command was altered or its output was cut short. The
+reproducer's own mechanical observations are welcome. Its conclusions are
+not, because attribution stays with the primary run.
