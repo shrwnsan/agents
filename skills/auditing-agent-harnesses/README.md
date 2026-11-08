@@ -23,6 +23,7 @@ baselines, adoption timeline):
 |---|---|
 | `SKILL.md` | Operational contract: phases, concern classes, gates |
 | `scripts/context-triage.py` | Context-triage harness (probe + baseline + contexts modes) |
+| `scripts/tests/` | Offline tests for the harness (loopback mock, no API key) |
 | `assets/corpus.jsonl` | 25 labeled byte-window excerpts (sanitized mirror) |
 | `references/corpus-README.md` | Corpus contents, rules, results, sanitization, threat model |
 | `references/dual-run-prompt-template.md` | Mechanical contract for the unscaffolded dual-run reproducer |
@@ -46,8 +47,10 @@ resolved version in its rows):
 | 2026-11-02 | jev-1.14.0 | 25/25 | 0.80 | 0.816 | 0.666 | 1 (escalated) |
 
 The 2026-10-23 false-clear is `zcode-route-vocab` scoring `benign-vendored`
-at 0.28 — the regardless-of-confidence rule escalated it, so no
-pipeline-shaped needle auto-resolved. The 2026-10-23 re-run held accuracy
+at 0.28. What actually escalated it was the confidence threshold
+(0.28 < 0.75); the regardless-of-confidence rule was a backstop that never
+fired, a distinction that matters once drift pushes such reads upward. The
+2026-10-23 re-run held accuracy
 but narrowed the correct/wrong
 confidence spread, so calibration is treated as **drifting**: re-run
 `context-triage.py baseline` on every model update. The ≥0.75
@@ -63,6 +66,16 @@ has a live boundary band: `contexts` now re-scores once inside 0.70–0.80
 and keeps the lower-confidence answer, and `baseline --reps N` scores with
 majority prediction and the median of its confidences. The stable hard
 cases are documented in the corpus results.
+
+Harness 1.3.0 (2026-11-09) broadened the pipeline rule: a pipeline-shaped
+context now escalates on any read other than `pipeline-indicator`, at any
+confidence. The trigger was a near-miss in the other direction: a real
+pipeline positive (`syn-capture-stage`) read as `feature-wired` at
+0.61–0.71 across the 2026-10-26 and 2026-11-02 runs, under the line but by
+a margin smaller than the measured drift. The same release escalates on a
+confirm-band class flip, warns on stderr when a row omits
+`pipeline_shaped`, refuses `--out` inside the skill directory, and
+rejects malformed input rows before any receipt is written.
 
 Why advisory only: the model produced a 0.95-confidence error on its
 own baseline (a sample-env placeholder DSN read as live telemetry),
