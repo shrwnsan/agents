@@ -1,14 +1,17 @@
 #!/bin/sh
 # drift-watch.sh — zero-token persistence drift watcher (opt-in companion to the
 # live-system-forensics skill). Snapshots user-visible persistence, diffs against
-# the previous snapshot, and notifies on NEW items. Never removes anything,
-# never requires root, never contacts the network.
+# the previous snapshot, and notifies on NEW items. Never touches the persistence
+# items it watches, never requires root, never contacts the network.
 #
-# Retention: JSONL logs and snapshots are pruned to FORENSICS_LOG_KEEP newest
-# files (default 30). Set in the launchd plist or your env.
+# Retention: deletes its own snapshots, and this host's findings logs
+# (<hostname>-YYYYMMDD-HHMM.jsonl), beyond the FORENSICS_LOG_KEEP newest of each
+# (default 30; 0 disables). Other JSONL in the directory, such as app audit
+# receipts, is never pruned. Set in the launchd plist or your env.
 
 STATE_DIR="${HOME}/.cache/live-system-forensics"
 KEEP="${FORENSICS_LOG_KEEP:-30}"
+HOST=$(hostname 2>/dev/null || uname -n)
 TS=$(/bin/date +%Y%m%d-%H%M%S)-$$
 SNAP="${STATE_DIR}/watch-snapshot-${TS}.txt"
 PREV=$(/bin/ls -t "${STATE_DIR}"/watch-snapshot-*.txt 2>/dev/null | /usr/bin/sed -n 2p)
@@ -61,10 +64,16 @@ else
   notify "baseline snapshot created (${SNAP})"
 fi
 
-# retention: keep newest $KEEP snapshots and JSONL logs.
+# retention: keep the newest $KEEP snapshots and this host's findings logs.
+# The JSONL glob spells out <hostname>-YYYYMMDD-HHMM.jsonl: app audit receipts
+# (<app>-v<ver>-<date>.jsonl) and the logs of a host whose name starts with
+# this one (<hostname>-2-...) share this directory and must never be pruned.
 # Note: ls-then-delete has a small TOCTOU window; harmless for a scheduler-cadence
 # watcher (worst case: a snapshot created mid-prune survives to the next prune).
 if [ "$KEEP" -gt 0 ]; then
   /bin/ls -t "${STATE_DIR}"/watch-snapshot-*.txt 2>/dev/null | /usr/bin/tail -n +"$((KEEP+1))" | while read -r f; do /bin/rm -f "$f"; done
-  /bin/ls -t "${STATE_DIR}"/*-[0-9]*.jsonl 2>/dev/null | /usr/bin/tail -n +"$((KEEP+1))" | while read -r f; do /bin/rm -f "$f"; done
+  if [ -n "$HOST" ]; then
+    /bin/ls -t "${STATE_DIR}/${HOST}"-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9].jsonl 2>/dev/null \
+      | /usr/bin/tail -n +"$((KEEP+1))" | while read -r f; do /bin/rm -f "$f"; done
+  fi
 fi
