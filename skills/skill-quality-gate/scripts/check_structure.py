@@ -121,9 +121,12 @@ def check_skill_md(root, findings):
 
 
 def is_project_path(base, tok):
-    parts = [p for p in tok.split("/") if p not in ("", ".")]
+    # normpath first: ".cfg/../references/x.md" names a bundle file, not a project
+    # path. lexists: a shipped dot-entry that is a dangling symlink still counts
+    # as shipped, so references under it are checked, not skipped.
+    parts = [p for p in os.path.normpath(tok).split("/") if p not in ("", ".")]
     first = parts[0] if parts else ""
-    return first.startswith(".") and first != ".." and not os.path.exists(os.path.join(base, first))
+    return first.startswith(".") and first != ".." and not os.path.lexists(os.path.join(base, first))
 
 
 def check_references(root, findings):
@@ -217,12 +220,15 @@ def self_test():
         os.makedirs(os.path.join(root, ".claude-plugin"))
         with open(os.path.join(root, "references", "ok.md"), "w") as fh:
             fh.write("ok\n")
+        os.symlink("no-such-target", os.path.join(root, ".dangling"))
         with open(os.path.join(root, "SKILL.md"), "w") as fh:
             fh.write(
                 "---\nname: fixture\n---\n"
                 "See `references/ok.md` and `references/missing.md`.\n"
                 "Copy the example to `.agents/project-config.yml` or `./.agents/local.yml`.\n"
                 "The manifest is `.claude-plugin/plugin.json`.\n"
+                "The linked copy is `.dangling/x.md`.\n"
+                "The normalized path is `.cfg/../references/missing2.md`.\n"
             )
         findings = []
         check_references(root, findings)
@@ -235,6 +241,8 @@ def self_test():
          ".agents/project-config.yml" in skips and "project-config.yml" not in fails),
         ("dot-slash-project-path-skipped", "./.agents/local.yml" in skips and "local.yml" not in fails),
         ("shipped-dot-folder-still-checked", "'.claude-plugin/plugin.json'" in fails),
+        ("dangling-dot-symlink-still-checked", "'.dangling/x.md'" in fails),
+        ("normalized-dot-prefix-still-checked", "'.cfg/../references/missing2.md'" in fails),
     ]
     ok = True
     for name, passed in checks:
