@@ -50,7 +50,7 @@ run P2-01 any     "command -v lsof >/dev/null 2>&1 && lsof -i -P -n || echo 'lso
 run P2-02 linux   "ss -tunap"
 
 # Phase 3 - Persistence
-run P3-01 macos   "ls -la ~/Library/LaunchAgents/"
+run P3-01 macos   "ls -la ~/Library/LaunchAgents/ 2>/dev/null || true  # absent dir = clean"
 run P3-02 macos   "ls -la /Library/LaunchAgents/"
 run P3-03 macos   "ls -la /Library/LaunchDaemons/"
 run P3-04 macos   "launchctl list"

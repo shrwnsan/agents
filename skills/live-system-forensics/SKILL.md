@@ -17,7 +17,7 @@ metadata:
 5. Examine IDE/AI tool extensions and configurations
 6. Provide findings summary with risk assessment
 
-**Write policy**: recon is read-only except for ONE sanctioned write — the JSONL findings log in `~/.cache/live-system-forensics/` (see Output Format). The scheduled drift watcher is optional and never installed by the skill itself.
+**Write policy**: recon is read-only; the only sanctioned writes live in `~/.cache/live-system-forensics/` — the JSONL findings log (see Output Format), the dumpstate scratch dump (Phase 3), and, if you install it, the drift watcher's snapshots. The watcher is optional and never installed by the skill itself.
 
 **Efficiency note**: Phases 1-3 are independent — run them as parallel tool calls. Note: some Phase 3 checks need `sudo` (system systemd, `sfltool dumpbtm`); if running unprivileged, run those separately and treat "permission denied" on system paths as expected, not suspicious — only permission failures on your own account's files are a finding.
 
@@ -248,7 +248,7 @@ cd ~/.cache/live-system-forensics && ls -t "$(hostname)"-[0-9][0-9][0-9][0-9][0-
 diff <(jq -r 'select(.class=="unknown") | .item' <(newest) | sort) \
      <(jq -r 'select(.class=="unknown") | .item' <(previous) | sort)
 ```
-No `jq`? `grep '"class": *"unknown"' <file> | sed 's/.*"item": *"\([^"]*\)".*/\1/' | sort` per file, then `comm -13` (spacing-tolerant, since the schema above writes `"class": "unknown"` with a space).
+No `jq`? `grep '"class": *"unknown"' <file> | sed 's/.*"item": *"\([^"]*\)".*/\1/' | sort` per file, then `comm -23 newest previous` (lines unique to the newest log, i.e. new unknowns). The patterns are spacing-tolerant, since the schema above writes `"class": "unknown"` with a space.
 
 Diff only this host's findings logs. App audit receipts (`<app>-v<version>-<date>.jsonl`) share the directory and carry no `class` key, so a diff that picks one up prints nothing, which reads as no drift. The glob spells out the full `<hostname>-YYYYMMDD-HHMM.jsonl` name, so it also skips the logs of a host named, say, `<hostname>-2`.
 
