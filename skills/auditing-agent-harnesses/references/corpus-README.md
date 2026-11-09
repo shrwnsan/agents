@@ -43,6 +43,14 @@ confidence. The full rationale is in
   receipt. It is refreshed by re-running `context-triage.py baseline
   --out references/baseline-results.json --force` whenever the corpus or
   the model changes; earlier receipts remain in git history.
+  The pinned receipt dates from the 1.2.x harness: its per-row `gate`
+  column applies the pre-1.3.0 rule, so `zcode-feedback-attachment`
+  (pipeline-shaped, read as `feature-wired` at 0.99) shows
+  `auto-resolve` where the 1.3.0 gate escalates, and its summary
+  predates the `pipeline_shaped_missed` field. Its rows are the
+  measurement record of the 2026-11-03 run, and rewriting the gate
+  column would falsify that record; regenerate it with the 1.3.0
+  harness on the next model change.
 
 ## Rules
 
@@ -58,9 +66,10 @@ confidence. The full rationale is in
   before trusting it on any other model or provider.
 - Single-shot confidences drift between identical runs (2026-11-02: 15/25
   items, two crossings of the 0.75 line). In `contexts` mode the harness
-  re-scores once when a confidence lands in the 0.70–0.80 band and keeps
-  the lower-confidence answer; a re-score that flips the class escalates
-  the context regardless of confidence. `baseline --reps N` uses majority
+  re-scores once when a confidence lands in the 0.70–0.80 band (0.70
+  inclusive, 0.80 exclusive) and keeps the lower-confidence answer; a
+  re-score that flips the class escalates the context regardless of
+  confidence. `baseline --reps N` uses majority
   prediction and the median of its confidences. Receipts carry the
   resolved model per row in both modes, and `TYPESAFE_MODEL` overrides
   the requested alias.

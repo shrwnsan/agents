@@ -41,7 +41,7 @@ receipts are JSONL.
 
 Usage:
   context-triage.py probe
-  context-triage.py baseline [--corpus PATH] [--delay S] [--reps N] [--out PATH] [--force]
+  context-triage.py baseline [--corpus PATH] [--delay S] [--reps N>=1] [--out PATH] [--force]
   context-triage.py contexts FILE [--delay S] [--confirm-band F] [--out PATH] [--force]
 
 Env: TYPESAFE_API_KEY (required; presence-checked, never printed),
@@ -236,10 +236,9 @@ def load_jsonl(path: str, required: tuple[str, ...]) -> list[dict]:
 def warn_unflagged(rows: list[dict], ours: str) -> None:
     unflagged = [r["id"] for r in rows if ours(r)]
     if unflagged:
-        names = ", ".join(str(i) for i in unflagged[:5])
+        names = ", ".join(str(i) for i in unflagged)
         print(f"warning: {len(unflagged)} row(s) lack pipeline_shaped and the gate "
-              f"treats them as false: {names}{' ...' if len(unflagged) > 5 else ''}",
-              file=sys.stderr)
+              f"treats them as false: {names}", file=sys.stderr)
 
 
 def run_baseline(corpus_path: str, delay: float, reps: int, out: str | None, force: bool) -> int:

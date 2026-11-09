@@ -300,6 +300,18 @@ class InputValidationTests(TriageTest):
 
 
 class BaselineTests(TriageTest):
+    def test_unflagged_warning_names_every_row(self):
+        register("M_ALL", [("pipeline-indicator", 0.9)])
+        rows = [{"id": f"p{i}", "label": "pipeline-indicator", "context": f"M_ALL {i}"}
+                for i in range(7)]
+        corpus = write_jsonl(self.tmp.name, "corpus.jsonl", rows)
+        proc = run_triage("baseline", "--corpus", str(corpus), "--delay", "0",
+                          "--reps", "1", extra_env=self.out_env)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        for i in range(7):
+            self.assertIn(f"p{i}", proc.stderr)
+        self.assertNotIn(" ...", proc.stderr)
+
     def test_unflagged_pipeline_positive_warns_and_summary_counts(self):
         register("M_BUNFLAG", [("pipeline-indicator", 0.9)])
         register("M_BMISS", [("benign-vendored", 0.9)])
