@@ -8,7 +8,7 @@ Every command in SKILL.md must be executed at least once before shipping — the
 sh scripts/smoke-test.sh
 ```
 
-Read-only; never prompts for sudo. Commands requiring root run only when passwordless sudo is available (`sudo -n`), otherwise SKIP. Linux-only commands SKIP on macOS and vice versa.
+Read-only; never prompts for sudo. Commands requiring root run only when root or passwordless sudo is available, and go through `sudo -n` when the tester is not root; otherwise SKIP. Linux-only commands SKIP on macOS and vice versa.
 
 ## Passing
 

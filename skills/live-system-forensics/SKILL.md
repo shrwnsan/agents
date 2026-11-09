@@ -3,7 +3,7 @@ name: live-system-forensics
 license: Apache-2.0
 description: Perform live forensic analysis on Unix systems to detect malware and suspicious activity. Analyzes running processes, network connections, startup persistence (systemd, LaunchAgents, cron), recent files, and IDE extensions. Use when user asks to check for malware, investigate suspicious activity, audit system security, or analyze unknown applications like AI IDEs.
 metadata:
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # Live System Forensics
@@ -17,7 +17,7 @@ metadata:
 5. Examine IDE/AI tool extensions and configurations
 6. Provide findings summary with risk assessment
 
-**Write policy**: recon is read-only except for ONE sanctioned write — the JSONL findings log in `~/.cache/live-system-forensics/` (see Output Format). The scheduled drift watcher is optional and never installed by the skill itself.
+**Write policy**: recon is read-only; the only sanctioned writes live in `~/.cache/live-system-forensics/` — the JSONL findings log (see Output Format), the dumpstate scratch dump (Phase 3), and, if you install it, the drift watcher's snapshots. The watcher is optional and never installed by the skill itself.
 
 **Efficiency note**: Phases 1-3 are independent — run them as parallel tool calls. Note: some Phase 3 checks need `sudo` (system systemd, `sfltool dumpbtm`); if running unprivileged, run those separately and treat "permission denied" on system paths as expected, not suspicious — only permission failures on your own account's files are a finding.
 
@@ -74,7 +74,7 @@ csrutil status   # "enabled" = normal; "disabled" = userland results are unrelia
 - Processes with high CPU/memory consumption
 - Processes running from unexpected paths (e.g., `/tmp`, `~/Library`, hidden dirs)
 - On macOS: verify suspicious binaries with `codesign -dv --verify` and `spctl -a -t execute <path>` — unsigned/adhoc-signed binaries are a strong signal
-- Classify every unknown-looking item against `reference/ALLOWLIST.md`: allowlisted / known-apple (under /System) / unknown → investigate
+- Classify every unknown-looking item against `reference/ALLOWLIST.md`: allowlisted / known-apple (on the sealed system volume: /System, /bin, /sbin, /usr — codesign-verify when unsure) / unknown → investigate
 
 ### Phase 2: Network Analysis
 
@@ -112,7 +112,7 @@ ls -la /Library/LaunchDaemons/
 **macOS - live launchd state (plist files on disk can be stale or missing; check what's actually loaded):**
 ```bash
 launchctl list | awk '$3 !~ /^com\.apple/'
-sudo launchctl dumpstate | grep -v com.apple > /tmp/launchd-nonapple.txt   # catches agents bootstrapped without a plist on disk; review the full dump file
+sudo launchctl dumpstate | grep -v com.apple > ~/.cache/live-system-forensics/launchd-nonapple.txt   # catches agents bootstrapped without a plist on disk; the scratch dump goes in the one sanctioned write location, not /tmp
 sudo sfltool dumpbtm   # Background Task Management DB (Ventura+) — catches items not visible in /Library
 ```
 Limitation: agents injected into a running launchd session via `launchctl bootstrap` without disk artifacts, or with SIP compromised, may evade all of the above — a clean result here is not proof of absence.
@@ -156,7 +156,7 @@ ls -la /etc/xdg/autostart/ 2>/dev/null
 ls -la /etc/ld.so.preload 2>/dev/null && cat /etc/ld.so.preload
 ```
 
-**All platforms - shell rc backdoors (grep is a FIRST PASS ONLY — it catches crude curl/base64 droppers; patterns like `echo <base64> | base64 -d | python` evade it entirely, so manually review the rc files themselves before declaring clean):**
+**All platforms - shell rc backdoors (grep is a FIRST PASS ONLY — it catches crude curl/base64 droppers; patterns like `echo <hex> | xxd -r -p | sh` evade it entirely, so manually review the rc files themselves before declaring clean):**
 ```bash
 grep -nE "(curl|wget|nc -|base64|eval|python|perl)" ~/.zshrc ~/.bashrc ~/.profile ~/.zprofile 2>/dev/null
 ```
@@ -168,7 +168,7 @@ Distinguish errors: "no crontab" is normal; "permission denied" on your own acco
 **Recently modified files:**
 ```bash
 find ~ -maxdepth 3 -name "*.sh" -mtime -7
-find ~ -maxdepth 2 -name "*.service" -mtime -7
+find ~/.config/systemd -name "*.service" -mtime -7 2>/dev/null   # user units sit at depth 4 under ~, past a maxdepth-2 sweep
 find ~/Library/LaunchAgents -mtime -30 2>/dev/null
 ```
 
@@ -199,7 +199,7 @@ ls -la ~/.continue/
 
 **Browser native messaging hosts (common malware persistence vector on macOS):**
 ```bash
-for d in "Google/Chrome" "Microsoft Edge" "Mozilla" "BraveSoftware/Brave-Browser" "Chromium"; do ls -la ~/Library/Application\ Support/$d/NativeMessagingHosts/ 2>/dev/null; done
+for d in "Google/Chrome" "Microsoft Edge" "Mozilla" "BraveSoftware/Brave-Browser" "Chromium"; do ls -la "$HOME/Library/Application Support/$d/NativeMessagingHosts/" 2>/dev/null; done
 ```
 
 See `reference/EXTENSIONS.md` for the full per-IDE audit checklist.
@@ -248,7 +248,7 @@ cd ~/.cache/live-system-forensics && ls -t "$(hostname)"-[0-9][0-9][0-9][0-9][0-
 diff <(jq -r 'select(.class=="unknown") | .item' <(newest) | sort) \
      <(jq -r 'select(.class=="unknown") | .item' <(previous) | sort)
 ```
-No `jq`? `grep '"class":"unknown"' <file> | sed 's/.*"item":"\([^"]*\)".*/\1/' | sort` per file, then `comm -13`.
+No `jq`? `grep '"class": *"unknown"' <file> | sed 's/.*"item": *"\([^"]*\)".*/\1/' | sort` per file, then `comm -23 newest previous` (lines unique to the newest log, i.e. new unknowns). The patterns are spacing-tolerant, since the schema above writes `"class": "unknown"` with a space.
 
 Diff only this host's findings logs. App audit receipts (`<app>-v<version>-<date>.jsonl`) share the directory and carry no `class` key, so a diff that picks one up prints nothing, which reads as no drift. The glob spells out the full `<hostname>-YYYYMMDD-HHMM.jsonl` name, so it also skips the logs of a host named, say, `<hostname>-2`.
 
