@@ -3,7 +3,7 @@ name: skill-quality-gate
 license: Apache-2.0
 description: Use when a skill directory is about to be published or shipped to an agent-skills hub, when an existing skill has just been edited, or when asked to check whether a SKILL.md package is ready to publish.
 metadata:
-  version: "1.0.1"
+  version: "1.1.0"
 ---
 
 # Skill Quality Gate
@@ -47,6 +47,18 @@ as a third-party signal. Scanner absent → SKIP; external CRITICAL/HIGH
 escalates to FAIL only when the gate's own safety rules reproduce it on the
 same file; egress (LLM/cloud keys) is disclosed by name, never value. See
 `run_external_scans.py --self-test` and `examples/runtime-fetch-cases.md`.
+
+Optional fifth phase — version drift, git-aware and advisory:
+
+```bash
+python3 scripts/check_version_bump.py <repo-root> --base <ref>
+```
+
+Flags operational changes (SKILL.md body, `scripts/`) that shipped without
+the hub's `metadata.version` bump, per the convention in the agents repo's
+`docs/research-002`. `references/`-only and metadata-only changes are
+exempt; new skills without a version WARN. Always exit 0 (advisory tier);
+`--self-test` covers five scenarios.
 
 Exit 0 = no FAIL, 1 = FAIL present, 2 = error. One finding per line: `LEVEL [phase] message`.
 
