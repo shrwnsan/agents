@@ -10,7 +10,7 @@ Personal hub for AI agent skills, prompts, and configurations.
 
 Each skill is a self-contained package: a `SKILL.md` instruction file plus optional scripts or binaries. Any agent that supports the `~/.agents/skills/` convention can load them.
 
-[skills/README.md](skills/README.md) has the full catalog of 40 skills across Development, Design & Content, Workflow, Security, System, and Crypto. It lists each skill's source and provenance pin, plus the rules for adding one. [rejected-skills.json](rejected-skills.json) records the candidates we evaluated and turned down. [Why these skills](docs/ref-005-why-these-skills.md) explains the standard behind both.
+[skills/README.md](skills/README.md) has the full catalog of 36 skills across Development, Design & Content, Workflow, Security, System, and Crypto. It lists each skill's source and provenance pin, plus the rules for adding one. [rejected-skills.json](rejected-skills.json) records the candidates we evaluated and turned down. [Why these skills](docs/ref-005-why-these-skills.md) explains the standard behind both.
 
 A GitHub Actions workflow syncs skills from vibekit automatically. Other upstream skills sync when someone runs [sync-upstream](.github/workflows/sync-upstream.yml) by hand, using the sources in [.upstream.yml](.upstream.yml).
 
