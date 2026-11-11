@@ -69,7 +69,7 @@ Recipes are integration playbooks. Agents don't execute them the way they run sk
 
 ### Synced from upstream repos
 
-- twilio-voice-brain connects phone calls to a knowledge base through Twilio and a voice AI. It comes from [garrytan/gbrain](https://github.com/garrytan/gbrain), and we track it read-only.
+- [twilio-voice-brain](recipes/twilio-voice-brain.md) connects phone calls to a knowledge base through Twilio and a voice AI. It comes from [garrytan/gbrain](https://github.com/garrytan/gbrain), and we track it read-only.
 
 ## License
 
