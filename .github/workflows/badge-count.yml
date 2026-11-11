@@ -53,7 +53,11 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore(badge): skills count ${PROSE_OLD}/${BADGE_OLD} -> ${COUNT} [skip ci]"
+          # No [skip ci] here: skip-ci in the head commit message suppresses
+          # pull_request events too, which would stop auto-merge-docs from
+          # merging this PR. A loop is impossible anyway — the runner no-ops
+          # when the counts match, so its own push can never re-drift.
+          git commit -m "chore(badge): skills count ${PROSE_OLD}/${BADGE_OLD} -> ${COUNT}"
           # main is PR-protected: try a direct push first (same pattern as
           # sync-upstream), fall back to the fixed branch + PR when rejected.
           if git push origin HEAD:main 2>/dev/null; then
