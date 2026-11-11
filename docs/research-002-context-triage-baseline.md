@@ -1,4 +1,4 @@
-# research-002: context triage for agent-harness audits with the System One API, measured on jev-latest
+# research-002: context triage for agent-harness audits with the System One API (measured on the jev-latest alias: jev-1.13.0 at the 2026-10-02 baseline, jev-1.14.0 at the 2026-10-23 re-run)
 
 **Date:** 2026-10-02
 **Companion:** `skills/auditing-agent-harnesses` (corpus in `assets/`, harness in
