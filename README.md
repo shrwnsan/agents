@@ -1,7 +1,7 @@
 # agents
 
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-![Skills: 44](https://img.shields.io/badge/skills-44-green.svg)
+![Skills: 40](https://img.shields.io/badge/skills-40-green.svg)
 [![skills.sh](https://skills.sh/b/shrwnsan/agents)](https://skills.sh/shrwnsan/agents)
 
 Personal hub for AI agent skills, prompts, and configurations.
@@ -10,7 +10,7 @@ Personal hub for AI agent skills, prompts, and configurations.
 
 Each skill is a self-contained package: a `SKILL.md` instruction file plus optional scripts or binaries. Any agent that supports the `~/.agents/skills/` convention can load them.
 
-[skills/README.md](skills/README.md) has the full catalog of 37 skills across Development, Design & Content, Workflow, Security, System, and Crypto. It lists each skill's source and provenance pin, plus the rules for adding one. [rejected-skills.json](rejected-skills.json) records the candidates we evaluated and turned down. [Why these skills](docs/ref-005-why-these-skills.md) explains the standard behind both.
+[skills/README.md](skills/README.md) has the full catalog of 40 skills across Development, Design & Content, Workflow, Security, System, and Crypto. It lists each skill's source and provenance pin, plus the rules for adding one. [rejected-skills.json](rejected-skills.json) records the candidates we evaluated and turned down. [Why these skills](docs/ref-005-why-these-skills.md) explains the standard behind both.
 
 A GitHub Actions workflow syncs skills from vibekit automatically. Other upstream skills sync when someone runs [sync-upstream](.github/workflows/sync-upstream.yml) by hand, using the sources in [.upstream.yml](.upstream.yml).
 
@@ -69,7 +69,7 @@ Recipes are integration playbooks. Agents don't execute them the way they run sk
 
 ### Synced from upstream repos
 
-- twilio-voice-brain connects phone calls to a knowledge base through Twilio and a voice AI. It comes from [garrytan/gbrain](https://github.com/garrytan/gbrain), and we track it read-only.
+- [twilio-voice-brain](recipes/twilio-voice-brain.md) connects phone calls to a knowledge base through Twilio and a voice AI. It comes from [garrytan/gbrain](https://github.com/garrytan/gbrain), and we track it read-only.
 
 ## License
 
