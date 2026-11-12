@@ -17,6 +17,15 @@ coverage rule existed. Provenance and validation history (six blind
 baselines, adoption timeline):
 [docs/research-002](https://github.com/shrwnsan/agents/blob/main/docs/research-002-context-triage-baseline.md).
 
+## What a round produces
+
+A round closes with: a verdict and a coverage statement (every concern
+class, evidence per class) plus falsifiers; a JSONL forensics receipt in a
+durable location; one validated coverage-ledger line per app; and an update
+to the app's guide. Public verdicts additionally require a dual-run
+reproducer following the mechanical contract in
+`references/dual-run-prompt-template.md`.
+
 ## Layout
 
 | Path | Purpose |
@@ -104,3 +113,26 @@ Adversarial-sample testing has not been done yet and is tracked as
 follow-up. Full corpus details, sanitization notice, and per-context
 results: [`references/corpus-README.md`](references/corpus-README.md)
 and `references/baseline-results.json`.
+
+## Operational caveats
+
+- `codesign --verify --deep --strict` and `spctl` can be sandbox-blocked
+  in some agent sessions. Record the gap in the round receipt and carry
+  the last passing check forward with its date.
+- Accelerator egress to api.typesafe.ai varies by session. `probe` settles
+  it with one unauthenticated request before a scored run.
+- The 0.75 auto-resolve threshold rides a moving model alias. Re-run
+  `baseline` on every model update; receipts pin the resolved version.
+- Audit needles must match document language. The 2026-11-12
+  privacy-policy check false-negatived on English keywords against a
+  Chinese-language policy; search in the vendor's language.
+
+## Versions
+
+- 1.4.0 (#145): coverage ledger, `ledger-check.py` round-close check, coverage-table generator.
+- 1.3.1 (#143): `pipeline_shaped` on every synthetic pipeline row; offline regression tests.
+- 1.3.0 (#132): broadened pipeline gate (any non-pipeline read escalates regardless of confidence), confirm-band class-flip escalation, stricter receipts and input rows.
+- 1.2.1 (#128, #130): dual-run template counts positions, not lines; corrected the Local Network worked example.
+- 1.2.0 (#115): probe mode, `TYPESAFE_MODEL` override, confirm-band re-scoring, dual-run prompt template, durable forensics-log convention.
+- 1.1.0 (#100): harness and corpus packaged into the skill; portable provenance and `metadata.version`.
+- 1.0.0: coverage-contract phases and the advisory context-triage baseline ([docs/research-002](https://github.com/shrwnsan/agents/blob/main/docs/research-002-context-triage-baseline.md)).
