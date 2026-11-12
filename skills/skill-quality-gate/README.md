@@ -9,7 +9,8 @@ manual review demonstrably misses.
 
 ## What it does
 
-Five phases, three scripts plus one agent-judgment pass:
+Five core phases use three scripts plus one agent-judgment pass.
+Two additional scripts provide optional external scanning and version-drift checks:
 
 - **Structure** — `SKILL.md` present and non-empty; every internal reference
   resolves; script files sane
@@ -35,11 +36,14 @@ skill-quality-gate/
 ├── scripts/
 │   ├── check_structure.py
 │   ├── check_frontmatter.py
-│   └── run_dry_run.py
+│   ├── run_dry_run.py
+│   ├── run_external_scans.py
+│   └── check_version_bump.py
 ├── references/
 │   ├── checklist.md
 │   └── pass-fail-criteria.md
 └── examples/
+    ├── runtime-fetch-cases.md
     └── sample-report.md
 ```
 

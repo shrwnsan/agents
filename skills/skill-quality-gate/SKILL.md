@@ -3,7 +3,7 @@ name: skill-quality-gate
 license: Apache-2.0
 description: Use when a skill directory is about to be published or shipped to an agent-skills hub, when an existing skill has just been edited, or when asked to check whether a SKILL.md package is ready to publish.
 metadata:
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # Skill Quality Gate
@@ -35,8 +35,8 @@ python3 scripts/check_frontmatter.py <skill-dir>
 python3 scripts/run_dry_run.py       <skill-dir> --brief-only
 ```
 
-Optional fourth phase (advisory tier, no effect on the verdicts above when
-the scanner is absent):
+Optional external scan. This advisory tier has no effect on the verdicts
+above when the scanner is absent:
 
 ```bash
 python3 scripts/run_external_scans.py <skill-dir>
@@ -48,7 +48,7 @@ escalates to FAIL only when the gate's own safety rules reproduce it on the
 same file; egress (LLM/cloud keys) is disclosed by name, never value. See
 `run_external_scans.py --self-test` and `examples/runtime-fetch-cases.md`.
 
-Optional fifth phase — version drift, git-aware and advisory:
+Optional version-drift check. This check is git-aware and advisory:
 
 ```bash
 python3 scripts/check_version_bump.py <repo-root> --base <ref>

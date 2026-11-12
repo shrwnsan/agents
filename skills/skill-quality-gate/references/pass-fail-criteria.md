@@ -12,12 +12,12 @@ OVERALL: FAIL if any FAIL exists, else WARN if any WARN, else PASS.
 ## Per phase
 
 ### structure
-- FAIL: `SKILL.md` missing or empty; frontmatter block absent; internal reference (relative path in SKILL.md/README.md resolving inside the skill dir) does not exist; empty `.sh`/`.py` in `scripts/`. A path under a dot-folder the skill does not ship, such as `.agents/config.yml`, names a file in the user's project and is not an internal reference
+- FAIL: `SKILL.md` missing or empty; frontmatter fence opened but not closed; no body content after a closed frontmatter block; internal reference (relative path in SKILL.md/README.md resolving inside the skill dir) does not exist; empty `.sh`/`.py` in `scripts/`. A path under a dot-folder the skill does not ship, such as `.agents/config.yml`, names a file in the user's project and is not an internal reference. A non-empty file without frontmatter passes the structure content check; the frontmatter phase rejects the missing block
 - WARN: `.sh` missing executable bit or shebang
-- SKIP: unknown top-level directories; project paths under dot-folders the skill does not ship (informational only)
+- SKIP: unknown top-level entries; project paths under dot-folders the skill does not ship; references whose normalized paths resolve outside the skill directory, reported separately from project dot-folder paths. These skips are informational only
 
 ### frontmatter
-- FAIL: `name` missing, over 64 chars, failing `^[a-z0-9]+(-[a-z0-9]+)*$`, or not equal to the directory basename; `description` missing/empty/over 1024 chars; duplicate keys; unparseable YAML; `compatibility` over 500 chars; non-string `metadata` values
+- FAIL: frontmatter block missing, empty, or unclosed; `name` missing, over 64 chars, failing `^[a-z0-9]+(-[a-z0-9]+)*$`, or not equal to the directory basename; `description` missing/empty/over 1024 chars; duplicate keys; unparseable YAML; `compatibility` over 500 chars; non-string `metadata` values
 - WARN: first-person description; numbered-workflow description (agents route on it instead of reading the body)
 - SKIP: unknown keys (CC extensions like `user-invocable` are legitimate — never fail unknown keys); description over 250 chars is informational only (Claude Code listing truncates at 250)
 
