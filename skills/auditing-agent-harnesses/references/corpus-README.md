@@ -18,7 +18,9 @@ confidence. The full rationale is in
   the labels `benign-vendored`, `declared-telemetry`, `feature-wired`,
   and `pipeline-indicator`. They come from real desktop-app audit
   rounds, plus 7 synthetic positives reconstructed from public
-  forensics (`synthetic: true`). The corpus includes hard negatives:
+  forensics (`synthetic: true`). All seven synthetic positives now carry
+  `pipeline_shaped: true`, matching the corrected canonical annotations.
+  Only those flags changed; context text is unchanged. The corpus includes hard negatives:
   a route-vocabulary list containing `upload-credential`/`snapshot`
   tokens, a size-limited feedback-attachment endpoint, and a
   request-body masking function. All are benign, and all share keywords
@@ -50,7 +52,9 @@ confidence. The full rationale is in
   predates the `pipeline_shaped_missed` field. Its rows are the
   measurement record of the 2026-11-03 run, and rewriting the gate
   column would falsify that record; regenerate it with the 1.3.0
-  harness on the next model change.
+  harness on the next model change. The seven synthetic positives were
+  unflagged in that run; their current corpus flags do not alter the
+  historical receipt.
 
 ## Rules
 
@@ -97,12 +101,12 @@ confidence. The full rationale is in
   accuracy 0.80 in all three on the same misclassification set. The one
   near-miss was not a false-clear but the opposite-shaped hazard:
   `syn-capture-stage`, a synthetic pipeline positive (not flagged
-  `pipeline_shaped`), read as `feature-wired` at 0.61–0.71 — under the
+  `pipeline_shaped` at the time), read as `feature-wired` at 0.61–0.71 — under the
   0.75 line, so the threshold caught it, by a margin smaller than the
   measured drift. That near-miss motivated the 1.3.0 broadening of the
-  pipeline rule and a follow-up to flag the synthetic positives in the
-  canonical corpus; until that lands, `baseline` prints a stderr warning
-  naming unflagged pipeline positives. Run-to-run confidence drift
+  pipeline rule. Version 1.3.1 flags all seven synthetic positives in
+  the corpus so that rule applies to them. `baseline` still warns about
+  any unflagged pipeline positives in other input corpora. Run-to-run confidence drift
   touched 15/25 items (0.03–0.11) and crossed the 0.75 threshold on two
   items without changing class, which motivated the confirm-band rule
   below. Stable hard cases, all in the safe direction: the feedback-masker
@@ -133,6 +137,4 @@ Audit inputs come from binaries that may be hostile. Jev triage is
 therefore an advisory signal. It is never the verdict, and it never
 replaces independent re-execution (dual-run) on public audit verdicts.
 Adversarial-sample testing has not been done yet and is tracked as
-follow-up, as is flagging the seven synthetic pipeline positives
-`pipeline_shaped: true` in the canonical corpus (this mirror keeps the
-published rows until then).
+follow-up.
