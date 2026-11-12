@@ -2,7 +2,7 @@
 name: auditing-agent-harnesses
 license: Apache-2.0
 metadata:
-  version: "1.3.1"
+  version: "1.4.0"
 compatibility: "Optional context-triage accelerator needs Python 3.10+, network access to api.typesafe.ai, and TYPESAFE_API_KEY set. TYPESAFE_MODEL overrides the scored model alias (default jev-latest)."
 description: Use when a new agent harness or AI-coding desktop app is installed on macOS, an already-audited harness ships a version update, an OS privacy/network permission prompt appears for an already-audited app, a public claim about such an app needs verification, or a periodic harness privacy sweep is due. Applies to Electron/asar, Tauri, and thin-shell-plus-sidecar apps (ZCode, Conductor, Antigravity, Windsurf-class IDEs).
 ---
@@ -37,7 +37,7 @@ Produce privacy/capability verdicts on agent-harness desktop apps that are **def
 
 **Phase 3 — Runtime corroboration.** Logs (sizes/mtimes for coverage), live sockets (`lsof +c0 -i -P -n`), data dirs, outbox/queue tables empty-or-not. OS privacy prompts (Local Network, screen recording) can fire from compiled framework layers such as Chromium/Electron instead of app code: attribute by elimination across app JS, sidecars, and helper binaries before alarming. Zero genuine discovery needles in script layers with a live prompt usually means framework behavior. Worked example: the ZCode Local Network prompt of 2026-10-27 is still unattributed, because only the asar has been swept for discovery needles.
 
-**Phase 4 — Verdict + persistence.** Verdict + coverage statement (`9/9 classes cleared`) + confidence + falsifiers ("what would make this wrong"). Persist: per-app guide in your docs repo (`guide-NNN` pattern: facts + regression recipe), memory entry, JSONL forensics log to a durable non-temp directory (workspace convention: `~/.cache/live-system-forensics/<app>-v<version>-<date>.jsonl`; a /tmp receipt must note its own volatility). Dual-run cross-validation (unscaffolded pair, one flash-tier, mechanical contract in `references/dual-run-prompt-template.md`) when the verdict goes public.
+**Phase 4 — Verdict + persistence.** Verdict + coverage statement (`9/9 classes cleared`) + confidence + falsifiers ("what would make this wrong"). Persist: per-app guide in your docs repo (`guide-NNN` pattern: facts + regression recipe), memory entry, JSONL forensics log to a durable non-temp directory (workspace convention: `~/.cache/live-system-forensics/<app>-v<version>-<date>.jsonl`; a /tmp receipt must note its own volatility). Dual-run cross-validation (unscaffolded pair, one flash-tier, mechanical contract in `references/dual-run-prompt-template.md`) when the verdict goes public. Close the round with a coverage-ledger line in the app's ledger file (docs-repo convention: `docs/guides/ledger/<app>.jsonl`), validated by `scripts/ledger-check.py` before the round is done: `{round_date, version, app, validation: dual-run|solo|multi-agent|carryover:<round_date>, coverage: {C1..C9: evidence|carryover:<round_date>|n/a}, jev?: {model, threshold, windows: [{conf, auto, rule}]}}`. `evidence` means this round produced the class's evidence; older evidence carries its round date; `n/a` is explicit, never an omission. Coverage tables in the guide are generated from the ledger (`scripts/generate-coverage-table.py`) and are never hand-edited.
 
 ## Version-Jump Regression
 
