@@ -113,7 +113,13 @@ def run_check(command: str, cwd: str | None, timeout: int) -> tuple[bool, str]:
 
 
 def build_base(args) -> list[str]:
-    base = [args.copilot]
+    binary = args.copilot or copilot_bin()
+    if not binary:
+        print("FAIL: copilot CLI not found (set COPILOT_BIN, or install via "
+              "npm / 'brew install --cask copilot-cli' / the gh.io install "
+              "script — see SKILL.md Preflight)", file=sys.stderr)
+        raise SystemExit(2)
+    base = [binary]
     if args.cwd:
         base += ["-C", args.cwd]
     if args.model:
