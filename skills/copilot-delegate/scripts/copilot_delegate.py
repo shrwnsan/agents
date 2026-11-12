@@ -102,10 +102,13 @@ def looks_like_quota(output: str) -> bool:
     return any(hint in low for hint in RATE_HINTS)
 
 
-def run_check(command: str, cwd: str | None, timeout: int) -> tuple[bool, str]:
+def run_check(command: str, cwd: str | None, timeout: int,
+              answer: str) -> tuple[bool, str]:
+    env = dict(os.environ)
+    env["COPILOT_DELEGATE_ANSWER"] = answer
     try:
         proc = subprocess.run(shlex.split(command), capture_output=True,
-                              text=True, timeout=timeout, cwd=cwd)
+                              text=True, timeout=timeout, cwd=cwd, env=env)
     except (OSError, subprocess.TimeoutExpired, ValueError) as exc:
         return False, f"check-command itself failed: {exc}"
     output = (proc.stdout or "") + (proc.stderr or "")
@@ -180,7 +183,8 @@ def cmd_run(args) -> int:
         print(json.dumps(parsed, indent=2))
         return 0
 
-    ok, tail = run_check(args.check_command, args.cwd, args.timeout)
+    ok, tail = run_check(args.check_command, args.cwd, args.timeout,
+                         str(parsed.get("answer", "")))
     if ok:
         parsed["check"] = "passed"
         print(json.dumps(parsed, indent=2))
@@ -198,7 +202,8 @@ def cmd_run(args) -> int:
         print("retry broke the output contract; do the task locally",
               file=sys.stderr)
         return 3
-    ok, tail = run_check(args.check_command, args.cwd, args.timeout)
+    ok, tail = run_check(args.check_command, args.cwd, args.timeout,
+                         str(parsed2.get("answer", "")))
     if ok:
         parsed2["check"] = "passed"
         print(json.dumps(parsed2, indent=2))
