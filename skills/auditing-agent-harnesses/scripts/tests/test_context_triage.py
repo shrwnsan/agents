@@ -299,6 +299,42 @@ class InputValidationTests(TriageTest):
         self.assertIn("--reps", proc.stderr)
 
 
+class CorpusTests(TriageTest):
+    def synthetic_positives(self):
+        corpus = SKILL_DIR / "assets" / "corpus.jsonl"
+        return [row for line in corpus.read_text().splitlines() if line.strip()
+                for row in [json.loads(line)]
+                if row.get("synthetic") and row.get("label") == "pipeline-indicator"]
+
+    def test_synthetic_pipeline_positives_are_flagged(self):
+        rows = self.synthetic_positives()
+        self.assertEqual(len(rows), 7)
+        for row in rows:
+            self.assertIs(row.get("pipeline_shaped"), True, row["id"])
+
+    def test_packaged_positives_gate_every_prediction_class(self):
+        rows = self.synthetic_positives()
+        self.assertEqual(len(rows), 7)
+        corpus = write_jsonl(self.tmp.name, "positives.jsonl", rows)
+        for predicted in ("benign-vendored", "feature-wired",
+                          "declared-telemetry", "pipeline-indicator"):
+            with self.subTest(predicted=predicted):
+                for row in rows:
+                    register(row["context"], [(predicted, 0.99)])
+                out = Path(self.tmp.name) / f"{predicted}.json"
+                proc = run_triage("baseline", "--corpus", str(corpus),
+                                  "--delay", "0", "--reps", "1", "--out", str(out),
+                                  extra_env=self.out_env)
+                self.assertEqual(proc.returncode, 0, proc.stderr)
+                receipt = json.loads(receipt_path(proc).read_text())
+                self.assertEqual(len(receipt["rows"]), 7)
+                expected = "auto-resolve" if predicted == "pipeline-indicator" else "escalate"
+                for row in receipt["rows"]:
+                    self.assertEqual(row.get("gate"), expected, row["id"])
+                    self.assertIs(row.get("pipeline_shaped"), True, row["id"])
+                self.assertNotIn("lack pipeline_shaped", proc.stderr)
+
+
 class BaselineTests(TriageTest):
     def test_unflagged_warning_names_every_row(self):
         register("M_ALL", [("pipeline-indicator", 0.9)])
