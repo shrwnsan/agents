@@ -8,6 +8,7 @@ Checks (phase "structure"):
      relative and resolve inside the skill dir must exist. A path under a
      dot-folder the skill does not ship, such as `.agents/config.yml`, names
      a file in the user's project; it is reported as SKIP, not checked.
+     Paths outside the skill directory are reported separately as SKIP.
   3. scripts/*.sh and scripts/*.py must be non-empty; .sh files need the
      executable bit and a shebang (WARN-level). No syntax checking here.
   4. Unexpected top-level entries are reported as informational SKIP.
@@ -130,20 +131,23 @@ def is_project_path(base, tok):
 
 
 def check_references(root, findings):
-    checked, dangling, project = 0, 0, []
+    checked, dangling, project, outside = 0, 0, [], []
     for fname in ("SKILL.md", "README.md"):
         path = os.path.join(root, fname)
         if not os.path.isfile(path):
             continue
         base = os.path.dirname(path)
         for tok in extract_ref_tokens(strip_fenced(read_text(path).splitlines())):
+            resolved = os.path.normpath(os.path.join(base, tok))
+            inside = resolved == root or resolved.startswith(root + os.sep)
+            if not inside:
+                outside.append("{}: {}".format(fname, tok))
+                continue
             if is_project_path(base, tok):
                 project.append("{}: {}".format(fname, tok))
                 continue
             checked += 1
-            resolved = os.path.normpath(os.path.join(base, tok))
-            inside = resolved == root or resolved.startswith(root + os.sep)
-            if not inside or os.path.exists(resolved):
+            if os.path.exists(resolved):
                 continue
             dangling += 1
             findings.append((
@@ -159,6 +163,12 @@ def check_references(root, findings):
             "SKIP",
             "project paths under dot-folders the skill does not ship "
             "(informational, not checked): " + ", ".join(project),
+        ))
+    if outside:
+        findings.append((
+            "SKIP",
+            "references outside the skill directory "
+            "(informational, not checked): " + ", ".join(outside),
         ))
 
 
@@ -232,6 +242,14 @@ def self_test():
             )
         findings = []
         check_references(root, findings)
+        with open(os.path.join(root, "SKILL.md"), "w") as fh:
+            fh.write("See `references/ok.md` and `../outside/x.md`.\n")
+        mixed_findings = []
+        check_references(root, mixed_findings)
+        with open(os.path.join(root, "SKILL.md"), "w") as fh:
+            fh.write("See `../outside/x.md`.\n")
+        outside_findings = []
+        check_references(root, outside_findings)
     fails = " ".join(msg for lvl, msg in findings if lvl == "FAIL")
     skips = " ".join(msg for lvl, msg in findings if lvl == "SKIP")
     checks = [
@@ -243,6 +261,16 @@ def self_test():
         ("shipped-dot-folder-still-checked", "'.claude-plugin/plugin.json'" in fails),
         ("dangling-dot-symlink-still-checked", "'.dangling/x.md'" in fails),
         ("normalized-dot-prefix-still-checked", "'.cfg/../references/missing2.md'" in fails),
+        ("outside-path-not-counted-as-internal",
+         ("PASS", "all 1 internal reference(s) resolve") in mixed_findings),
+        ("outside-path-skipped-separately",
+         any(lvl == "SKIP" and "outside the skill directory" in msg
+             and "../outside/x.md" in msg and "dot-folders" not in msg
+             for lvl, msg in mixed_findings)),
+        ("only-outside-path-no-internal-pass",
+         not any(lvl == "PASS" for lvl, _ in outside_findings)
+         and any(lvl == "SKIP" and "../outside/x.md" in msg
+                 for lvl, msg in outside_findings)),
     ]
     ok = True
     for name, passed in checks:
