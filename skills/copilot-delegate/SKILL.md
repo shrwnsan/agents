@@ -67,7 +67,7 @@ python3 scripts/copilot_delegate.py run \
   --task-label "refund-policy boilerplate" \
   --model "Claude Sonnet 4.5" \
   --timeout 300 \
-  --check-command "python3 -m pytest tests/test_refund.py -q" \
+  --check-command "bash -c 'printf %s \"$COPILOT_DELEGATE_ANSWER\" > refund_eligible.py && python3 -m pytest tests/test_refund.py -q'" \
   -- "Write a Python function refund_eligible(order_date, policy_days) that returns True when the order is inside the window. Include only the function."
 ```
 
@@ -89,9 +89,11 @@ What the wrapper does, in order:
    shape. One automatic retry with a stricter "JSON only" instruction on
    parse failure; a second failure exits 3.
 3. **Caller check.** With `--check-command`, the wrapper runs your verification
-   after a parseable answer. On failure it retries once, appending the check's
-   output tail to the prompt. A second failure exits 3: do the task locally
-   instead—the delegate has had its chance.
+   after a parseable answer, with the deliverable in
+   `$COPILOT_DELEGATE_ANSWER` (write it to a file, pipe it to a linter, or
+   import it — the check decides). On failure it retries once, appending the
+   check's output tail to the prompt. A second failure exits 3: do the task
+   locally instead—the delegate has had its chance.
 4. **Ledger.** Appends one JSON line per attempt
    (`{ts, label, model, seconds, exit, check}`) to
    `$COPILOT_DELEGATE_LEDGER` (default
