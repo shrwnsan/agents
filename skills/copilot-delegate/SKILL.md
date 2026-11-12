@@ -5,7 +5,7 @@ compatibility: Requires the GitHub Copilot CLI (@github/copilot, version-pinned)
 metadata:
   author: shrwnsan
   version: "1.0.0"
-description: "Use when the user asks to run a task on GitHub Copilot, spend Copilot plan quota on a subtask, get a second model's answer for comparison, or hand bounded work to the copilot CLI from any agent. Not for questions about what Copilot is, its pricing, or its plans—answer those directly."
+description: "Delegate one bounded task to the GitHub Copilot CLI under a fixed contract: JSON answer, caller-supplied verification, quota ledger, and exit codes that say when to fall back to doing the task locally. Use when the user asks to run a task on GitHub Copilot, spend Copilot plan quota on a subtask, get a second model's answer for comparison, or hand bounded work to the copilot CLI from any agent. Not for questions about what Copilot is, its pricing, or its plans—answer those directly."
 ---
 
 # Copilot Delegate
