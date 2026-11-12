@@ -23,11 +23,27 @@ baselines, adoption timeline):
 |---|---|
 | `SKILL.md` | Operational contract: phases, concern classes, gates |
 | `scripts/context-triage.py` | Context-triage harness (probe + baseline + contexts modes) |
-| `scripts/tests/` | Offline tests for the harness (loopback mock, no API key) |
+| `scripts/ledger-check.py` | Enum-locks the per-round coverage ledger (Phase 4 artifact) |
+| `scripts/generate-coverage-table.py` | Renders a ledger as the guide's coverage table (build artifact) |
+| `scripts/tests/` | Offline tests for the harness and ledger tooling (no API key) |
 | `assets/corpus.jsonl` | 25 labeled byte-window excerpts (sanitized mirror) |
 | `references/corpus-README.md` | Corpus contents, rules, results, sanitization, threat model |
 | `references/dual-run-prompt-template.md` | Mechanical contract for the unscaffolded dual-run reproducer |
 | `references/baseline-results.json` | Latest baseline receipt (refreshed by re-running the harness) |
+
+## Coverage ledger (since 1.4.0)
+
+Each audit round appends one validated JSONL line to the app's ledger file
+(`docs/guides/ledger/<app>.jsonl` in the docs repo): validation level
+(dual-run / solo / multi-agent / carryover with source round), per-class
+coverage with staleness dates (`evidence`, `carryover:<round_date>`, `n/a`),
+and per-window Jev outcomes with the gate rule that decided them.
+`scripts/ledger-check.py` enum-locks this schema at round close; a round
+whose ledger line fails the check is not closed. Coverage tables in the
+app guide are generated from the ledger by
+`scripts/generate-coverage-table.py` and are build artifacts: regenerate,
+never hand-edit. The ledger is the only hand-written record; a class
+without a ledger line is a class not audited.
 
 ## Context-triage accelerator: history and results
 
