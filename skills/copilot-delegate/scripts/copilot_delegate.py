@@ -42,10 +42,60 @@ RATE_HINTS = ("rate limit", "rate_limit", "quota", "429", "premium request",
 NEVER_FLAGS = ("--share", "--share-gist", "--enable-memory")
 
 
+def state_dir() -> Path:
+    """Runtime state home: ledger and failed-reply dumps.
+
+    XDG_STATE_HOME if set (default ~/.local/state), overridable wholesale
+    with COPILOT_DELEGATE_STATE_DIR for tests and exotic setups.
+    """
+    override = os.environ.get("COPILOT_DELEGATE_STATE_DIR")
+    if override:
+        return Path(override)
+    xdg = os.environ.get("XDG_STATE_HOME")
+    base = Path(xdg) if xdg else Path.home() / ".local" / "state"
+    return base / "copilot-delegate"
+
+
+def cache_dir() -> Path:
+    """Recomputable cache home: the auth-probe timestamp lives here."""
+    xdg = os.environ.get("XDG_CACHE_HOME")
+    base = Path(xdg) if xdg else Path.home() / ".cache"
+    return base / "copilot-delegate"
+
+
+def legacy_state_dir() -> Path:
+    """Pre-1.1.1 location under ~/.config; migrated once, then ignored."""
+    override = os.environ.get("COPILOT_DELEGATE_LEGACY_DIR")
+    if override:
+        return Path(override)
+    return Path.home() / ".config" / "copilot-delegate"
+
+
+def migrate_legacy_state() -> None:
+    """Move ledger, failed replies, and probe cache out of ~/.config."""
+    legacy = legacy_state_dir()
+    target = state_dir()
+    if not legacy.is_dir() or target.exists():
+        return
+    try:
+        target.mkdir(parents=True, exist_ok=True)
+        for item in sorted(legacy.iterdir()):
+            dest = target / item.name
+            if not dest.exists():
+                os.replace(item, dest)
+        legacy.rmdir()
+        print(f"note: migrated state from {legacy} to {target}",
+              file=sys.stderr)
+    except OSError:
+        pass  # fall back to reading the legacy location in place
+
+
 def ledger_path() -> Path:
-    return Path(os.environ.get(
-        "COPILOT_DELEGATE_LEDGER",
-        str(Path.home() / ".config" / "copilot-delegate" / "ledger.jsonl")))
+    override = os.environ.get("COPILOT_DELEGATE_LEDGER")
+    if override:
+        return Path(override)
+    migrate_legacy_state()
+    return state_dir() / "ledger.jsonl"
 
 
 def ledger_append(entry: dict) -> None:
@@ -62,7 +112,7 @@ def ledger_append(entry: dict) -> None:
 def failed_output_path(label: str, stage: str) -> Path:
     safe = re.sub(r"[^A-Za-z0-9._-]+", "-", label).strip("-") or "run"
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    return ledger_path().parent / "failed" / f"{stamp}-{safe}-{stage}.txt"
+    return state_dir() / "failed" / f"{stamp}-{safe}-{stage}.txt"
 
 
 def save_failure(label: str, stage: str, output: str) -> str:
@@ -89,7 +139,7 @@ def guarded_tail(output: str, limit: int = 400) -> str:
 
 
 def auth_cache_path() -> Path:
-    return ledger_path().parent / "auth-probe.json"
+    return cache_dir() / "auth-probe.json"
 
 
 def copilot_bin() -> str | None:
