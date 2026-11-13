@@ -25,8 +25,6 @@ allowed-tools:
   - Read(/tmp/handoff-*)
   - Write(/tmp/claude/handoff-*)
   - Write(/tmp/handoff-*)
-metadata:
-  version: "1.0.0"
 ---
 
 # Handoff Context
@@ -121,7 +119,7 @@ Each handoff file includes metadata about which config was used:
 ```yaml
 metadata:
   config:
-    source: "/home/user/.config/agents/handoff-context-config.yml"
+    source: "~/.config/agents/handoff-context-config.yml"
     format: "yaml"
 ```
 
