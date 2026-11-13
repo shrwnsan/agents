@@ -338,7 +338,7 @@ def check_name(root, mapping, findings):
         findings.append(("PASS", "name matches directory basename {!r}".format(base)))
 
 
-def check_description(mapping, findings):
+def check_description(root, mapping, findings):
     raw = mapping.get("description")
     if isinstance(raw, (list, dict)):
         findings.append(("FAIL", "'description' must be a plain scalar, got a list/map"))
@@ -349,7 +349,18 @@ def check_description(mapping, findings):
     desc = str(raw)
     length = len(desc)
     if length > 1024:
-        findings.append(("FAIL", "description is {} chars (max 1024)".format(length)))
+        # Vendored upstream skills are byte-true (PROVENANCE.md policy): an
+        # over-long description is inherited from upstream, not authored here.
+        # Downgrade to WARN so sync PRs stay green; everything structural
+        # (missing name/description, unparseable YAML, ...) still FAILs.
+        if os.path.isfile(os.path.join(root, "PROVENANCE.md")):
+            findings.append((
+                "WARN",
+                "description is {} chars (max 1024) -- inherited from upstream "
+                "(PROVENANCE.md present); fix belongs upstream".format(length),
+            ))
+        else:
+            findings.append(("FAIL", "description is {} chars (max 1024)".format(length)))
     elif length > 250:
         findings.append((
             "SKIP",
@@ -449,7 +460,7 @@ def run(skill_dir, findings):
         return
 
     check_name(skill_dir, mapping, findings)
-    check_description(mapping, findings)
+    check_description(skill_dir, mapping, findings)
     check_remaining(skill_dir, mapping, order, findings)
 
 

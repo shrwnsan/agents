@@ -3,7 +3,7 @@ name: skill-quality-gate
 license: Apache-2.0
 description: Use when a skill directory is about to be published or shipped to an agent-skills hub, when an existing skill has just been edited, or when asked to check whether a SKILL.md package is ready to publish.
 metadata:
-  version: "1.1.1"
+  version: "1.1.2"
 ---
 
 # Skill Quality Gate
@@ -75,6 +75,14 @@ If the harness or permission layer refuses the probe dispatch, do not water it d
 | Class | Example | Phase |
 |---|---|---|
 | Spec violation | name over 64 chars or mismatched with directory; description missing or over 1024 chars; dangling reference into a missing `references/` file; bash syntax error | structure, frontmatter, scripts |
+
+Vendored-content exception: a skill directory carrying `PROVENANCE.md` is
+vendored byte-true from upstream (the hub's vendor-and-pin policy), so an
+inherited description over 1024 chars is WARN, not FAIL — the fix belongs
+upstream and a red sync lane trains everyone to ignore the gate. Structural
+failures (missing name/description, unparseable frontmatter, dangling
+references) still FAIL for vendored skills: those indicate a bad sync, not an
+upstream style choice.
 | Unsafe pattern | `curl … \| bash`; reading `~/.ssh`, `.env`; writing LaunchAgents, crontab, authorized_keys; base64-piped exec; runtime-fetch under an offline `compatibility` claim | safety |
 | Mutable reference | unpinned `npx`/`pip` installs or runtime download-to-disk (WARN tier) — vetted bytes may differ from executed bytes | safety |
 | False advertising | description claims "deduplicates rows"; code implements no such step | dry-run |
