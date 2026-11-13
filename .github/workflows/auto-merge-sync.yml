@@ -13,7 +13,7 @@ jobs:
   auto-merge:
     runs-on: ubuntu-latest
     if: |
-      startsWith(github.head_ref, 'sync/vibekit-skills-') &&
+      (startsWith(github.head_ref, 'sync/vibekit-skills-') || github.head_ref == 'sync/upstream') &&
       (github.actor == 'shrwnsan' || github.actor == 'nano-ade')
     steps:
       - name: Approve and merge

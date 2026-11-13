@@ -2,6 +2,9 @@
 #
 # Maps remote repos + paths to local directories.
 # To add a new source, add an entry here and re-run the workflow.
+# Entries sync the upstream default branch unless an optional `ref:` pins a
+# branch or tag. Provenance lives in .upstream-manifest.json (repo HEAD and,
+# per entry, `source_commit`: the last commit that touched the synced source).
 #
 # Sync history is tracked via git log:
 #   git log -- skills/<name>/
@@ -48,3 +51,14 @@ recipes:
     repo: garrytan/gbrain
     path: recipes
     file: twilio-voice-brain.md
+    # Deprecated + frozen upstream (2026-05-23, successor: agent-voice).
+    # Kept as a redirect for existing Twilio installs. Stop tracking when
+    # upstream deletes the file, then archive our copy (see recipes/PROVENANCE.md).
+  - name: agent-voice.md
+    repo: garrytan/gbrain
+    path: recipes
+    file: agent-voice.md
+  - name: ngrok-tunnel.md
+    repo: garrytan/gbrain
+    path: recipes
+    file: ngrok-tunnel.md

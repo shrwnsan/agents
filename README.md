@@ -69,7 +69,13 @@ Recipes are integration playbooks. Agents don't execute them the way they run sk
 
 ### Synced from upstream repos
 
-- [twilio-voice-brain](recipes/twilio-voice-brain.md) connects phone calls to a knowledge base through Twilio and a voice AI. It comes from [garrytan/gbrain](https://github.com/garrytan/gbrain), and we track it read-only.
+All three come from [garrytan/gbrain](https://github.com/garrytan/gbrain). We track them read-only: [sync-upstream](.github/workflows/sync-upstream.yml) refreshes them weekly (also runnable by hand), and [recipes/PROVENANCE.md](recipes/PROVENANCE.md) records where each copy came from.
+
+The list also tells the story of how it got this way. [twilio-voice-brain](recipes/twilio-voice-brain.md) was our first tracked recipe, vendored in April 2026 as a phone-calls-to-knowledge-base runbook. In May 2026 gbrain deprecated it: the voice stack moved to [agent-voice](recipes/agent-voice.md), a WebRTC-first reference that installs by copying into your own agent repo, and the tunnel setup that twilio-voice-brain depended on became a standalone [ngrok-tunnel](recipes/ngrok-tunnel.md) recipe. We picked up both successors in November 2026. twilio-voice-brain stays tracked as a frozen redirect for existing installs until upstream deletes it, at which point we archive our copy and stop syncing it.
+
+- [agent-voice](recipes/agent-voice.md) is a WebRTC-first voice agent reference with Mars and Venus personas. Its install copies the code into your own agent repo, where you own the edits, and ships a read-only tool router plus a voice-post-call skill. This is the successor to twilio-voice-brain.
+- [ngrok-tunnel](recipes/ngrok-tunnel.md) publishes a fixed public URL for a local brain or voice agent through ngrok, with health checks and a watchdog. It is the tunnel setup that the old twilio recipe carried, now maintained on its own upstream.
+- [twilio-voice-brain](recipes/twilio-voice-brain.md) connects phone calls to a knowledge base through Twilio and a voice AI. It is deprecated upstream: frozen since 2026-05-23, kept only as a redirect for existing installs, and scheduled for removal. We keep tracking it until upstream deletes it; new installs should use [agent-voice](recipes/agent-voice.md).
 
 ## License
 
