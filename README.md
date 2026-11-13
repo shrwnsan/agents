@@ -58,6 +58,8 @@ ln -s ~/.agents/AGENTS.md ~/.codex/AGENTS.md          # same for the OpenCode, P
 
 Don't link Gemini CLI or Qwen Code. Their memory tools append to their global files, which would write into the shared rules.
 
+Pi gets its harness customizations from the companion repo [shrwnsan/pi-agent](https://github.com/shrwnsan/pi-agent): pi extensions, TUI themes, and pi-subagents agent variants. That repo's planned `skills/` directory stays empty on purpose; the skills catalogue is this repo's `skills/`, shared across harnesses.
+
 ## Recipes
 
 Recipes are integration playbooks. Agents don't execute them the way they run skills. They are reference material that documents integration architectures and patterns proven in production. See [docs/research-001-claw-recipes-vs-skills.md](docs/research-001-claw-recipes-vs-skills.md) for the recipe vs skill distinction.
