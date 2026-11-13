@@ -14,7 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       (startsWith(github.head_ref, 'sync/vibekit-skills-') || github.head_ref == 'sync/upstream') &&
-      (github.actor == 'shrwnsan' || github.actor == 'nano-ade')
+      (github.actor == 'shrwnsan' || github.actor == 'nano-ade' ||
+        github.actor == 'github-actions[bot]')
+    # github-actions[bot] is in the list because sync PRs are opened by the
+    # sync-upstream workflow's own GITHUB_TOKEN, so the pull_request event's
+    # actor is the bot, never the dispatching user. The lane is safe: the only
+    # writer of these branches is the sync workflow itself, and its content
+    # is pinned by .upstream.yml.
     steps:
       - name: Approve and merge
         env:
