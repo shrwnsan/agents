@@ -1,6 +1,10 @@
 name: Sync Upstream
 
 on:
+  schedule:
+    # Weekly refresh, Mondays 09:30 UTC. A no-op run writes nothing (the
+    # manifest churn guards below keep an unchanged sync from committing).
+    - cron: '30 9 * * 1'
   workflow_dispatch:
     inputs:
       target:
@@ -22,6 +26,7 @@ jobs:
       - name: Read config and sync
         env:
           TARGET_FILTER: ${{ inputs.target }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           # Use .upstream.yml if it exists, fall back to legacy .upstream-skills.yml
           CONFIG_FILE=".upstream.yml"
@@ -40,7 +45,8 @@ jobs:
           import yaml, json, subprocess, os, shutil
           from datetime import datetime, timezone
 
-          target_filter = os.environ.get("TARGET_FILTER", "all")
+          # Scheduled runs have no dispatch input: empty string means "all".
+          target_filter = os.environ.get("TARGET_FILTER") or "all"
 
           # Load config
           config_file = os.environ.get("CONFIG_FILE", ".upstream.yml")
@@ -89,20 +95,23 @@ jobs:
               print(f"Syncing: {name} ({entry_kind}) from {repo} ({path})")
               print(f"{'='*40}")
 
-              # Clone upstream (sparse)
+              # Clone upstream (sparse). Optional per-entry `ref` pins a branch
+              # or tag instead of the default branch.
+              ref = entry.get("ref")
               upstream_dir = f"/tmp/upstream-{name}"
               if os.path.exists(upstream_dir):
                   shutil.rmtree(upstream_dir)
-              subprocess.run([
-                  "git", "clone", "--depth", "1", "--sparse",
-                  f"https://github.com/{repo}.git", upstream_dir
-              ], check=True, capture_output=True)
+              clone_cmd = ["git", "clone", "--depth", "1", "--sparse"]
+              if ref:
+                  clone_cmd += ["--branch", ref]
+              clone_cmd += [f"https://github.com/{repo}.git", upstream_dir]
+              subprocess.run(clone_cmd, check=True, capture_output=True)
               subprocess.run(
                   ["git", "sparse-checkout", "set", path],
                   cwd=upstream_dir, check=True, capture_output=True
               )
 
-              # Capture upstream commit hash
+              # Capture upstream commit hash (repo HEAD at clone time)
               result = subprocess.run(
                   ["git", "rev-parse", "HEAD"],
                   cwd=upstream_dir, check=True, capture_output=True, text=True
@@ -117,8 +126,28 @@ jobs:
                   "commit": commit_sha,
                   "synced_at": now,
               }
+              if ref:
+                  record["ref"] = ref
               if single_file:
                   record["file"] = single_file
+
+              # Record the last commit that actually touched the synced source
+              # (path, or the single file within it). `commit` above is repo
+              # HEAD at clone time and can be arbitrarily newer; this field is
+              # the precise provenance pin. Best-effort: a lookup failure must
+              # not fail the sync.
+              source_query = f"repos/{repo}/commits?per_page=1&path="
+              source_query += f"{path}/{single_file}" if single_file else path
+              if ref:
+                  source_query += f"&sha={ref}"
+              try:
+                  res = subprocess.run(
+                      ["gh", "api", source_query, "--jq", ".[0].sha"],
+                      check=True, capture_output=True, text=True,
+                  )
+                  record["source_commit"] = res.stdout.strip()
+              except subprocess.CalledProcessError as exc:
+                  print(f"::warning::Could not resolve source commit for {name}: {exc.stderr.strip()[:200]}")
 
               # If single_file is set, resolve src to that specific file
               if single_file:
@@ -259,9 +288,11 @@ jobs:
               set(previous_entries) != set(manifest["entries"])
               or any(
                   (previous_entries.get(k) or {}).get("commit") != (manifest["entries"][k] or {}).get("commit")
+                  or (previous_entries.get(k) or {}).get("source_commit") != (manifest["entries"][k] or {}).get("source_commit")
                   or (previous_entries.get(k) or {}).get("repo") != (manifest["entries"][k] or {}).get("repo")
                   or (previous_entries.get(k) or {}).get("path") != (manifest["entries"][k] or {}).get("path")
                   or (previous_entries.get(k) or {}).get("file") != (manifest["entries"][k] or {}).get("file")
+                  or (previous_entries.get(k) or {}).get("ref") != (manifest["entries"][k] or {}).get("ref")
                   for k in manifest["entries"]
               )
           )
