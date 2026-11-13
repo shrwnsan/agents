@@ -46,6 +46,25 @@ skills:
     repo: herdrdev/herdr
     path: skills/herdr
     preserve: [PROVENANCE.md]
+  # Binance web3 skills — vendored from skills/binance-web3/<name>; the sync
+  # must also re-apply query-token-audit's local usage example (see its
+  # PROVENANCE.md). No license upstream: never redistribute these.
+  - name: crypto-market-rank
+    repo: binance/binance-skills-hub
+    path: skills/binance-web3/crypto-market-rank
+    preserve: [PROVENANCE.md]
+  - name: query-token-audit
+    repo: binance/binance-skills-hub
+    path: skills/binance-web3/query-token-audit
+    preserve: [PROVENANCE.md]
+  - name: query-token-info
+    repo: binance/binance-skills-hub
+    path: skills/binance-web3/query-token-info
+    preserve: [PROVENANCE.md]
+  - name: trading-signal
+    repo: binance/binance-skills-hub
+    path: skills/binance-web3/trading-signal
+    preserve: [PROVENANCE.md]
 
 recipes:
   - name: twilio-voice-brain.md
