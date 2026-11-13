@@ -4,7 +4,7 @@ license: Apache-2.0
 compatibility: Requires the GitHub Copilot CLI (@github/copilot, version-pinned) installed and authenticated once via interactive device flow, and an active Copilot plan—every call consumes the plan's premium-request quota. The wrapper uses python3 stdlib only and makes no network calls of its own; the pinned CLI does all talking to GitHub.
 metadata:
   author: shrwnsan
-  version: "1.0.0"
+  version: "1.1.0"
 description: "Delegate one bounded task to the GitHub Copilot CLI under a fixed contract: JSON answer, caller-supplied verification, quota ledger, and exit codes that say when to fall back to doing the task locally. Use when the user asks to run a task on GitHub Copilot, spend Copilot plan quota on a subtask, get a second model's answer for comparison, or hand bounded work to the copilot CLI from any agent. Not for questions about what Copilot is, its pricing, or its plans—answer those directly."
 ---
 
@@ -60,6 +60,13 @@ binary must end up on PATH (or point `COPILOT_BIN` at it). If auth is
 missing, stop and tell the operator to run `copilot` once interactively; the
 device flow needs a browser and cannot be scripted from here.
 
+The auth probe burns one premium request per run. The wrapper caches a
+passing probe for one hour, so back-to-back preflights cost nothing; pass
+`--fresh` to force a real probe. When you have pinned a version, enforce it
+with `--expect-version 1.0.105` (substitute your pin). The check scans the
+full version output for a semantic version, so a banner line after the
+number does not hide it.
+
 ## Run one delegation
 
 ```bash
@@ -86,16 +93,22 @@ What the wrapper does, in order:
    final fenced block to be one JSON object:
    `{"answer": string, "assumptions": [string], "confidence": "low"|"medium"|"high"}`.
    The wrapper extracts the last fenced block, parses it, and validates the
-   shape. One automatic retry with a stricter "JSON only" instruction on
-   parse failure; a second failure exits 3.
+   shape. One automatic retry on parse failure; the retry prompt quotes the
+   end of the failed reply, with any forbidden flag name redacted. Raw
+   replies from failed attempts are saved under the ledger directory's
+   `failed/` folder, so a refusal is debuggable without re-burning quota.
+   A second failure exits 3.
 3. **Caller check.** With `--check-command`, the wrapper runs your verification
    after a parseable answer, with the deliverable in
-   `$COPILOT_DELEGATE_ANSWER` (write it to a file, pipe it to a linter, or
-   import it — the check decides). On failure it retries once, appending the
-   check's output tail to the prompt. A second failure exits 3: do the task
-   locally instead—the delegate has had its chance.
+   `$COPILOT_DELEGATE_ANSWER`. The variable holds exactly the `answer`
+   string from the JSON envelope, never the envelope itself; write it to a
+   file, pipe it to a linter, or import it — the check decides. On failure
+   it retries once, appending the check's output tail to the prompt. A
+   second failure exits 3: do the task locally instead—the delegate has had
+   its chance.
 4. **Ledger.** Appends one JSON line per attempt
-   (`{ts, label, model, seconds, exit, check}`) to
+   (`{ts, label, model, seconds, exit, check, outcome}`, where `outcome` is
+   one of `parsed`, `contract_fail`, `cli_error`, `timeout`) to
    `$COPILOT_DELEGATE_LEDGER` (default
    `~/.config/copilot-delegate/ledger.jsonl`). Every call burns premium
    requests from the plan; the ledger is how burn stays visible. A failed
@@ -107,6 +120,18 @@ Spend summary:
 python3 scripts/copilot_delegate.py report            # last 7 days
 python3 scripts/copilot_delegate.py report --days 30
 ```
+
+## Task sizing
+
+Inference-only delegations (the default) know nothing about your machine or
+the current state of any repository. A task that depends on live facts needs
+that context in the prompt. Keep the context structured: paste the command
+output, file excerpt, or catalog extract the answer must come from, not a
+prose summary of it. Pass it with `--context-file <path>` so the wrapper
+prepends it as an authoritative context block. The refusal checks scan the
+combined prompt, context included. If the task needs tools to gather its own
+facts, use `--need-tools` inside `sandboxed-run` instead. An answer about
+fast-moving external state is only as current as the context you supplied.
 
 ## Exit codes
 
@@ -143,7 +168,7 @@ the ledger's value depends on comparing like with like.
 |---|---|---|
 | `check` says not authenticated | Device flow never completed or token expired | Operator runs `copilot` once, interactively |
 | CLI demands `--allow-all-tools` on an inference-only run | Older CLI builds require it unconditionally | Pass `--need-tools` plus `sandboxed-run`, or upgrade the CLI pin |
-| Answer is prose with the JSON missing | Model ignored the contract twice | Exit 3; rephrase the task tighter or do it locally |
+| Answer is prose with the JSON missing | Model ignored the contract twice | Exit 3; read the saved raw replies under the ledger's `failed/` folder, rephrase tighter, or do it locally |
 | `check-command` fails identically twice | Task was under-specified or beyond the model | Exit 3 is the system working; do it locally |
 | Ledger line missing but the call ran | Ledger path unwritable | Fix `$COPILOT_DELEGATE_LEDGER`; burn happened regardless |
 

@@ -30,3 +30,15 @@
   CLI, not this tool. The published packages carry no install scripts;
   the docs' ignore-scripts note is followed as the official line rather
   than second-guessed from package internals.
+- 2026-11-13 revision 1.1.0 after the first live cross-check run (a Buzz
+  harness-support lookup that ended in exit 3). The run confirmed the
+  refusal path works and exposed blind spots. Changes: failed replies are
+  now saved under the ledger directory's `failed/` folder; ledger rows carry
+  a per-attempt `outcome`; the parse retry quotes the failed reply with flag
+  names redacted; `--context-file` passes structured context; the preflight
+  auth probe caches for one hour (`--fresh` forces a re-probe); and
+  `check --expect-version` asserts the pin against a version found anywhere
+  in the version output. No new Copilot CLI flags are constructed; the flag
+  surface in references/flags.md is unchanged. Behavior verified with a stub
+  binary (success path, double contract failure, cached probe, version
+  mismatch, context passthrough) with no quota spent.

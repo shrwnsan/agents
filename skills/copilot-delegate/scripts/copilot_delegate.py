@@ -59,6 +59,39 @@ def ledger_append(entry: dict) -> None:
               file=sys.stderr)
 
 
+def failed_output_path(label: str, stage: str) -> Path:
+    safe = re.sub(r"[^A-Za-z0-9._-]+", "-", label).strip("-") or "run"
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return ledger_path().parent / "failed" / f"{stamp}-{safe}-{stage}.txt"
+
+
+def save_failure(label: str, stage: str, output: str) -> str:
+    """Keep the raw delegate reply from a failed attempt; return the path."""
+    path = failed_output_path(label, stage)
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(output, encoding="utf-8")
+        return str(path)
+    except OSError as exc:
+        print(f"warning: could not write failed reply to {path} ({exc})",
+              file=sys.stderr)
+        return ""
+
+
+def guarded_tail(output: str, limit: int = 400) -> str:
+    """Quote the end of a failed reply back to the model, minus flag names."""
+    tail = output.strip()[-limit:]
+    for flag in NEVER_FLAGS:
+        tail = tail.replace(flag, "[redacted]")
+    if not tail:
+        return ""
+    return "\n\nFor reference, your previous output ended with:\n" + tail
+
+
+def auth_cache_path() -> Path:
+    return ledger_path().parent / "auth-probe.json"
+
+
 def copilot_bin() -> str | None:
     override = os.environ.get("COPILOT_BIN")
     if override:
@@ -133,8 +166,17 @@ def build_base(args) -> list[str]:
 
 
 def cmd_run(args) -> int:
+    prompt = args.prompt
+    if args.context_file:
+        try:
+            context = Path(args.context_file).read_text(encoding="utf-8")
+        except OSError as exc:
+            print(f"FAIL: cannot read --context-file: {exc}", file=sys.stderr)
+            return 6
+        prompt = ("Context (authoritative for this task; answer only from "
+                  f"it):\n\n{context}\n\nTask:\n{args.prompt}")
     for forbidden in NEVER_FLAGS:
-        if forbidden in args.prompt:
+        if forbidden in prompt:
             print(f"refusing: prompt text mentions {forbidden}; the wrapper "
                   "never constructs it", file=sys.stderr)
             return 6
@@ -147,14 +189,22 @@ def cmd_run(args) -> int:
         code, output = run_copilot(base, prompt, args.timeout)
         seconds = round(time.monotonic() - start, 1)
         parsed = extract_json(output) if code == 0 else None
+        if code == 5:
+            outcome = "timeout"
+        elif code != 0:
+            outcome = "cli_error"
+        elif parsed is None:
+            outcome = "contract_fail"
+        else:
+            outcome = "parsed"
         entry = {"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                  "label": label, "model": args.model or "cli-default",
-                 "seconds": seconds, "exit": code, "check": note}
+                 "seconds": seconds, "exit": code, "check": note,
+                 "outcome": outcome}
         attempts.append(entry)
         ledger_append(entry)
         return code, parsed, output
 
-    prompt = args.prompt
     code, parsed, output = attempt(prompt, "parse")
     if code == 5:
         print("timeout; raise --timeout only if the task is genuinely long",
@@ -169,13 +219,20 @@ def cmd_run(args) -> int:
         print(f"copilot exited {code}:\n{tail}", file=sys.stderr)
         return 6
     if parsed is None:
-        code, parsed, output = attempt(prompt + JSON_RETRY_SUFFIX, "parse-retry")
+        where = save_failure(label, "parse", output)
+        hint = f"raw reply saved to {where}\n" if where else ""
+        print(f"{hint}output contract failed; retrying under a stricter "
+              "instruction", file=sys.stderr)
+        code, parsed, output = attempt(
+            prompt + JSON_RETRY_SUFFIX + guarded_tail(output), "parse-retry")
         if code == 5:
             return 5
         if code != 0:
             return 4 if looks_like_quota(output) else 6
         if parsed is None:
-            print("output contract failed twice; do the task locally",
+            where = save_failure(label, "parse-retry", output)
+            hint = f"raw reply saved to {where}\n" if where else ""
+            print(f"{hint}output contract failed twice; do the task locally",
                   file=sys.stderr)
             return 3
 
@@ -189,6 +246,7 @@ def cmd_run(args) -> int:
         parsed["check"] = "passed"
         print(json.dumps(parsed, indent=2))
         return 0
+    save_failure(label, "check", str(parsed.get("answer", "")))
 
     followup = (prompt + "\n\nYour answer failed this verification:\n"
                 f"{tail}\nFix the deliverable and reply under the same "
@@ -199,7 +257,9 @@ def cmd_run(args) -> int:
     if code != 0:
         return 4 if looks_like_quota(output) else 6
     if parsed2 is None:
-        print("retry broke the output contract; do the task locally",
+        where = save_failure(label, "check-retry", output)
+        hint = f" raw reply saved to {where}." if where else ""
+        print(f"retry broke the output contract; do the task locally.{hint}",
               file=sys.stderr)
         return 3
     ok, tail = run_check(args.check_command, args.cwd, args.timeout,
@@ -208,12 +268,13 @@ def cmd_run(args) -> int:
         parsed2["check"] = "passed"
         print(json.dumps(parsed2, indent=2))
         return 0
+    save_failure(label, "check-retry", str(parsed2.get("answer", "")))
     print("caller check failed twice; do the task locally\n" + tail,
           file=sys.stderr)
     return 3
 
 
-def cmd_check(_args) -> int:
+def cmd_check(args) -> int:
     problems = 0
     binary = copilot_bin()
     if not binary:
@@ -225,29 +286,59 @@ def cmd_check(_args) -> int:
     try:
         proc = subprocess.run([binary, "--version"], capture_output=True,
                               text=True, timeout=30)
-        version = (proc.stdout or proc.stderr).strip().splitlines()[-1]
-        print(f"OK: version string: {version}")
-        match = re.search(r"(\d+\.\d+\.\d+)", version)
+        version_text = (proc.stdout or "") + (proc.stderr or "")
+        lines = [line for line in version_text.strip().splitlines()
+                 if line.strip()]
+        print(f"OK: version output: {lines[-1] if lines else '(empty)'}")
+        match = re.search(r"(\d+\.\d+\.\d+)", version_text)
         if match:
-            print(f"note: pin this exact version ({match.group(1)}) in your "
-                  "install command")
+            print(f"OK: detected version {match.group(1)}")
+            if args.expect_version and args.expect_version != match.group(1):
+                print(f"FAIL: --expect-version {args.expect_version} does not "
+                      f"match detected {match.group(1)}")
+                problems = 1
+        else:
+            print("note: no semantic version found in the version output")
+            if args.expect_version:
+                print(f"FAIL: no version detected to compare against "
+                      f"--expect-version {args.expect_version}")
+                problems = 1
     except (OSError, subprocess.TimeoutExpired) as exc:
         print(f"WARN: could not read version ({exc})")
         problems = 1
-    auth = subprocess.run([binary, "-p", "Reply with the word OK.", "-s",
-                           "--disable-client-telemetry"],
-                          capture_output=True, text=True, timeout=90)
-    if auth.returncode == 0:
-        print("OK: authenticated (a real call was answered—this burned one "
-              "premium request)")
-    else:
-        low = ((auth.stdout or "") + (auth.stderr or "")).lower()
-        if any(h in low for h in RATE_HINTS):
-            print("WARN: authenticated but quota or rate limiting hit")
+    skip_probe = False
+    if not args.fresh:
+        try:
+            cached = json.loads(auth_cache_path().read_text(encoding="utf-8"))
+            age = time.time() - float(cached["ts"])
+            if 0 <= age < 3600 and cached.get("ok"):
+                print(f"OK: authenticated (cached {int(age // 60)} min ago; "
+                      "pass --fresh to re-probe)")
+                skip_probe = True
+        except (OSError, ValueError, KeyError):
+            pass
+    if not skip_probe:
+        auth = subprocess.run([binary, "-p", "Reply with the word OK.", "-s",
+                               "--disable-client-telemetry"],
+                              capture_output=True, text=True, timeout=90)
+        if auth.returncode == 0:
+            print("OK: authenticated (a real call was answered—this burned one "
+                  "premium request)")
+            try:
+                cache = auth_cache_path()
+                cache.parent.mkdir(parents=True, exist_ok=True)
+                cache.write_text(json.dumps({"ts": time.time(), "ok": True}),
+                                 encoding="utf-8")
+            except OSError as exc:
+                print(f"note: auth cache write skipped ({exc})")
         else:
-            print("WARN: not authenticated or call failed; run `copilot` once "
-                  "interactively to complete the device flow")
-            problems = 1
+            low = ((auth.stdout or "") + (auth.stderr or "")).lower()
+            if any(h in low for h in RATE_HINTS):
+                print("WARN: authenticated but quota or rate limiting hit")
+            else:
+                print("WARN: not authenticated or call failed; run `copilot` "
+                      "once interactively to complete the device flow")
+                problems = 1
     path = ledger_path()
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -281,9 +372,11 @@ def cmd_report(args) -> int:
     for row in rows:
         per_day[row["ts"][:10]] = per_day.get(row["ts"][:10], 0) + 1
         models[row["model"]] = models.get(row["model"], 0) + 1
-        outcome = ("used" if row.get("exit") == 0 else
-                   "fallback" if row.get("exit") == 3 else
-                   "timeout" if row.get("exit") == 5 else "error")
+        outcome = row.get("outcome")
+        if outcome is None:
+            outcome = ("used" if row.get("exit") == 0 else
+                       "fallback" if row.get("exit") == 3 else
+                       "timeout" if row.get("exit") == 5 else "error")
         outcomes[outcome] = outcomes.get(outcome, 0) + 1
     total = len(rows)
     print(f"calls: {total} in {args.days} days "
@@ -301,7 +394,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="command", required=True)
 
-    sub.add_parser("check").set_defaults(func=cmd_check)
+    chk = sub.add_parser("check", help="preflight: CLI, version, auth, ledger")
+    chk.add_argument("--fresh", action="store_true",
+                     help="re-probe auth even if a recent probe passed")
+    chk.add_argument("--expect-version",
+                     help="fail if the detected CLI version differs")
+    chk.set_defaults(func=cmd_check)
 
     run = sub.add_parser("run", help="run one delegation")
     run.add_argument("prompt")
@@ -310,6 +408,9 @@ def main() -> int:
     run.add_argument("--model", help="exact model string from the plan catalog")
     run.add_argument("--timeout", type=int, default=300,
                      help="seconds for the copilot call and the check")
+    run.add_argument("--context-file",
+                     help="file whose contents are prepended to the prompt "
+                          "as authoritative context")
     run.add_argument("--check-command",
                      help="verification to run on the answer (shlex-split, "
                           "no shell)")
