@@ -338,8 +338,12 @@ jobs:
           fi
           git push -f origin HEAD:"refs/heads/$BRANCH"
           # Reuse an already-open PR for the branch; create only when absent.
-          if gh pr view "$BRANCH" --json number >/dev/null 2>&1; then
-            gh pr edit "$BRANCH" \
+          # Must filter by state: `gh pr view <branch>` also matches MERGED
+          # PRs that used the same branch name, which would strand the sync
+          # (the edit lands on the old PR and no new one opens).
+          OPEN_PR=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number' 2>/dev/null || true)
+          if [ -n "$OPEN_PR" ]; then
+            gh pr edit "$OPEN_PR" \
               --title "sync: update upstream skills and recipes (${TARGETS})" \
               --body "Automated upstream sync by the sync-upstream workflow (refreshed by latest run: ${GITHUB_RUN_ID}).
 
