@@ -52,6 +52,7 @@ flowchart TD
 | Code quality | Reviews, commits, and fixes a senior engineer would approve | review-pr, systematic-debugging, skill-quality-gate |
 | Risk containment | Untrusted code runs away from your credentials and working tree | sandboxed-run, security-audit, live-system-forensics |
 | Live data | Answers from current sources instead of model memory | fare-verdict, meta-search, og-social-cards |
+| Operations | Runbooks that operate services you run: monitor, verify ingestion, debug through the real data store | plausible-ce-ops, uptime-kuma-ops, x-api-ops |
 | Continuity | New sessions and containers start with the context and tools they need | handoff-context, docker-agent-browser |
 
 ## What we say no to
