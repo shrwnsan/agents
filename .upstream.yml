@@ -25,6 +25,7 @@ skills:
   - name: marp-slide
     repo: softaworks/agent-toolkit
     path: skills/marp-slide
+    preserve: [PROVENANCE.md]
   - name: caveman
     repo: JuliusBrussee/caveman
     # Inner flat skill folder in the plugin wrapper — never the wrapper itself
