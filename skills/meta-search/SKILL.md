@@ -5,8 +5,6 @@ allowed-tools:
   - Bash(node *)
   - WebSearch
   - WebFetch
-metadata:
-  version: "1.0.0"
 ---
 
 # Meta Search
