@@ -8,10 +8,10 @@ The Binance Skills Hub ships 18 skills. Most require API keys or serve narrow us
 
 | Skill | What it does | Why included |
 |-------|-------------|--------------|
-| [crypto-market-rank](crypto-market-rank/) | Trending tokens, smart-money inflow, meme rank, social hype, trader PnL leaderboards | Market context — the "what's moving" layer. Useful for Daily Sip curation enrichment and general awareness. |
-| [query-token-audit](query-token-audit/) | Honeypot/rug-pull detection, contract risk, buy/sell tax check | Safety gate — run before any deeper research on a token. One call, comprehensive result. |
-| [query-token-info](query-token-info/) | Per-token metadata, social links, creator info, real-time price, kline/OHLCV data | Deep-dive complement to audit. Get the fundamentals and charts once you've confirmed the token isn't a scam. |
-| [trading-signal](trading-signal/) | Smart-money buy/sell signals with trigger price, max gain, exit rate | Actionable layer — discrete signals, not just data. BSC and Solana only. |
+| [crypto-market-rank](../skills/crypto-market-rank/) | Trending tokens, smart-money inflow, meme rank, social hype, trader PnL leaderboards | Market context — the "what's moving" layer. Useful for Daily Sip curation enrichment and general awareness. |
+| [query-token-audit](../skills/query-token-audit/) | Honeypot/rug-pull detection, contract risk, buy/sell tax check | Safety gate — run before any deeper research on a token. One call, comprehensive result. |
+| [query-token-info](../skills/query-token-info/) | Per-token metadata, social links, creator info, real-time price, kline/OHLCV data | Deep-dive complement to audit. Get the fundamentals and charts once you've confirmed the token isn't a scam. |
+| [trading-signal](../skills/trading-signal/) | Smart-money buy/sell signals with trigger price, max gain, exit rate | Actionable layer — discrete signals, not just data. BSC and Solana only. |
 
 Typical flow: **rank** (what's hot) → **audit** (is it safe) → **info** (tell me more) → **signal** (what are smart wallets doing).
 
