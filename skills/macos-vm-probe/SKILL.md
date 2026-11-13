@@ -199,8 +199,8 @@ it nearly happened.
   read the disabled store back with `launchctl print-disabled`, bootout)
   is a good template for userspace probes — the runbook has one. For
   launchd disabled-store semantics (exact-match rules, upsert-only
-  store), see the `macos-launchd` skill, whose `scripts/probe.sh
-  --park-test` is designed to run inside these VMs.
+  store), see the `macos-launchd` skill, whose bundled probe script's
+  `--park-test` mode is designed to run inside these VMs.
 
 ## Worked example
 
