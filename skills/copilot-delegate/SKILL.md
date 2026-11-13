@@ -4,7 +4,7 @@ license: Apache-2.0
 compatibility: Requires the GitHub Copilot CLI (@github/copilot, version-pinned) installed and authenticated once via interactive device flow, and an active Copilot plan—every call consumes the plan's premium-request quota. The wrapper uses python3 stdlib only and makes no network calls of its own; the pinned CLI does all talking to GitHub.
 metadata:
   author: shrwnsan
-  version: "1.1.0"
+  version: "1.1.1"
 description: "Delegate one bounded task to the GitHub Copilot CLI under a fixed contract: JSON answer, caller-supplied verification, quota ledger, and exit codes that say when to fall back to doing the task locally. Use when the user asks to run a task on GitHub Copilot, spend Copilot plan quota on a subtask, get a second model's answer for comparison, or hand bounded work to the copilot CLI from any agent. Not for questions about what Copilot is, its pricing, or its plans—answer those directly."
 ---
 
@@ -110,9 +110,17 @@ What the wrapper does, in order:
    (`{ts, label, model, seconds, exit, check, outcome}`, where `outcome` is
    one of `parsed`, `contract_fail`, `cli_error`, `timeout`) to
    `$COPILOT_DELEGATE_LEDGER` (default
-   `~/.config/copilot-delegate/ledger.jsonl`). Every call burns premium
-   requests from the plan; the ledger is how burn stays visible. A failed
-   ledger write warns loudly but never kills the task.
+   `${XDG_STATE_HOME:-~/.local/state}/copilot-delegate/ledger.jsonl`). Every
+   call burns premium requests from the plan; the ledger is how burn stays
+   visible. A failed ledger write warns loudly but never kills the task.
+
+Files on disk follow the XDG base-directory spec: the ledger and the
+`failed/` reply dumps live under the state directory
+(`${XDG_STATE_HOME:-~/.local/state}/copilot-delegate/`), and the auth-probe
+timestamp lives under the cache directory
+(`${XDG_CACHE_HOME:-~/.cache}/copilot-delegate/`). On first use the wrapper
+migrates a pre-1.1.1 `~/.config/copilot-delegate/` directory to the state
+location in place.
 
 Spend summary:
 
@@ -168,7 +176,7 @@ the ledger's value depends on comparing like with like.
 |---|---|---|
 | `check` says not authenticated | Device flow never completed or token expired | Operator runs `copilot` once, interactively |
 | CLI demands `--allow-all-tools` on an inference-only run | Older CLI builds require it unconditionally | Pass `--need-tools` plus `sandboxed-run`, or upgrade the CLI pin |
-| Answer is prose with the JSON missing | Model ignored the contract twice | Exit 3; read the saved raw replies under the ledger's `failed/` folder, rephrase tighter, or do it locally |
+| Answer is prose with the JSON missing | Model ignored the contract twice | Exit 3; read the saved raw replies under the state directory's `failed/` folder, rephrase tighter, or do it locally |
 | `check-command` fails identically twice | Task was under-specified or beyond the model | Exit 3 is the system working; do it locally |
 | Ledger line missing but the call ran | Ledger path unwritable | Fix `$COPILOT_DELEGATE_LEDGER`; burn happened regardless |
 

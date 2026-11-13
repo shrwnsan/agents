@@ -42,3 +42,15 @@
   surface in references/flags.md is unchanged. Behavior verified with a stub
   binary (success path, double contract failure, cached probe, version
   mismatch, context passthrough) with no quota spent.
+- 2026-11-13 revision 1.1.1: relocated runtime files to the XDG base
+  directories. The ledger and failed-reply dumps now default to
+  `${XDG_STATE_HOME:-~/.local/state}/copilot-delegate/` and the auth-probe
+  timestamp to `${XDG_CACHE_HOME:-~/.cache}/copilot-delegate/`; the old
+  `~/.config/copilot-delegate/` location is migrated in place on first use
+  (`COPILOT_DELEGATE_STATE_DIR` and `COPILOT_DELEGATE_LEGACY_DIR` override
+  for tests and exotic setups). Rationale: the agentskills.io specification
+  (checked 2026-11-13, specification.md plus the scripts and best-practices
+  guides) is silent on where skills write runtime state, so the platform
+  convention applies, and XDG puts state and caches outside ~/.config.
+  Verified with a stub binary against XDG test roots, including a
+  legacy-directory migration run.
