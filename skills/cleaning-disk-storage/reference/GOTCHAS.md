@@ -15,6 +15,7 @@ Operational traps collected from real cleanup runs. Read before executing any cl
 - [Live apps rebuild caches instantly](#live-apps-rebuild-caches-instantly)
 - [Git worktrees duplicate build directories](#git-worktrees-duplicate-build-directories)
 - [Prefer the tool's own cleanup command](#prefer-the-tools-own-cleanup-command)
+- [Content-addressed stores need two-signal orphan sweeps](#content-addressed-stores-need-two-signal-orphan-sweeps)
 - [Tool stdout totals are not freed space](#tool-stdout-totals-are-not-freed-space)
 - [System assets that must never be deleted](#system-assets-that-must-never-be-deleted)
 - [The manifest is the audit trail](#the-manifest-is-the-audit-trail)
@@ -123,6 +124,18 @@ Package managers know what is stale; blunt directory trashing does not.
 | Docker | `docker system prune` |
 
 Use directory trashing as the fallback when no native command exists.
+
+## Content-addressed stores need two-signal orphan sweeps
+
+Content-addressed caches (Hugging Face hub blobs, git objects, pnpm's store) keep payload bytes in a global store; visible folders hold symlinks into it, and each payload carries bookkeeping sidecars (`.refs`, `.lock`) plus store dotfiles.
+
+- A naive "unreferenced means orphan" diff flags the sidecars and marker files of live payloads as junk. Deleting those corrupts bookkeeping for models still in use. Orphan candidates are payload files only: exclude dotfiles and sidecars, and require a second signal (stale `.refs` entries) before classifying anything.
+- Compute the referenced set by resolving every symlink under the cache root. This protects by resolution: anything any project, tool, or concurrent process points at is safe, including entries added after the scan started. Hardcoded protected-name lists go stale.
+- Re-scan immediately before deletion. Caches churn while you work; a plan computed minutes ago can already be wrong. Abort if any candidate became referenced between scan and execute, or if the plan differs from an independent recomputation.
+- Structural gates beat magnitude gates. "Only reclaim if the orphan set exceeds N GB" fails when the number goes stale between scan and execute; require the plan and an independently coded recomputation to match exactly instead.
+- `huggingface-cli delete-cache` cannot see store orphans (it operates per visible repo, and the command itself is deprecated). No vendor cleaner covers this yet.
+
+The full layout, algorithm, and verification steps live in [content-addressed-stores.md](content-addressed-stores.md).
 
 ## Tool stdout totals are not freed space
 

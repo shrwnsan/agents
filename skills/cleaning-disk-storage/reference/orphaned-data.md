@@ -79,7 +79,7 @@ When uninstalling a pipx tool (`pipx uninstall {tool}`), model caches downloaded
 - Document AI tools → leave HuggingFace model caches
 
 #### Check mtimes before calling a model cache stale
-A big cache is not automatically an orphan. Before proposing deletion of any `~/.cache/huggingface` (or similar) contents, check blob file dates. Non-standard layouts usually back a deliberately installed local model: a top-level `hub/blobs/` with sharded revisions alongside a `*-local` model dir, and recently-touched shards mean it is in active use. Observed: 39 GB Nemotron MLX cache, shards written the same day as the scan. Deleting it costs a full re-download, not a regeneration. Present those to the user as a keep/delete decision, never as safe-tier cleanup.
+A big cache is not automatically an orphan. Before proposing deletion of any `~/.cache/huggingface` (or similar) contents, check blob file dates. Non-standard layouts usually back a deliberately installed local model: a top-level `hub/blobs/` with sharded revisions alongside a `*-local` model dir, and recently-touched shards mean it is in active use. Observed: 39 GB Nemotron MLX cache, shards written the same day as the scan. Deleting it costs a full re-download, not a regeneration. Present those to the user as a keep/delete decision, never as safe-tier cleanup. For the content-addressed layout itself (global blob store, symlink fan-out, per-payload sidecars), a store-aware orphan sweep can reclaim exactly the unclaimed payloads; see [content-addressed-stores.md](content-addressed-stores.md).
 
 ## Cleanup Commands
 

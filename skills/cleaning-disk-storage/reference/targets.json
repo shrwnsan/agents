@@ -1,6 +1,6 @@
 {
   "schema_version": "1.1.0",
-  "updated": "2026-09-09",
+  "updated": "2026-11-14",
   "name": "cleaning-disk-storage target catalog",
   "description": "Machine-readable catalog of cleanup targets. This file is the data source of truth; the markdown files in reference/ are the human-readable views of the same knowledge. Extraction enables tooling (scanners, desktop apps) to consume the same rules agents use. v1.1 formalizes match semantics previously implicit (declared kinds, mtime-gated tiers, install-state-gated rules).",
   "deletion_policy": "Move to Trash via the platform trash mechanism. Never rm -rf / Remove-Item for bulk cleanup. Ask before deleting anything over 1 GB.",
@@ -129,6 +129,14 @@
       "source": "reference/orphaned-data.md",
       "targets": [
         { "match": "~/Library/Application Support/*", "kind": "glob", "match_kind": "path-glob", "requires": "install-state", "platform": "macos", "cleanability": "inspect", "notes": "Applies only to app dirs whose app is no longer installed; verify app removal + no LaunchAgents before trashing; pipx uninstall leaves ML model caches (~3 GB marker-pdf/Surya)" }
+      ]
+    },
+    {
+      "id": "content-addressed-stores",
+      "name": "Content-addressed caches (symlink stores)",
+      "source": "reference/content-addressed-stores.md",
+      "targets": [
+        { "match": "~/.cache/huggingface/hub/blobs/", "kind": "dir", "match_kind": "abspath", "platform": "all", "cleanability": "inspect", "notes": "Payload store; visible model dirs symlink into it, so deleting model dirs leaves orphan payloads behind. Reclaim only via the two-signal orphan sweep in reference/content-addressed-stores.md. Store metadata (.refs, .lock, dotfiles) is never a candidate. Vendor cleaners cannot see store orphans." }
       ]
     },
     {
