@@ -1,0 +1,389 @@
+<!doctype html>
+<!-- html-demo working example: a live demo window showing "Ledgerline",
+     a fictional invoicing app, sending an invoice to a fictional client
+     (Harbor & Pine Studio). Everything here is invented for the example;
+     a real demo copies its labels from the real app instead. No
+     dependencies: open this file directly in a browser. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>html-demo example — Ledgerline, invoiced live</title>
+<link rel="stylesheet" href="../scripts/demo-window.css">
+<style>
+  /* Page skin, `page-` prefixed. The demo window is the only content. */
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    background: #0e0f12;
+    color: #c3c6cc;
+    font: 500 15px/1.5 system-ui, sans-serif;
+    padding: 32px 16px;
+    box-sizing: border-box;
+  }
+  .page-wrap { width: min(860px, 100%); }
+  .page-kicker {
+    font: 600 11px/1 ui-monospace, monospace;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #6d727b;
+    margin: 0 0 10px;
+  }
+  .page-title { font-size: 26px; margin: 0 0 8px; color: #f3f4f5; }
+  .page-lede { margin: 0 0 22px; max-width: 62ch; color: #9ba0a8; }
+  .page-note { margin: 16px 2px 0; font-size: 13px; color: #6d727b; }
+
+  /* ---- Ledgerline, the fictional app, drawn at 1200 × 750. `ll-` prefix,
+         shared by all steps (one window, one prefix). ---- */
+  .ll-app {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    background: #f6f5f2;
+    color: #1d2026;
+    font: 500 13px/1.4 system-ui, sans-serif;
+  }
+  .ll-rail {
+    flex: none;
+    width: 190px;
+    background: #ffffff;
+    border-right: 1px solid #e4e2dc;
+    padding: 18px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-sizing: border-box;
+  }
+  .ll-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 14.5px;
+    margin-bottom: 14px;
+  }
+  .ll-logo i {
+    width: 20px; height: 20px; border-radius: 6px;
+    background: #1d2026;
+    display: block;
+  }
+  .ll-nav, .ll-btn {
+    display: flex; align-items: center; gap: 9px;
+    padding: 7px 10px; border-radius: 8px; font-weight: 600; font-size: 13px;
+  }
+  .ll-nav { color: #5b616b; }
+  .ll-nav.on { background: #efede8; color: #1d2026; }
+  .ll-nav svg, .ll-btn svg {
+    width: 15px; height: 15px; fill: none; stroke: currentColor;
+    stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .ll-btn {
+    justify-content: center;
+    margin-top: auto;
+    background: #1d2026; color: #fff;
+    padding: 10px 10px;
+    opacity: var(--ll-new, 1);
+    transform: translateY(calc((1 - var(--ll-new, 1)) * 8px));
+  }
+  .ll-btn.ghost { background: #fff; color: #1d2026; border: 1px solid #dddbd4; margin-top: 0; }
+  .ll-main { flex: 1; display: flex; min-width: 0; }
+
+  .ll-list {
+    flex: none; width: 280px;
+    border-right: 1px solid #e4e2dc;
+    background: #fbfaf8;
+    padding: 16px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  .ll-list h2 { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #8a8f98; margin: 0 0 10px; }
+  .ll-inv {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 12px; border-radius: 8px; margin-bottom: 2px;
+    background: var(--ll-inv-bg, none);
+    opacity: var(--ll-inv-o, 1);
+  }
+  .ll-inv b { font-weight: 650; font-size: 13px; }
+  .ll-inv small { display: block; color: #8a8f98; font-size: 11.5px; }
+  .ll-pill {
+    font-size: 11px; font-weight: 650; padding: 3px 9px; border-radius: 99px;
+    background: #eceae4; color: #5b616b;
+  }
+  .ll-pill.sent { background: #e2ecfa; color: #1c5da8; }
+  .ll-pill.paid { background: #ddf2e4; color: #16794c; }
+
+  .ll-doc { flex: 1; padding: 26px 34px; box-sizing: border-box; position: relative; }
+  .ll-empty {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    color: #8a8f98; font-weight: 550;
+    opacity: var(--ll-empty-o, 1);
+  }
+  .ll-doc-head { display: flex; justify-content: space-between; align-items: flex-start; }
+  .ll-doc-head h1 { font-size: 20px; margin: 0; font-weight: 700; }
+  .ll-doc-head p { margin: 4px 0 0; color: #8a8f98; font-size: 12.5px; }
+  .ll-doc-amount { text-align: right; }
+  .ll-doc-amount b { font-size: 24px; font-weight: 700; }
+  .ll-doc-amount span { display: block; color: #8a8f98; font-size: 12px; margin-top: 2px; }
+  .ll-table { margin-top: 22px; border-top: 1px solid #e4e2dc; }
+  .ll-row {
+    display: grid; grid-template-columns: 1fr 70px 90px 110px; gap: 14px;
+    align-items: center; padding: 11px 2px; border-bottom: 1px solid #eae8e2;
+    font-variant-numeric: tabular-nums;
+    opacity: var(--ll-row-o, 1);
+    transform: translateY(calc((1 - var(--ll-row-o, 1)) * 6px));
+  }
+  .ll-row.head { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #8a8f98; }
+  .ll-row .r, .ll-row .num { text-align: right; }
+  .ll-field {
+    background: #fff; border: 1px solid var(--ll-fld-bd, #dddbd4);
+    border-radius: 7px; padding: 6px 9px; min-height: 15px;
+  }
+  .ll-field.focus { border-color: #1d2026; box-shadow: 0 0 0 2.5px rgba(29,32,38,0.12); }
+  .ll-field .ll-caret {
+    display: inline-block; width: 1.5px; height: 13px; background: #1d2026;
+    vertical-align: -2px; margin-left: 0.5px;
+    animation: ll-blink 1s steps(1) infinite;
+  }
+  @keyframes ll-blink { 50% { opacity: 0; } }
+  .ll-doc-foot {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 24px; gap: 12px;
+  }
+  .ll-send {
+    background: #1d2026; color: #fff; font-weight: 650; font-size: 13px;
+    padding: 10px 18px; border-radius: 8px; display: inline-flex;
+    align-items: center; gap: 9px;
+    opacity: var(--ll-send-o, 1);
+    transform: translateY(calc((1 - var(--ll-send-o, 1)) * 8px));
+  }
+  .ll-send .ll-spin {
+    width: 13px; height: 13px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff;
+    display: none;
+  }
+  .ll-send.working .ll-spin { display: inline-block; animation: ll-turn 0.8s linear infinite; }
+  .ll-send.working .ll-send-label::after { content: "g…"; }
+  @keyframes ll-turn { to { transform: rotate(1turn); } }
+  .ll-pay {
+    background: #fff; border: 1px solid #dddbd4; color: #1d2026;
+    font-weight: 600; font-size: 12.5px; padding: 8px 14px; border-radius: 8px;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .ll-pay svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; }
+  .ll-toast {
+    position: absolute; right: 26px; bottom: 22px;
+    background: #1d2026; color: #fff; font-size: 12.5px; font-weight: 550;
+    padding: 11px 16px; border-radius: 10px;
+    display: flex; align-items: center; gap: 9px;
+    opacity: var(--ll-toast-o, 0);
+    transform: translateY(calc(14px * (1 - var(--ll-toast-o, 0))));
+  }
+  .ll-toast svg { width: 14px; height: 14px; fill: none; stroke: #6fd39a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .ll-menu {
+    position: absolute; right: 24px; top: 84px; width: 230px;
+    background: #fff; border: 1px solid #e4e2dc; border-radius: 10px;
+    box-shadow: 0 14px 34px -14px rgba(20,22,26,0.35);
+    padding: 5px;
+    opacity: var(--ll-menu-o, 0);
+    transform: translateY(calc(-6px * (1 - var(--ll-menu-o, 0))));
+  }
+  .ll-menu div { padding: 8px 11px; border-radius: 7px; font-weight: 550; font-size: 12.5px; }
+  .ll-menu div.on { background: #efede8; }
+  .ll-paid-note {
+    position: absolute; right: 34px; bottom: 96px; text-align: right;
+    opacity: var(--ll-paid-o, 0);
+    transform: translateY(calc(-8px * (1 - var(--ll-paid-o, 0))));
+  }
+  .ll-paid-note b { font-size: 13px; color: #16794c; }
+  .ll-paid-note span { display: block; color: #8a8f98; font-size: 11.5px; }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+  <p class="page-kicker">Vanilla JavaScript · DOM/CSS · no build step</p>
+  <h1 class="page-title">Ledgerline, invoiced live</h1>
+  <p class="page-lede">A demo window drawn by the html-demo engine: every frame is a pure function of one clock, on a fixed 1200 × 750 stage scaled to fit. It plays only while on screen, jumps between steps, and shows designed end frames under reduced motion.</p>
+  <div id="demo"></div>
+  <p class="page-note">Ledgerline and Harbor &amp; Pine Studio are invented for this example. A real demo copies every label from the app it shows, never from memory.</p>
+</div>
+
+<script src="../scripts/demo-window.js"></script>
+<script>
+/* Each step: markup built once, then draw(t, $, point) sets every moving
+   part from t alone. Times are named constants at the top, so the
+   choreography reads like a script and retimes in one place. */
+const { mount, ease, typed, glide, held } = HTMLDemo;
+
+const client = 'billing@harborandpine.studio';
+
+/* ---- Step 1: New invoice -------------------------------------------------
+   The pointer clicks "New invoice"; a draft (#1042) opens in the list and
+   the editor, and the window holds on the blank invoice. */
+const N1_CLICK = 4.4, N1_OPEN = 4.6;
+function newInvoice(t, $, point) {
+  const open = ease(t, N1_OPEN + 0.05, N1_OPEN + 0.5);
+  $('.ll-inv.draft').style.setProperty('--ll-inv-o', open);
+  $('.ll-inv.draft').style.setProperty('--ll-inv-bg', open > 0 ? '#efede8' : 'none');
+  $('.ll-row.new').style.setProperty('--ll-row-o', 0);
+  ['.ll-doc-head', '.ll-table', '.ll-addline', '.ll-doc-foot'].forEach(
+    (s) => ($(s).style.opacity = open),
+  );
+  $('.ll-empty').style.setProperty('--ll-empty-o', 1 - open);
+  const c = glide(t, [
+    [0, 3.6, 950, 640],
+    [3.6, 4.3, point('new-btn').x, point('new-btn').y],
+  ], [N1_CLICK]);
+  return { cursor: { ...c, hide: t > N1_CLICK + 0.6 } };
+}
+
+/* ---- Step 2: Add a line --------------------------------------------------
+   Pointer clicks "Add a line", a row appears, the description is typed,
+   then the quantity and rate, and the total counts up to $1,080. */
+const N2_ADD = 1.7, N2_DESC_CLICK = 3.0, N2_TYPE = [3.4, 4.3];
+const N2_NUM_CLICK = 4.9, N2_NUM = [5.2, 6.0], N2_TOTAL = [5.9, 6.35];
+const DESC = 'Branding sprint';
+function addLine(t, $, point) {
+  const row = ease(t, N2_ADD + 0.1, N2_ADD + 0.5);
+  $('.ll-row.new').style.setProperty('--ll-row-o', row);
+  const focusDesc = t >= N2_DESC_CLICK && t < N2_NUM_CLICK;
+  $('.ll-f-desc').classList.toggle('focus', focusDesc);
+  $('.ll-f-desc').innerHTML =
+    typed(DESC, t, N2_TYPE[0], N2_TYPE[1]) +
+    (focusDesc && t >= N2_TYPE[0] ? '<span class="ll-caret"></span>' : '');
+  const focusNum = t >= N2_NUM_CLICK;
+  $('.ll-f-num').classList.toggle('focus', focusNum && t < N2_NUM[1] + 0.2);
+  $('.ll-f-num').textContent =
+    focusNum ? `${typed('12', t, N2_NUM[0], N2_NUM[0] + 0.3)} × ${typed('$90', t, N2_NUM[0] + 0.35, N2_NUM[1])}` : '';
+  const k = ease(t, N2_TOTAL[0], N2_TOTAL[1]);
+  const total = '$' + Math.round(1080 * k).toLocaleString('en-US');
+  $('.ll-total').textContent = total;
+  $('.ll-amt').textContent = total;
+  $('.ll-inv.draft small').textContent = total + ' · due Dec 12';
+  const p = glide(t, [
+    [0, 0.5, 950, 640],
+    [0.5, 1.2, point('add-line').x, point('add-line').y],
+    [2.4, 3.0, point('f-desc').x, point('f-desc').y],
+    [N2_NUM_CLICK - 0.6, N2_NUM_CLICK, point('f-num').x, point('f-num').y],
+  ], [N2_ADD, N2_DESC_CLICK, N2_NUM_CLICK]);
+  return { cursor: { ...p, hide: t > N2_NUM_CLICK + 0.5 } };
+}
+
+/* ---- Step 3: Send --------------------------------------------------------
+   Pointer clicks "Send invoice"; the button shows a working spinner, then
+   the status pill flips to "Sent" and a toast names the recipient. */
+const N3_CLICK = 1.8, N3_DONE = 3.6, N3_TOAST = N3_DONE + 0.15;
+function send(t, $, point) {
+  const working = t >= N3_CLICK + 0.1 && t < N3_DONE;
+  $('.ll-send').classList.toggle('working', working);
+  $('.ll-send .ll-send-label').textContent = working ? 'Sending' : 'Send invoice';
+  $('.ll-doc-head .ll-pill').className = 'll-pill' + (t >= N3_DONE ? ' sent' : '');
+  $('.ll-doc-head .ll-pill').textContent = t >= N3_DONE ? 'Sent' : 'Draft';
+  const toast = ease(t, N3_TOAST, N3_TOAST + 0.45);
+  $('.ll-toast').style.setProperty('--ll-toast-o', toast);
+  const c = glide(t, [
+    [0, 0.5, 950, 640],
+    [0.5, 1.4, point('send-btn').x, point('send-btn').y],
+  ], [N3_CLICK]);
+  return { cursor: { ...c, hide: t > N3_CLICK + 0.6 } };
+}
+
+/* ---- Step 4: Apply payment ----------------------------------------------
+   Pointer opens the payment menu, picks "Bank transfer"; the pill becomes
+   "Paid" and a note dates the payment. The end frame is the designed
+   still for reduced motion. */
+const N4_MENU = 1.6, N4_PICK = 2.9, N4_PAID = 3.3;
+function applyPayment(t, $, point) {
+  const menu = ease(t, N4_MENU + 0.1, N4_MENU + 0.35);
+  const fade = 1 - ease(t, N4_PAID + 0.3, N4_PAID + 0.6);
+  $('.ll-menu').style.setProperty('--ll-menu-o', menu * fade);
+  $('.ll-menu .pick').classList.toggle('on', t >= N4_PICK);
+  const paid = ease(t, N4_PAID, N4_PAID + 0.45);
+  $('.ll-doc-head .ll-pill').className = 'll-pill' + (paid > 0 ? ' paid' : ' sent');
+  $('.ll-doc-head .ll-pill').textContent = paid > 0 ? 'Paid' : 'Sent';
+  $('.ll-paid-note').style.setProperty('--ll-paid-o', paid);
+  const c = glide(t, [
+    [0, 0.5, 950, 640],
+    [0.5, 1.25, point('pay-btn').x, point('pay-btn').y],
+    [2.3, 2.85, point('pay-pick').x, point('pay-pick').y],
+  ], [N4_MENU, N4_PICK]);
+  return { cursor: { ...c, hide: t > N4_PICK + 0.6 } };
+}
+
+/* The app at 1200 × 750, shared by every step; each step only changes the
+   parts its draw moves. `mode` fixes the static state each step starts
+   from: 'empty' before the draft exists, 'lined' once the line item is in.
+   Labels are the fictional app's own copy, kept consistent across steps. */
+function appHTML(mode) {
+  const lined = mode !== 'empty';
+  return `<div class="ll-app">
+    <div class="ll-rail">
+      <div class="ll-logo"><i></i>Ledgerline</div>
+      <div class="ll-nav"><svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20h-14z"/></svg>Invoices</div>
+      <div class="ll-nav"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Clients</div>
+      <div class="ll-nav"><svg viewBox="0 0 24 24"><path d="M5 19V9m7 10V5m7 14v-7"/></svg>Reports</div>
+      <div class="ll-btn new" data-aim="new-btn"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New invoice</div>
+    </div>
+    <div class="ll-main">
+      <div class="ll-list">
+        <h2>Invoices</h2>
+        <div class="ll-inv"><div><b>#1041 · Harbor &amp; Pine</b><small>$2,400 · due Nov 28</small></div><span class="ll-pill sent">Sent</span></div>
+        <div class="ll-inv"><div><b>#1040 · Saltmarsh Co.</b><small>$860 · paid Nov 3</small></div><span class="ll-pill paid">Paid</span></div>
+        <div class="ll-inv"><div><b>#1039 · North Quay Ltd</b><small>$1,150 · paid Oct 21</small></div><span class="ll-pill paid">Paid</span></div>
+        <div class="ll-inv draft"><div><b>#1042 · Harbor &amp; Pine</b><small>$${lined ? '1,080' : '0'} · due Dec 12</small></div><span class="ll-pill">Draft</span></div>
+      </div>
+      <div class="ll-doc">
+        <div class="ll-doc-head">
+          <div>
+            <h1>Invoice #1042</h1>
+            <p>Harbor &amp; Pine Studio · due Dec 12, 2026</p>
+          </div>
+          <div class="ll-doc-amount">
+            <b class="ll-total">$${lined ? '1,080' : '0'}</b>
+            <span class="ll-pill">Draft</span>
+          </div>
+        </div>
+        <div class="ll-table">
+          <div class="ll-row head"><span>Description</span><span class="r">Qty</span><span class="r">Rate</span><span class="r">Amount</span></div>
+          <div class="ll-row"><span>Design retainer · December</span><span class="num">1</span><span class="num">$1,200</span><span class="num">$1,200</span></div>
+          <div class="ll-row new">
+            <span class="ll-field ll-f-desc" data-aim="f-desc">${lined ? DESC : ''}</span>
+            <span class="num ll-field ll-f-num" data-aim="f-num">${lined ? '12 × $90' : ''}</span>
+            <span class="num ll-amt">$${lined ? '1,080' : '0'}</span>
+          </div>
+        </div>
+        <div class="ll-btn ghost ll-addline" data-aim="add-line" style="display:inline-flex; margin:18px 0 0;"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add a line</div>
+        ${lined ? '' : '<div class="ll-empty">Select an invoice</div>'}
+        <div class="ll-doc-foot">
+          <span class="ll-pay" data-aim="pay-btn"><svg viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>Record payment</span>
+          <span class="ll-send" data-aim="send-btn"><span class="ll-spin"></span><span class="ll-send-label">Send invoice</span></span>
+        </div>
+        <div class="ll-menu">
+          <div class="pick" data-aim="pay-pick">Bank transfer</div>
+          <div>Card · ending 4417</div>
+        </div>
+        <div class="ll-paid-note"><b>Paid today</b><span>$1,080 · bank transfer</span></div>
+        <div class="ll-toast"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7"/></svg>Invoice #1042 sent to ${client}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+const STEPS = [
+  { id: 'new', name: 'New invoice', dur: 5.5, html: appHTML('empty'), draw: newInvoice },
+  { id: 'line', name: 'Add a line', dur: 6.5, html: appHTML('empty'), draw: addLine },
+  { id: 'send', name: 'Send', dur: 6, html: appHTML('lined'), draw: send },
+  { id: 'paid', name: 'Apply payment', dur: 5.5, html: appHTML('lined'), draw: applyPayment },
+];
+
+mount(document.getElementById('demo'), {
+  steps: STEPS,
+  tabs: ['Ledgerline'],
+  label: 'Ledgerline: New invoice, Add a line, Send, Apply payment',
+});
+</script>
+</body>
+</html>
