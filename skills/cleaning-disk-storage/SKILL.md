@@ -3,7 +3,7 @@ name: cleaning-disk-storage
 license: Apache-2.0
 description: Scan for and safely remove temporary files, cache directories, and build artifacts to free disk space. Use when user asks to clean up disk, free storage, remove temp files, mentions running out of space, or needs system maintenance. Includes detection of AI agent temp directories (.gemini-clipboard, antigravity scratch).
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Cleaning Disk Storage
@@ -35,6 +35,7 @@ Comprehensive reference organized by category. See [reference/TARGETS.md](refere
 | AI agent caches | 2-4 GB | [reference/ai-agents.md](reference/ai-agents.md) |
 | System caches | 1-30 GB | [reference/cache.md](reference/cache.md) |
 | Orphaned application data | 500 MB - 10 GB | [reference/orphaned-data.md](reference/orphaned-data.md) |
+| Content-addressed caches (HF hub blobs, git, pnpm stores) | 1-40 GB | [reference/content-addressed-stores.md](reference/content-addressed-stores.md) |
 | macOS system data | 5-30 GB | [reference/macos-system-data.md](reference/macos-system-data.md) |
 | App overlap analysis | 2-15 GB | [reference/app-overlap.md](reference/app-overlap.md) |
 | Rust (target/) | 100 MB - 2 GB | [reference/rust.md](reference/rust.md) |
@@ -93,6 +94,7 @@ For regeneration instructions, see [reference/REGENERATION.md](reference/REGENER
 
 - Scan and report space usage before deletion
 - Prefer the tool's own cleanup command (`brew cleanup`, `uv cache clean`, `go clean -cache`, `pnpm store prune`) before trashing directories — see [reference/GOTCHAS.md](reference/GOTCHAS.md)
+- For content-addressed caches (payload store plus symlink fan-out, e.g. Hugging Face hub blobs), directory deletion and vendor cleaners miss orphaned payloads; sweep store-aware per [reference/content-addressed-stores.md](reference/content-addressed-stores.md)
 - Clearly indicate which files are safe to delete
 - Request explicit user confirmation before performing deletions
 - Provide regeneration instructions for important items
@@ -145,6 +147,7 @@ This skill uses progressive disclosure:
 - **reference/targets.json**: Machine-readable target catalog (data source of truth for tooling)
 - **reference/REGENERATION.md**: Complete restoration instructions
 - **reference/GOTCHAS.md**: Operational traps from real runs — read before executing a cleanup
+- **reference/content-addressed-stores.md**: Store-aware orphan reclamation for content-addressed caches (Hugging Face hub blobs and similar)
 - **reference/PLATFORMS.md**: Linux and Windows mappings
 - **reference/**: Detailed references by category (common, python, nodejs, ai-agents, etc.)
 - **scripts/scan.sh**: Read-only scanner producing a per-category size report
