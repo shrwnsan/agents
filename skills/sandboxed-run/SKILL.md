@@ -8,7 +8,7 @@ description: >-
   through sandboxed-run.
 user-invocable: true
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Sandboxed Run
@@ -68,6 +68,10 @@ scripts/sandboxed-run.sh -C /tmp/vendor-skill --env API_BASE=https://example.com
 scripts/sandboxed-run.sh -C . --require-venv -- python3 scripts/run_evals.py all
 ```
 
+## Submodules
+
+Clone mode stages submodules best-effort after the clone (`git submodule update --init --recursive`). Private or file-protocol submodules can fail; the run continues with a note and empty submodule dirs. Need submodule content the clone cannot fetch? Run with `--copy` from a tree where they are already initialized; the working files come across as plain files. Copy mode cannot reach the source repo's object store either way: submodule `.git` pointers are relative into the superproject's `.git`, which copy mode drops.
+
 ## What the run sees
 
 - cwd: the staged clone/copy (`-C`), or an empty scratch dir
@@ -86,3 +90,4 @@ scripts/sandboxed-run.sh -C . --require-venv -- python3 scripts/run_evals.py all
 | Expecting dirty working-tree state in the default mode | The clone stages committed state; use `--copy` to test uncommitted changes |
 | Assuming clone mode hides repo history | It doesn't — the clone copies all reachable history, reverted secrets included; `--copy` is the history-free mode |
 | Reading results from the sandbox after a normal exit | It's deleted; write outputs to a path you choose, or use `--keep` |
+| Expecting submodule content from a clone of a repo with private submodules | Submodule staging is best-effort and prints a note when it fails; use `--copy` from an initialized tree instead |
