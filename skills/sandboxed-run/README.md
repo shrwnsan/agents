@@ -45,6 +45,18 @@ code. skill-quality-gate flags these lines as `destructive:rm-recursive-force`
 WARN by design — reviewed and accepted here; WARN is advisory, these are the
 tool's core mechanics.
 
+Clone mode stages submodules best-effort after the clone. Tying the clone to
+submodule fetches would fail runs whose submodules are private or use the file
+protocol, so the clone stays a local operation and a failed staging prints a
+note instead.
+
+Staging (clone, copy, venv) deliberately runs in the parent environment, before
+the scrub. Version-manager shims and git config must work during staging: LFS
+smudge filters, `insteadOf` rewrites, proxy settings, and submodule remotes are
+all read there. The scrub applies to the run itself, which is where it matters;
+staging only reads trusted configuration, so scrubbing earlier would break
+legitimate setups and quarantine nothing new.
+
 ## Requirements
 
 POSIX sh, `git` (for `-C` on a work tree), `mktemp`. Python is optional — runs
