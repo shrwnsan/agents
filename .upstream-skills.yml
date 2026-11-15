@@ -1,7 +1,0 @@
-# DEPRECATED: Use .upstream.yml instead (supports both skills and recipes)
-# This file is kept for backward compatibility and will be removed in a future version.
-
-skills:
-  - name: frontend-design
-    repo: anthropics/claude-plugins-official
-    path: plugins/frontend-design
