@@ -157,6 +157,13 @@ if [ -n "$TARGET" ]; then
         if [ -n "$(git -C "$TARGET" status --porcelain 2>/dev/null)" ]; then
           printf '%s: note: uncommitted changes exist; the sandbox runs committed state only (use --copy to include them)\n' "$prog" >&2
         fi
+        # Submodules are staged best-effort after the clone. Making the clone
+        # itself depend on submodule fetches (private repos, file protocol)
+        # would turn a reliable local operation into one that can fail, so a
+        # failed staging prints a note and the run continues.
+        if ! git -C "$RUN_DIR" submodule update --init --recursive --quiet 2>/dev/null; then
+          printf '%s: note: submodule staging failed; sandbox may be incomplete (private or file-protocol submodules?)\n' "$prog" >&2
+        fi
       fi
     fi
   fi
