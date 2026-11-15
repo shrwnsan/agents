@@ -46,9 +46,9 @@ skills:
     repo: herdrdev/herdr
     path: skills/herdr
     preserve: [PROVENANCE.md]
-  # Binance web3 skills — vendored from skills/binance-web3/<name>; the sync
-  # must also re-apply query-token-audit's local usage example (see its
-  # PROVENANCE.md). No license upstream: never redistribute these.
+  # Binance web3 skills - vendored from skills/binance-web3/<name>; the sync
+  # re-applies query-token-audit's local usage example via its insert:
+  # config (see its PROVENANCE.md). No license upstream: never redistribute.
   - name: crypto-market-rank
     repo: binance/binance-skills-hub
     path: skills/binance-web3/crypto-market-rank
@@ -56,7 +56,14 @@ skills:
   - name: query-token-audit
     repo: binance/binance-skills-hub
     path: skills/binance-web3/query-token-audit
-    preserve: [PROVENANCE.md]
+    # SKILL.md is locally extended: the insert config re-applies the usage
+    # example (local-usage-example.md) after every sync; a missing anchor or
+    # snippet fails the run instead of stripping the addition.
+    preserve: [PROVENANCE.md, local-usage-example.md]
+    insert:
+      SKILL.md:
+        after: "## Overview\n\n"
+        from: local-usage-example.md
   - name: query-token-info
     repo: binance/binance-skills-hub
     path: skills/binance-web3/query-token-info
