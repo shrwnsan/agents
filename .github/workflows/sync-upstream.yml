@@ -16,6 +16,10 @@ permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: true
+
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -28,14 +32,9 @@ jobs:
           TARGET_FILTER: ${{ inputs.target }}
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Use .upstream.yml if it exists, fall back to legacy .upstream-skills.yml
           CONFIG_FILE=".upstream.yml"
           if [ ! -f "$CONFIG_FILE" ]; then
-            CONFIG_FILE=".upstream-skills.yml"
-          fi
-
-          if [ ! -f "$CONFIG_FILE" ]; then
-            echo "::error::No upstream config found (.upstream.yml or .upstream-skills.yml)"
+            echo "::error::No upstream config found (.upstream.yml)"
             exit 1
           fi
 
