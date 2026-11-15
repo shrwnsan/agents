@@ -65,6 +65,23 @@ jobs:
                   print(f"::error::Target '{target_filter}' not found in {config_file}")
                   exit(1)
 
+          # Rejected-skills guard: nothing the sync touches may carry a name in
+          # rejected-skills.json. Config hits are fatal (a rejected skill must
+          # never sync); on-disk hits are a warning (hand-vendored drift is a
+          # curation problem, not a sync blocker).
+          with open("rejected-skills.json") as f:
+              rejected = {r["name"] for r in json.load(f).get("rejected", [])}
+          config_hits = [e["name"] for e in entries if e["name"] in rejected]
+          if config_hits:
+              print(f"::error::Sync config references rejected skills: {', '.join(config_hits)}")
+              exit(1)
+          disk_hits = sorted(
+              d for d in os.listdir("skills")
+              if d in rejected and os.path.isfile(os.path.join("skills", d, "SKILL.md"))
+          )
+          if disk_hits:
+              print(f"::warning::Rejected skills present on disk: {', '.join(disk_hits)}")
+
           # Load existing manifest
           manifest_path = ".upstream-manifest.json"
           manifest = {}
@@ -252,6 +269,32 @@ jobs:
                           restored.append(keep)
                   if os.path.isdir(dst + ".sync-backup"):
                       shutil.rmtree(dst + ".sync-backup")
+                  # Re-apply local insertions (per-entry `insert` in
+                  # .upstream.yml): local content that must ride on top of
+                  # synced files (e.g. query-token-audit's usage example).
+                  # Anchor miss or missing snippet fails the sync loudly - a
+                  # silent strip is the outcome this guard exists to prevent.
+                  # Runs before the post-hash no-op check so an idempotent
+                  # re-sync still detects content-unchanged.
+                  inserts = entry.get("insert") or {}
+                  for target_rel, spec in inserts.items():
+                      target_path = os.path.join(dst, target_rel)
+                      snippet_path = os.path.join(dst, spec.get("from", ""))
+                      anchor = spec.get("after", "")
+                      if not os.path.isfile(snippet_path):
+                          print(f"::error::insert snippet missing for {name}: {spec.get('from')}")
+                          exit(1)
+                      with open(target_path, encoding="utf-8") as tf:
+                          body = tf.read()
+                      if not anchor or anchor not in body:
+                          print(f"::error::insert anchor not found in {target_rel} for {name}: {anchor!r}")
+                          exit(1)
+                      with open(snippet_path, encoding="utf-8") as sf:
+                          snippet = sf.read()
+                      body = body.replace(anchor, anchor + snippet, 1)
+                      with open(target_path, "w", encoding="utf-8") as tf:
+                          tf.write(body)
+                      print(f"Inserted local content into {target_rel} for {name}")
                   # Content-level no-op detection: the diff gate above fires on
                   # vendored localizations (preserve/exclude deltas), but if the
                   # resulting tree is byte-identical to what we had, nothing
