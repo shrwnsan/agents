@@ -55,19 +55,17 @@ a bad fork on the target is deleted; the source is never modified.
    ~1,500 core API requests/hour per account. Run in batches (30 is a good
    size), verify each batch landed on the target before starting the next,
    and pause for a human checkpoint between batches.
-   **Secondary rate limit (verified 2026-11-16, 200-fork migration):**
-   fork requests also hit a *secondary* limit—roughly 10 forks per short
-   window—separate from the 5,000/hour core cap. It surfaces as `403`
-   with `Retry-After` (or a "secondary rate limit" message), not as a
-   normal 429. On a secondary-limit 403: sleep for the full `Retry-After`
-   (default ~60s if absent), do not retry immediately, and do not count
-   the call as failed. Once tripped, back off exponentially across
-   retries (60s → 120s → 240s, cap ~10 minutes, give up after ~5). A
-   pacing of one fork per ~10 seconds keeps most batches clear of the
-   trigger entirely; reserve the backoff loop for when it fires. Check
+   **Secondary rate limit:** fork requests also hit a *secondary*
+   limit—roughly 10 forks per short window—separate from the hourly
+   core cap. It surfaces as `403` with `Retry-After` (or a "secondary
+   rate limit" message), never as a 429. On a secondary-limit 403,
+   sleep for the full `Retry-After` (default ~60s if absent), do not
+   retry immediately, and do not count the call as failed. Back off
+   exponentially across retries (60s → 120s → 240s, cap ~10 minutes,
+   give up after ~5). One fork every ~10 seconds keeps most batches
+   clear of the limit; use the backoff loop only when it fires. Read
    every 403's body before reacting—a secondary-limit message is a
-   pacing problem, while "already forked" or permission errors are
-   not.
+   pacing problem; "already forked" and permission errors are not.
 5. **Secrets by reference.** The PAT comes from the configured secret
    source (env var or secrets manager—see config below), fetched at run
    time, never printed, never written to any file this skill creates.
