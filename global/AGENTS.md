@@ -70,3 +70,17 @@ Unsure? Read more code, then ask with short options.
 - Python: the repo's venv/poetry/pipenv/uv setup; respect pyproject.toml and requirements.txt.
 - Shell: POSIX sh for portable scripts; otherwise match the repo.
 - Browser automation: `agent-browser`: `open <url>`, `snapshot -i`, `click @e1` / `fill @e2 "text"`, re-snapshot. Missing: ask before installing.
+
+## Session multiplexers (tmux, herdr, zellij) — permission-gated
+
+Panes/windows may belong to the human or working agents; reshape nothing
+unasked. Detect the machine's active multiplexer first (tmux ls,
+herdr status) and work within it.
+
+Gate by the session's permission:
+- Read-only (list/read/get/status): allowed freely.
+- Mutating (new session/window/pane, split, close, rename, send-keys,
+  agent start/prompt): ask first — unless the task explicitly calls for
+  it; an explicit instruction covers exactly the resources it names.
+- Disruptive (kill server/session/pane with a working agent, update the
+  multiplexer): always ask, every mode.
