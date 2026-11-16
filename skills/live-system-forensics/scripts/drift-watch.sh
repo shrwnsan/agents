@@ -9,7 +9,7 @@
 # (default 30; 0 disables). Other JSONL in the directory, such as app audit
 # receipts, is never pruned. Set in the launchd plist or your env.
 
-STATE_DIR="${HOME}/.cache/live-system-forensics"
+STATE_DIR="${HOME}/.local/share/agent-skills/live-system-forensics/evidence"
 KEEP="${FORENSICS_LOG_KEEP:-30}"
 HOST=$(hostname 2>/dev/null || uname -n)
 TS=$(/bin/date +%Y%m%d-%H%M%S)-$$
@@ -67,9 +67,10 @@ else
 fi
 
 # retention: keep the newest $KEEP snapshots and this host's findings logs.
-# The JSONL glob spells out <hostname>-YYYYMMDD-HHMM.jsonl: app audit receipts
-# (<app>-v<ver>-<date>.jsonl) and the logs of a host whose name starts with
-# this one (<hostname>-2-...) share this directory and must never be pruned.
+# The JSONL glob spells out <hostname>-YYYYMMDD-HHMM.jsonl: legacy app audit
+# receipts (<app>-v<ver>-<date>.jsonl) left in directories migrated from the
+# pre-1.2.0 shared layout, and the logs of a host whose name starts with
+# this one (<hostname>-2-...), share this directory and must never be pruned.
 # Note: ls-then-delete has a small TOCTOU window; harmless for a scheduler-cadence
 # watcher (worst case: a snapshot created mid-prune survives to the next prune).
 if [ "$KEEP" -gt 0 ]; then

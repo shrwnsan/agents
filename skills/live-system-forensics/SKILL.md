@@ -3,7 +3,7 @@ name: live-system-forensics
 license: Apache-2.0
 description: Perform live forensic analysis on Unix systems to detect malware and suspicious activity. Analyzes running processes, network connections, startup persistence (systemd, LaunchAgents, cron), recent files, and IDE extensions. Use when user asks to check for malware, investigate suspicious activity, audit system security, or analyze unknown applications like AI IDEs.
 metadata:
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 
 # Live System Forensics
@@ -17,7 +17,7 @@ metadata:
 5. Examine IDE/AI tool extensions and configurations
 6. Provide findings summary with risk assessment
 
-**Write policy**: recon is read-only; the only sanctioned writes live in `~/.cache/live-system-forensics/` — the JSONL findings log (see Output Format), the dumpstate scratch dump (Phase 3), and, if you install it, the drift watcher's snapshots. The watcher is optional and never installed by the skill itself.
+**Write policy**: recon is read-only; the only sanctioned writes live in `~/.local/share/agent-skills/live-system-forensics/evidence/` — the JSONL findings log (see Output Format), the dumpstate scratch dump (Phase 3), and, if you install it, the drift watcher's snapshots. The watcher is optional and never installed by the skill itself. Evidence is data, not cache: the directory moved out of `~/.cache` so cleanup tools cannot sweep non-re-derivable findings.
 
 **Efficiency note**: Phases 1-3 are independent — run them as parallel tool calls. Note: some Phase 3 checks need `sudo` (system systemd, `sfltool dumpbtm`); if running unprivileged, run those separately and treat "permission denied" on system paths as expected, not suspicious — only permission failures on your own account's files are a finding.
 
@@ -112,7 +112,7 @@ ls -la /Library/LaunchDaemons/
 **macOS - live launchd state (plist files on disk can be stale or missing; check what's actually loaded):**
 ```bash
 launchctl list | awk '$3 !~ /^com\.apple/'
-sudo launchctl dumpstate | grep -v com.apple > ~/.cache/live-system-forensics/launchd-nonapple.txt   # catches agents bootstrapped without a plist on disk; the scratch dump goes in the one sanctioned write location, not /tmp
+sudo launchctl dumpstate | grep -v com.apple > ~/.local/share/agent-skills/live-system-forensics/evidence/launchd-nonapple.txt   # catches agents bootstrapped without a plist on disk; the scratch dump goes in the one sanctioned write location, not /tmp
 sudo sfltool dumpbtm   # Background Task Management DB (Ventura+) — catches items not visible in /Library
 ```
 Limitation: agents injected into a running launchd session via `launchctl bootstrap` without disk artifacts, or with SIP compromised, may evade all of the above — a clean result here is not proof of absence.
@@ -230,9 +230,9 @@ Classify every finding as `allowlisted` / `known-apple` / `unknown`. Only `unkno
 Alongside the prose report, write a JSONL log so consecutive audits can be diffed:
 
 ```bash
-mkdir -p ~/.cache/live-system-forensics
+mkdir -p ~/.local/share/agent-skills/live-system-forensics/evidence
 # one line per finding; clean runs still write the file (zero unknown entries)
-~/.cache/live-system-forensics/$(hostname)-$(date +%Y%m%d-%H%M).jsonl
+~/.local/share/agent-skills/live-system-forensics/evidence/$(hostname)-$(date +%Y%m%d-%H%M).jsonl
 ```
 
 Line schema:
@@ -244,17 +244,17 @@ Include *every* persistence item and unexplained process/destination — not jus
 
 **Drift check** (escalate in the report any unknown item not present last time):
 ```bash
-cd ~/.cache/live-system-forensics && ls -t "$(hostname)"-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9].jsonl | head -2
+cd ~/.local/share/agent-skills/live-system-forensics/evidence && ls -t "$(hostname)"-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9].jsonl | head -2
 diff <(jq -r 'select(.class=="unknown") | .item' <(newest) | sort) \
      <(jq -r 'select(.class=="unknown") | .item' <(previous) | sort)
 ```
 No `jq`? `grep '"class": *"unknown"' <file> | sed 's/.*"item": *"\([^"]*\)".*/\1/' | sort` per file, then `comm -23 newest previous` (lines unique to the newest log, i.e. new unknowns). The patterns are spacing-tolerant, since the schema above writes `"class": "unknown"` with a space.
 
-Diff only this host's findings logs. App audit receipts (`<app>-v<version>-<date>.jsonl`) share the directory and carry no `class` key, so a diff that picks one up prints nothing, which reads as no drift. The glob spells out the full `<hostname>-YYYYMMDD-HHMM.jsonl` name, so it also skips the logs of a host named, say, `<hostname>-2`.
+Diff only this host's findings logs. App audit receipts no longer share this directory: since the 1.2.0 path split they live under `~/.local/share/agent-skills/auditing-agent-harnesses/evidence/<app>/` (see that skill's Phase 4). Directories migrated from the old `~/.cache` location may still hold legacy receipts, which carry no `class` key, so a diff that picks one up prints nothing, which reads as no drift. The glob spells out the full `<hostname>-YYYYMMDD-HHMM.jsonl` name, so it also skips the logs of a host named, say, `<hostname>-2`.
 
 This is the one sanctioned write during recon — everything else stays read-only.
 
-**Retention:** the drift watcher keeps the `FORENSICS_LOG_KEEP` newest of this host's findings logs (default 30) and never prunes other JSONL in the directory, such as app audit receipts (see `reference/SCHEDULED-BASELINE.md` for the opt-in scheduled baseline).
+**Retention:** the drift watcher keeps the `FORENSICS_LOG_KEEP` newest of this host's findings logs (default 30) and never prunes other JSONL in the directory, such as legacy app audit receipts left by a pre-1.2.0 migration (see `reference/SCHEDULED-BASELINE.md` for the opt-in scheduled baseline).
 
 **Scheduled baseline (opt-in):** between full audits, `scripts/drift-watch.sh` can watch persistence drift with zero tokens — see `reference/SCHEDULED-BASELINE.md`. The skill never installs it itself.
 
