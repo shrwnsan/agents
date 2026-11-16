@@ -19,7 +19,7 @@ Unsure? Read more code, then ask with short options.
 - Unexpected changes: another agent or the user made them. Don't revert; stay on task.
 
 ## Files
-- Delete with `trash` (macOS) or `trash-put` (Linux), never `rm -rf`.
+- Delete with `trash` (macOS) or `trash-put` (Linux) - NEVER `rm -rf`. One mistyped path recurses irreversibly; trash is recoverable.
 - Paths in code, docs, and commands: `~` or `$HOME`, never `/Users/<name>` (macOS) or `/home/<name>` (Linux).
 - Edit before creating. Split files past ~500 LOC.
 
