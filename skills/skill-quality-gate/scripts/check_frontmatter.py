@@ -338,6 +338,42 @@ def check_name(root, mapping, findings):
         findings.append(("PASS", "name matches directory basename {!r}".format(base)))
 
 
+# PROVENANCE.md is a dual-purpose format: vendored skills record where the
+# bytes came from (a "**Source:**" / Origin / Upstream header, or prose like
+# "Vendored from ...", "Ported from ...", "Synced from ..."), while native
+# skills use it as a vetting and egress ledger and say so explicitly
+# ("Authored natively for this repo", "Status: native", "Native skill").
+# Classification: an explicit native statement wins, then an external-origin
+# declaration, else unclassified -- and unclassified gets full strictness,
+# the safe default.
+NATIVE_RE = re.compile(
+    r"(?:authored\s+natively|native\s+skill|native\b.*built\s+in\s+this\s+repo|"
+    r"status:\s*\*\*native\*\*|built\s+in\s+this\s+repo)",
+    re.I,
+)
+EXTERNAL_SOURCE_RE = re.compile(
+    r"(?:\*\*(?:Source|Origin|Upstream):?\*\*:?\s*"
+    r"(?!(?:native|authored|local|in-house)\b)\S|"
+    r"\b(?:Vendored|Ported|Synced)\s+from\s+\S)",
+    re.I,
+)
+
+
+def is_vendored(root):
+    """True iff PROVENANCE.md declares an external origin without also
+    declaring the skill native. Only inherited content is WARNable at the
+    1024-char cap; native findings -- with or without a provenance ledger --
+    are ours to fix and stay FAIL."""
+    try:
+        with open(os.path.join(root, "PROVENANCE.md"), encoding="utf-8") as f:
+            text = f.read(4096)
+    except OSError:
+        return False
+    if NATIVE_RE.search(text):
+        return False
+    return EXTERNAL_SOURCE_RE.search(text) is not None
+
+
 def check_description(root, mapping, findings):
     raw = mapping.get("description")
     if isinstance(raw, (list, dict)):
@@ -353,11 +389,11 @@ def check_description(root, mapping, findings):
         # over-long description is inherited from upstream, not authored here.
         # Downgrade to WARN so sync PRs stay green; everything structural
         # (missing name/description, unparseable YAML, ...) still FAILs.
-        if os.path.isfile(os.path.join(root, "PROVENANCE.md")):
+        if is_vendored(root):
             findings.append((
                 "WARN",
                 "description is {} chars (max 1024) -- inherited from upstream "
-                "(PROVENANCE.md present); fix belongs upstream".format(length),
+                "(external Source in PROVENANCE.md); fix belongs upstream".format(length),
             ))
         else:
             findings.append(("FAIL", "description is {} chars (max 1024)".format(length)))
