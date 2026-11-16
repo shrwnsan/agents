@@ -129,6 +129,7 @@ and `references/baseline-results.json`.
 
 ## Versions
 
+- 1.5.0: persistence moves out of `~/.cache` to XDG data home — evidence under `~/.local/share/agent-skills/auditing-agent-harnesses/evidence/<app>/`, plus a harness-neutral open-threads state file (current-state semantics; ledger and receipts stay append-only). Phase 1 now re-enumerates state/data directories on every version jump, and regression receipts require a context sample for every changed needle count.
 - 1.4.0 (#145): coverage ledger, `ledger-check.py` round-close check, coverage-table generator.
 - 1.3.1 (#143): `pipeline_shaped` on every synthetic pipeline row; offline regression tests.
 - 1.3.0 (#132): broadened pipeline gate (any non-pipeline read escalates regardless of confidence), confirm-band class-flip escalation, stricter receipts and input rows.
