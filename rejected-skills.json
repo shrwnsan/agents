@@ -16,6 +16,7 @@
     { "name": "binance-leaderboard", "rejected": "2026-08-28", "source": "https://github.com/binance/binance-skills-hub", "why": "free tier is just rankings lookup" },
     { "name": "p2p", "rejected": "2026-08-28", "source": "https://github.com/binance/binance-skills-hub", "why": "P2P price comparison — niche use case" },
     { "name": "binance-trading-signal", "rejected": "2026-08-28", "source": "https://github.com/binance/binance-skills-hub", "why": "duplicate; web3 variant adopted as trading-signal" },
-    { "name": "find-skills", "rejected": "2026-09-08", "source": "https://github.com/vercel-labs/skills", "why": "meta-skill changes consumer-agent behavior repo-wide (auto-install prompts); capability is the npx CLI, usable ad hoc without embedding 5KB in every agent's prompt" }
+    { "name": "find-skills", "rejected": "2026-09-08", "source": "https://github.com/vercel-labs/skills", "why": "meta-skill changes consumer-agent behavior repo-wide (auto-install prompts); capability is the npx CLI, usable ad hoc without embedding 5KB in every agent's prompt" },
+    { "name": "build-awwwards-quality-sites", "rejected": "2026-11-14", "source": "https://github.com/MengTo/Skills", "why": "end-to-end build skill that re-encodes our design cluster: art direction overlaps frontend-design, GSAP/scroll rules overlap motion-craft, and its honest-asset plus anti-slop rules overlap the no-ai-design-slop pair; assumes upstream sibling skills (Aura.build, named web-design skills) we don't ship" }
   ]
 }

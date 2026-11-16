@@ -42,6 +42,12 @@ skills:
     repo: MengTo/Skills
     path: agent-skills/media/html-reel
     preserve: [PROVENANCE.md, LICENSE]
+  - name: landing-page
+    repo: MengTo/Skills
+    path: agent-skills/web-design/landing-page
+    # demo/ is an upstream sample output, not part of the method (see PROVENANCE.md)
+    preserve: [PROVENANCE.md, LICENSE]
+    exclude: ["demo"]
   - name: herdr
     repo: herdrdev/herdr
     path: skills/herdr
