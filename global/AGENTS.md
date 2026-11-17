@@ -20,6 +20,7 @@ Unsure? Read more code, then ask with short options.
 
 ## Files
 - Delete with `trash` (macOS) or `trash-put` (Linux) - NEVER `rm -rf`. One mistyped path recurses irreversibly; trash is recoverable.
+- Jails (pi-lid/bwrap, `PILID_LANE` set): paths outside `PILID_WORKSPACE` are read-only by design. EROFS there is sandbox shape, not disk failure - check the lane before diagnosing. Mount-option strings (e.g. `errors=remount-ro`) are static config, not evidence an event fired.
 - Paths in code, docs, and commands: `~` or `$HOME`, never `/Users/<name>` (macOS) or `/home/<name>` (Linux).
 - Edit before creating. Split files past ~500 LOC.
 
