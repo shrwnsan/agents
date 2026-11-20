@@ -5,6 +5,10 @@ allowed-tools:
   - Bash(node *)
   - WebSearch
   - WebFetch
+metadata:
+  upstream: shrwnsan/vibekit-claude-plugins (search-plus plugin)
+  upstream_version: "3.5.0"
+  version: "1.0.0"
 ---
 
 # Meta Search
