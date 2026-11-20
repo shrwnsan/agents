@@ -36,6 +36,7 @@ Unsure? Read more code, then ask with short options.
 ## Git
 - Conventional Commits: `type(scope): summary` (feat, fix, refactor, docs, chore, test, ci). Small, reviewable commits.
 - PRs: squash-merge by default — the PR title becomes the commit subject; merge commits only where repo history does.
+- PRs: merge one at a time. Stacked PR: retarget to the real target once the parent lands (`gh pr edit <n> --base main`) before merging. Before deleting a merged branch, verify its head is reachable from the target (`git merge-base --is-ancestor <sha> origin/<target>`); if it fails, the merge landed on the wrong branch — recover from the PR ref instead of deleting.
 - Trailer for the model that wrote the change:
   - Claude: `Co-Authored-By: Claude <noreply@anthropic.com>`
   - GLM: `Co-Authored-By: GLM <zai-org@users.noreply.github.com>`
