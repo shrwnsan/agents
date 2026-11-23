@@ -10,6 +10,7 @@ description: >-
   text doesn't (slide decks, charts, tables, screenshots of documents).
   Triggers on: an x.com/twitter.com status link shared by the user, "what's
   in the attachments", "read the images in this post".
+compatibility: Requires bun and outbound network access to cdn.syndication.twimg.com and pbs.twimg.com. No API keys or login.
 metadata:
   version: "1.0.0"
 ---
@@ -72,9 +73,9 @@ add that the post text lacks?
 - If the fetch fails or the API errors, degrade gracefully: report the post
   text only, note the failure mode, never block the caller on attachment errors
 
-## Vault integration
+## Caller integration
 
-When called from the Sumi drain flow, the deep-read output is appended to the
-item's markdown result (section `## Attachments`), so the vault stores
+When called from an ingestion or vault flow, append the deep-read output to
+the item's markdown result (section `## Attachments`) so the store keeps
 distilled text, never raw images. Raw PNGs stay in the out-dir and are the
 caller's to delete.
