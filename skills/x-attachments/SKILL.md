@@ -10,6 +10,7 @@ description: >-
   text doesn't (slide decks, charts, tables, screenshots of documents).
   Triggers on: an x.com/twitter.com status link shared by the user, "what's
   in the attachments", "read the images in this post".
+license: Apache-2.0
 compatibility: Requires bun and outbound network access to cdn.syndication.twimg.com and pbs.twimg.com. No API keys or login.
 metadata:
   version: "1.0.0"
