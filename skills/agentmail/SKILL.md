@@ -7,6 +7,8 @@ description: >-
   no archive operation) and the probe-safety rules for a live mailbox. Use
   when sending or managing email through AgentMail, debugging a send that
   threaded wrong, or probing the API without side effects.
+license: Apache-2.0
+compatibility: Requires network access to api.agentmail.to and an AgentMail API key supplied by the runtime's credential proxy (or environment). No other dependencies.
 metadata:
   version: "1.0.0"
 ---
