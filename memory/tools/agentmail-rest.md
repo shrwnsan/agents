@@ -1,19 +1,11 @@
 ---
-name: agentmail
-description: >-
-  Operate an AgentMail inbox over its REST API: list and read threads and
-  messages, send and reply, label/archive, delete, mint and scope API keys.
-  Covers the endpoint quirks (send vs reply threading, RFC-2822 message ids,
-  no archive operation) and the probe-safety rules for a live mailbox. Use
-  when sending or managing email through AgentMail, debugging a send that
-  threaded wrong, or probing the API without side effects.
-license: Apache-2.0
-compatibility: Requires network access to api.agentmail.to and an AgentMail API key supplied by the runtime's credential proxy (or environment). No other dependencies.
-metadata:
-  version: "1.0.0"
+type: tool
+title: AgentMail REST
+description: Endpoint quirks and probe-safety rules for api.agentmail.to, verified against the live API
+tags: [email, api, agentmail]
 ---
 
-# AgentMail
+# AgentMail REST
 
 Inbox + API wrapper knowledge for `api.agentmail.to`. Auth is injected by the
 local HTTP proxy—never set an Authorization header yourself; a placeholder
@@ -62,3 +54,12 @@ dry-run flag. To learn a request shape:
 
 A shape learned from existing objects costs nothing; a shape learned by
 sending costs an email.
+
+## Provenance
+
+Original work, first version 2026-11-24. Every quirk verified live against
+api.agentmail.to during Oct–Nov 2026 inbox operations (thread-split behavior,
+404 on the thread-level reply route, mint-time key scoping, no archive op).
+The probe-safety rules were added after a live mis-send on 2026-11-24: a probe
+of the reply endpoint delivered its literal probe text. The rule is learn
+shapes from existing objects, never from live side-effecting calls.
