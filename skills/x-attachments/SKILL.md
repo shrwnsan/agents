@@ -76,7 +76,7 @@ add that the post text lacks?
 
 ## Caller integration
 
-When called from an ingestion or vault flow, append the deep-read output to
+When called from an ingestion or capture-store flow, append the deep-read output to
 the item's markdown result (section `## Attachments`) so the store keeps
 distilled text, never raw images. Raw PNGs stay in the out-dir and are the
 caller's to delete.
