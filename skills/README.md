@@ -64,4 +64,6 @@ A GitHub Actions workflow syncs skills from vibekit automatically. Other upstrea
 2. **Name the gap.** The skill must not duplicate one already in the table. If it replaces one, remove the old skill in the same commit.
 3. **Vendor and pin.** Copy third-party skills at a recorded commit, linked from the Source column, and never track a moving branch. Bumping a pinned ref repeats the full vetting pass. A PROVENANCE.md with the pinned commit and license accompanies every third-party skill. Skills synced from repos under shrwnsan's ownership (for example vibekit) are treated as first-party: no PROVENANCE.md required, and the quality gate stays at full strictness — fixes land in the owning repo and re-sync in minutes.
 
+**Procedure or reference?** Skills are procedures an agent executes on request. Durable facts about an external system (endpoint quirks, verified behavior, probe-safety rules) belong in the [memory/](../memory/index.md) bundle instead — they are consulted during work, not invoked, and a trigger-eligible skill would collide with any other skill matching the same intent.
+
 Record rejected candidates in [rejected-skills.json](../rejected-skills.json) at the time of the decision. It holds rejections only, because the table above is the record of what got in.

@@ -14,6 +14,10 @@ Each skill is a self-contained package: a `SKILL.md` instruction file plus optio
 
 A GitHub Actions workflow syncs skills from vibekit automatically. Other upstream skills sync when someone runs [sync-upstream](.github/workflows/sync-upstream.yml) by hand, using the sources in [.upstream.yml](.upstream.yml).
 
+## Memory
+
+[memory/](memory/index.md) is an [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md) v0.1 bundle: durable, operation-verified reference about external services (currently [AgentMail REST](memory/tools/agentmail-rest.md)). It is deliberately not a skill — nothing auto-loads it, so it cannot collide with skill triggers; an agent working in a covered area should read the relevant concept first. Start at [memory/index.md](memory/index.md).
+
 ## Usage
 
 Copy skills into your agent's skills directory:
