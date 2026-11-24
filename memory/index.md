@@ -1,7 +1,7 @@
 # Memory Index
 
 Tool-operation knowledge for agents working in this repo, in Open Knowledge
-Format (OKF) v0.1 ([spec](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)).
+Format (OKF) v0.2 ([spec](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)).
 One Markdown concept per file with a `type` frontmatter line; `index.md` (this
 file) and `system/definition.md` are the reserved entry points.
 

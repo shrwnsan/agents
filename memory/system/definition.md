@@ -10,7 +10,7 @@ service instead of rediscovering quirks by trial and error.
 
 Conventions:
 
-- OKF v0.1: one Markdown concept per file, opened by YAML frontmatter whose
+- OKF v0.2: one Markdown concept per file, opened by YAML frontmatter whose
   first field is `type` (e.g. `tool`). `index.md` and this file are exempt.
 - Optional frontmatter fields: `title`, `description`, `tags`.
 - Every claim in `tools/` files should be verified against the live service
