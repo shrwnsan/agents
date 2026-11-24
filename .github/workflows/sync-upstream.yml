@@ -44,6 +44,98 @@ jobs:
           import yaml, json, subprocess, os, shutil
           from datetime import datetime, timezone
 
+          def frontmatter_lines(content):
+              """Return (fm_lines, body_start_index) for a `---`-fenced
+              frontmatter, or ([], None) when there is none."""
+              if not content.startswith("---\n"):
+                  return [], None
+              try:
+                  end = content.index("\n---\n", 4)
+              except ValueError:
+                  return [], None
+              fm = content[4:end].split("\n")
+              return fm, end + len("\n---\n")
+
+          def extract_frontmatter_block(path, key):
+              """Parse the `key:` block from a file's frontmatter into a flat
+              key -> string-value dict (scalar leaves only, nested maps and
+              lists are unsupported; hub metadata stamps are scalars).
+              Returns {} when the file or block is absent."""
+              if not os.path.isfile(path):
+                  return {}
+              with open(path, encoding="utf-8") as f:
+                  fm, _ = frontmatter_lines(f.read())
+              values = {}
+              in_block = False
+              block_indent = None
+              for line in fm:
+                  if not in_block:
+                      if line.rstrip() == f"{key}:":
+                          in_block = True
+                          block_indent = None
+                      continue
+                  stripped = line.strip()
+                  if not stripped or stripped.startswith("#"):
+                      continue
+                  indent = len(line) - len(line.lstrip(" "))
+                  if block_indent is None:
+                      if indent == 0:
+                          break  # next top-level key
+                      block_indent = indent
+                  if indent != block_indent:
+                      break
+                  if ":" not in stripped:
+                      break
+                  k, _, v = stripped.partition(":")
+                  v = v.strip().strip('"').strip("'")
+                  if not v:
+                      break  # nested map/list: stop at the block boundary
+                  values[k.strip()] = v
+              return values
+
+          def format_block(key, values):
+              import re as _re
+              lines = [f"{key}:"]
+              for k, v in values.items():
+                  v = str(v)
+                  # quote anything YAML could misread as a number/bool/null
+                  # or that contains flow indicators
+                  if (_re.match(r"^-?[\d.]+$", v)
+                          or _re.match(r"^(true|false|null|yes|no|on|off)$", v, _re.I)
+                          or any(c in v for c in ":#{}[],&*!|>%@`")
+                          or v != v.strip()):
+                      v = f'"{v}"'
+                  lines.append(f"  {k}: {v}")
+              return lines
+
+          def replace_frontmatter_block(content, key, values):
+              fm, start = frontmatter_lines(content)
+              new_lines = format_block(key, values)
+              out = []
+              i = 0
+              while i < len(fm):
+                  line = fm[i]
+                  if line.rstrip() == f"{key}:":
+                      out.extend(new_lines)
+                      i += 1
+                      # drop the old block's own lines (indent > 0)
+                      while i < len(fm):
+                          nxt = fm[i]
+                          ind = len(nxt) - len(nxt.lstrip(" "))
+                          if ind == 0:
+                              break
+                          i += 1
+                  else:
+                      out.append(line)
+                      i += 1
+              return "---\n" + "\n".join(out) + "\n---\n" + content[start:]
+
+          def insert_frontmatter_block(content, key, values):
+              _, start = frontmatter_lines(content)
+              new_lines = format_block(key, values)
+              fm, _ = frontmatter_lines(content)
+              return "---\n" + "\n".join(fm + new_lines) + "\n---\n" + content[start:]
+
           # Scheduled runs have no dispatch input: empty string means "all".
           target_filter = os.environ.get("TARGET_FILTER") or "all"
 
@@ -235,6 +327,10 @@ jobs:
                   #             (e.g. PROVENANCE.md)
                   kept_files = {}
                   pre_hashes = {}
+                  hub_metadata = {}
+                  skill_md = os.path.join(dst, "SKILL.md")
+                  if os.path.isfile(skill_md):
+                      hub_metadata = extract_frontmatter_block(skill_md, "metadata")
                   if os.path.isdir(dst):
                       for root, dirs, files in os.walk(dst):
                           dirs[:] = [d for d in dirs if d != ".sync-backup"]
@@ -295,6 +391,36 @@ jobs:
                       with open(target_path, "w", encoding="utf-8") as tf:
                           tf.write(body)
                       print(f"Inserted local content into {target_rel} for {name}")
+                  # Re-apply the hub-local `metadata:` frontmatter block to
+                  # SKILL.md. Upstream owns everything else in the file; the
+                  # metadata map (version, provenance stamps) is hub-local per
+                  # docs/ref-001-skill-frontmatter.md. A missing frontmatter
+                  # close fails the sync loudly - a silent strip is the
+                  # outcome this guard exists to prevent.
+                  if hub_metadata:
+                      skill_md = os.path.join(dst, "SKILL.md")
+                      if not os.path.isfile(skill_md):
+                          print(f"::error::metadata restore failed for {name}: SKILL.md missing after sync")
+                          exit(1)
+                      raw = ""
+                      with open(skill_md, encoding="utf-8") as tf:
+                          raw = tf.read()
+                      if not raw.startswith("---\n"):
+                          print(f"::error::metadata restore failed for {name}: synced SKILL.md has no frontmatter")
+                          exit(1)
+                      upstream_meta = extract_frontmatter_block(skill_md, "metadata")
+                      merged = dict(upstream_meta)
+                      for k, v in hub_metadata.items():
+                          if k not in merged:
+                              merged[k] = v
+                      if merged != upstream_meta:
+                          if upstream_meta:
+                              content = replace_frontmatter_block(raw, "metadata", merged)
+                          else:
+                              content = insert_frontmatter_block(raw, "metadata", merged)
+                          with open(skill_md, "w", encoding="utf-8") as tf:
+                              tf.write(content)
+                          print(f"Restored hub metadata keys {sorted(set(merged) - set(upstream_meta))} into SKILL.md for {name}")
                   # Content-level no-op detection: the diff gate above fires on
                   # vendored localizations (preserve/exclude deltas), but if the
                   # resulting tree is byte-identical to what we had, nothing
