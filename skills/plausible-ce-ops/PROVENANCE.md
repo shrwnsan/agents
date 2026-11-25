@@ -11,6 +11,12 @@
 - Platform referrer-behavior notes are operational observations from real
   traffic, not vendor documentation; treat the Instagram and Threads rows as
   empirically stable, not contractual.
+- Goal/props/BASE_URL findings verified live on a CE v3.2.1 stack
+  (2026-11-26): `bin/plausible rpc` checks against the running release, the
+  `custom_props` null crash reproduced and reverted on the goals table,
+  ClickHouse mirrors of the prop-key suggestions query, and a websocket
+  handshake probe distinguishing origin rejection (403 Cowboy) from
+  transport success (101).
 - Egress disclosure: connects only to the configured ClickHouse HTTP endpoint
   (or, if a human runs the Stats API fallback, the Plausible app host).
   Read-only: the bundled script refuses any non-SELECT statement. Credential
