@@ -4,8 +4,8 @@ license: Apache-2.0
 compatibility: "Requires python3 (urllib only, no dependencies) and network access to the Plausible CE stack's ClickHouse HTTP port (default 8123). Read-only: the skill never inserts, deletes, or mutates analytics data."
 metadata:
   author: shrwnsan
-  version: "1.0.0"
-description: "Operate and debug self-hosted Plausible Community Edition: verify tracking is landing, break down traffic sources and referrers via ClickHouse, check ingestion health, and diagnose dashboard/script reachability. Use when the user mentions Plausible,CE,self-hosted analytics, missing events, referrer attribution, or events_v2 queries."
+  version: "1.1.0"
+description: "Operate and debug self-hosted Plausible Community Edition: verify tracking is landing, break down traffic sources and referrers via ClickHouse, check ingestion health, diagnose dashboard/script reachability, and debug goal custom properties. Use when the user mentions Plausible,CE,self-hosted analytics, missing events, referrer attribution, events_v2 queries, goal properties, or custom properties."
 ---
 
 # Plausible CE Ops
@@ -77,6 +77,23 @@ Work outward from the write path:
    dashboard hostname.
 4. **Wrong table?** v2-era stacks write `events`; v3 stacks write `events_v2`.
    Query the populated one — see quirks.
+5. **Browser automation "verifies" nothing?** The tracker drops sessions with
+   `navigator.webdriver` set, so headless checks always land zero events. Send
+   a curl beacon to `/api/event` instead — see quirks.
+
+## Goals and custom properties
+
+Goal rows live in Postgres (database and role are both `plausible`); events
+live in ClickHouse. A goal card's property breakdown needs two independent
+things at once: events in the queried range that carry the prop (the
+dashboard discovers keys with `SELECT DISTINCT meta.key` over `events_v2`),
+and a props allowlist on the site (`sites.allowed_event_props` non-empty; a
+`nil` list shows a "Set up props" call to action instead of the breakdown).
+Allowlist changes affect query visibility only, never ingestion.
+Goal-filtered endpoints return 500 when `goals.custom_props` holds a `null`
+value: those values bind as SQL parameters. Live Elixir checks run with
+`bin/plausible rpc` (`eval` does not start the repo). Container names, the
+crash signature, and the websocket origin check: see quirks.
 
 ## Referrer attribution reading
 
