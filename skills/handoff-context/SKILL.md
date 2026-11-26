@@ -25,8 +25,6 @@ allowed-tools:
   - Read(/tmp/handoff-*)
   - Write(/tmp/claude/handoff-*)
   - Write(/tmp/handoff-*)
-metadata:
-  version: "1.0.0"
 ---
 
 # Handoff Context
