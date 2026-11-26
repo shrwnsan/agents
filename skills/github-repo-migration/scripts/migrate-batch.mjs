@@ -91,17 +91,46 @@ const headers = {
   'User-Agent': 'github-repo-migration',
 };
 const gh = (path, opts = {}) => fetch(api + path, { ...opts, headers: { ...headers, ...(opts.headers || {}) } });
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 // identity gate: confirm we are the target account before any fork call
 const me = await gh('/user');
 const meLogin = (await me.json()).login;
 if (meLogin !== target) fail(`token authenticates as "${meLogin}", expected "${target}"—refusing to fork (SKILL.md rule 2)`);
 
+// preflight mode: verify the plan without forking. For each parent, resolve the
+// upstream repo, the would-be destination, and any existing fork collision.
+const preflight = process.argv.includes('--preflight');
+if (preflight) {
+  console.log(`preflight: authenticated as "${meLogin}" (target "${target}")—identity OK`);
+  const plan = [];
+  for (const p of parents) {
+    await sleep(throttleMs);
+    const upstream = await (await gh(`/repos/${p}`)).json().catch(() => ({}));
+    if (!upstream.full_name) { plan.push({ parent: p, ok: false, reason: 'upstream not found/private' }); continue; }
+    const existing = await (await gh(`/repos/${target}/${upstream.name}`)).json().catch(() => ({}));
+    plan.push({
+      parent: p,
+      ok: true,
+      upstream_default_branch: upstream.default_branch,
+      destination: `${target}/${upstream.name}`,
+      collision: existing.full_name ? `fork already exists at ${existing.full_name} (parent: ${existing.parent ? existing.parent.full_name : '?'})` : null,
+    });
+  }
+  for (const r of plan) {
+    if (!r.ok) { console.log(`ERR ${r.parent}—${r.reason}`); continue; }
+    console.log(`OK  ${r.parent} -> ${r.destination} (default: ${r.upstream_default_branch})${r.collision ? ' | ' + r.collision : ''}`);
+  }
+  const bad = plan.filter(r => !r.ok).length;
+  console.log(`preflight ${plan.length - bad}/${plan.length} resolvable; no forks created`);
+  if (bad) process.exit(1);
+  process.exit(0);
+}
+
 // load state
 let state = { batches: [] };
 if (existsSync(stateFile)) { try { state = JSON.parse(readFileSync(stateFile, 'utf8')); } catch {} }
 
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 const results = [];
 for (const p of parents) {
   const [owner, repo] = p.split('/');
